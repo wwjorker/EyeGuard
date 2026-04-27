@@ -1,0 +1,350 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --eg-bg: #09090b;
+  --eg-card: #18181b;
+  --eg-hover: #27272a;
+  --eg-line: rgba(255, 255, 255, 0.06);
+  --eg-frame: rgba(255, 255, 255, 0.04);
+  --eg-text: #fafafa;
+  --eg-muted: rgba(255, 255, 255, 0.25);
+  --eg-faint: rgba(255, 255, 255, 0.15);
+  --eg-green: #34d399;
+  --eg-purple: #6366f1;
+  --eg-amber: #f59e0b;
+  --eg-pink: #ec4899;
+  --eg-track: rgba(255, 255, 255, 0.05);
+}
+
+:root.light {
+  --eg-bg: #fafaf9;
+  --eg-card: #ffffff;
+  --eg-hover: #f1f1ef;
+  --eg-line: #e7e5e4;
+  --eg-frame: rgba(0, 0, 0, 0.06);
+  --eg-text: #09090b;
+  --eg-muted: #a1a1aa;
+  --eg-faint: rgba(0, 0, 0, 0.18);
+  --eg-green: #059669;
+  --eg-purple: #4f46e5;
+  --eg-amber: #d97706;
+  --eg-pink: #db2777;
+  --eg-track: rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--eg-bg);
+  color: var(--eg-text);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Hero timer gradient text */
+.hero-timer {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  background: linear-gradient(180deg, var(--eg-text) 40%, color-mix(in srgb, var(--eg-text) 40%, transparent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  transition: opacity 300ms ease, filter 600ms ease;
+}
+
+.hero-timer.paused {
+  opacity: 0.3;
+}
+
+.hero-timer.warning {
+  background: linear-gradient(180deg, var(--eg-amber) 40%, color-mix(in srgb, var(--eg-amber) 40%, transparent));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Break overlay massive countdown */
+.break-countdown {
+  font-size: 80px;
+  font-weight: 200;
+  letter-spacing: -2px;
+  line-height: 1;
+  background: linear-gradient(180deg, #fff 40%, rgba(255, 255, 255, 0.4));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.break-countdown .colon {
+  color: rgba(52, 211, 153, 0.6);
+  -webkit-text-fill-color: rgba(52, 211, 153, 0.6);
+}
+
+/* Brand label */
+.brand {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--eg-faint);
+}
+
+.tag-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--eg-muted);
+}
+
+.ring-label {
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--eg-muted);
+}
+
+.metric-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--eg-line), transparent);
+  flex: 1;
+}
+
+/* Status badge */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: lowercase;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  color: var(--eg-green);
+  transition: all 250ms ease;
+}
+
+.badge-pill .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--eg-green);
+  box-shadow: 0 0 8px var(--eg-green);
+}
+
+.badge-pill.paused {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--eg-muted);
+}
+
+.badge-pill.paused .dot {
+  background: var(--eg-muted);
+  box-shadow: none;
+}
+
+.badge-pill.break {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--eg-purple);
+}
+
+.badge-pill.break .dot {
+  background: var(--eg-purple);
+  box-shadow: 0 0 8px var(--eg-purple);
+}
+
+/* Frame */
+.app-frame {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid var(--eg-frame);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--eg-green);
+  color: #09090b;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: transform 150ms ease, filter 150ms ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--eg-text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: scale(1.02);
+}
+
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+
+/* Tabs */
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+  color: var(--eg-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.tab-btn:hover {
+  color: var(--eg-text);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tab-btn.active {
+  color: var(--eg-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Page transition */
+.page-enter {
+  animation: pageEnter 200ms ease;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Toast */
+@keyframes toast-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: toast-in 300ms ease-out forwards;
+}
+
+.toast-exit {
+  animation: toast-out 200ms ease-in forwards;
+}
+
+/* Break overlay fade */
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.overlay-enter {
+  animation: overlay-fade 500ms ease forwards;
+}
+
+/* Track orbit */
+@keyframes orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.orbit-rotor {
+  animation: orbit 8s linear infinite;
+  transform-origin: center;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

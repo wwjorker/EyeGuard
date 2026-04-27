@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0c"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <!-- four quarter arcs forming an eye-like ring -->
+  <g fill="none" stroke-width="14" stroke-linecap="round" transform="translate(128 128)">
+    <path d="M -72 0 A 72 72 0 0 1 0 -72" stroke="#34D399"/>
+    <path d="M 0 -72 A 72 72 0 0 1 72 0" stroke="#6366F1"/>
+    <path d="M 72 0 A 72 72 0 0 1 0 72" stroke="#F59E0B"/>
+    <path d="M 0 72 A 72 72 0 0 1 -72 0" stroke="#EC4899"/>
+  </g>
+  <circle cx="128" cy="128" r="14" fill="#FAFAFA"/>
+</svg>
