@@ -1,43 +1,49 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTimerStore, formatMMSS } from "../stores/timerStore";
-
-const EXERCISES = [
-  "Look 20 feet away — for 20 seconds.",
-  "Slowly roll your eyes clockwise, then counter-clockwise.",
-  "Squeeze your eyes shut firmly, then open wide.",
-  "Blink rapidly for 10 seconds to refresh your tear film.",
-  "Trace a slow figure-8 with your gaze.",
-];
+import { EyeExercise } from "./EyeExercise";
+import { useSettingsStore } from "../stores/settingsStore";
+import { useFollowupStore } from "../stores/followupStore";
 
 export function BreakOverlay() {
   const state = useTimerStore((s) => s.state);
   const remaining = useTimerStore((s) => s.remainingSec);
   const breakDuration = useTimerStore((s) => s.breakDurationSec);
+  const longBreakSec = useTimerStore((s) => s.longBreakSec);
+  const breakKind = useTimerStore((s) => s.currentBreakKind);
+  const completedBreaks = useTimerStore((s) => s.completedBreaks);
   const endBreak = useTimerStore((s) => s.endBreak);
 
-  const [exercise, setExercise] = useState(EXERCISES[0]);
-  useEffect(() => {
-    if (state === "break") {
-      setExercise(EXERCISES[Math.floor(Math.random() * EXERCISES.length)]);
-    }
-  }, [state]);
+  const strictMode = useSettingsStore((s) => s.strictMode);
+  const drinkReminder = useSettingsStore((s) => s.drinkReminder);
+  const postureReminder = useSettingsStore((s) => s.postureReminder);
+  const queueFollowup = useFollowupStore((s) => s.queue);
 
-  // Auto-end when countdown finishes.
-  useEffect(() => {
-    if (state === "break" && remaining <= 0) {
-      endBreak(false);
-    }
-  }, [state, remaining, endBreak]);
+  const totalDuration = breakKind === "long" ? longBreakSec : breakDuration;
+  const exerciseSeed = useMemo(() => Math.floor(Math.random() * 1000), [completedBreaks, state]);
 
-  const display = useMemo(() => formatMMSS(remaining), [remaining]);
-  const progress = breakDuration > 0 ? 1 - remaining / breakDuration : 0;
+  // When the countdown hits zero, finish the break and queue follow-up nudges.
+  useEffect(() => {
+    if (state !== "break" || remaining > 0) return;
+    endBreak(false);
+    if (drinkReminder && Math.random() < 0.5) {
+      queueFollowup({ kind: "drink", title: "Hydrate", body: "Grab a sip of water — your eyes will thank you." });
+    }
+    if (postureReminder && (completedBreaks + 1) % 3 === 0) {
+      queueFollowup({
+        kind: "posture",
+        title: "Check your posture",
+        body: "Sit tall, drop your shoulders, and adjust your screen distance.",
+      });
+    }
+  }, [state, remaining, endBreak, drinkReminder, postureReminder, completedBreaks, queueFollowup]);
 
   if (state !== "break") return null;
 
-  // SVG ring sizing
+  const progress = totalDuration > 0 ? 1 - remaining / totalDuration : 0;
   const SIZE = 320;
   const R = 150;
   const C = 2 * Math.PI * R;
+  const display = formatMMSS(remaining);
 
   return (
     <div className="fixed inset-0 z-50 overlay-enter" role="dialog" aria-label="break">
@@ -50,22 +56,13 @@ export function BreakOverlay() {
         }}
       />
       <div className="relative w-full h-full flex flex-col items-center justify-center text-white">
-        <div className="brand mb-6" style={{ color: "rgba(255,255,255,0.18)" }}>
-          eyeguard
+        <div className="brand mb-3" style={{ color: "rgba(255,255,255,0.18)" }}>
+          eyeguard · {breakKind === "long" ? "long break" : breakKind === "short" ? "short break" : "rest"}
         </div>
 
         <div className="relative" style={{ width: SIZE, height: SIZE }}>
           <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0">
-            {/* faint orbit */}
-            <circle
-              cx={SIZE / 2}
-              cy={SIZE / 2}
-              r={R}
-              fill="none"
-              stroke="rgba(255,255,255,0.03)"
-              strokeWidth="1"
-            />
-            {/* progress arc */}
+            <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
             <circle
               cx={SIZE / 2}
               cy={SIZE / 2}
@@ -80,12 +77,7 @@ export function BreakOverlay() {
               style={{ transition: "stroke-dashoffset 1s linear" }}
             />
           </svg>
-
-          {/* rotating photon */}
-          <div
-            className="absolute orbit-rotor"
-            style={{ inset: 0 }}
-          >
+          <div className="absolute orbit-rotor" style={{ inset: 0 }}>
             <span
               className="absolute"
               style={{
@@ -101,8 +93,6 @@ export function BreakOverlay() {
               }}
             />
           </div>
-
-          {/* countdown */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="break-countdown">
               {display.split(":").map((part, idx) => (
@@ -115,24 +105,19 @@ export function BreakOverlay() {
           </div>
         </div>
 
-        <p
-          className="mt-10 max-w-md text-center"
-          style={{
-            fontSize: 13,
-            letterSpacing: 0.5,
-            color: "rgba(255,255,255,0.45)",
-          }}
-        >
-          {exercise}
-        </p>
+        <div className="mt-10 max-w-md">
+          <EyeExercise seed={exerciseSeed} />
+        </div>
 
-        <button
-          className="btn-ghost mt-12"
-          style={{ color: "rgba(255,255,255,0.7)" }}
-          onClick={() => endBreak(true)}
-        >
-          skip
-        </button>
+        {!strictMode && (
+          <button
+            className="btn-ghost mt-12"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+            onClick={() => endBreak(true)}
+          >
+            skip
+          </button>
+        )}
       </div>
     </div>
   );

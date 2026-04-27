@@ -1,0 +1,156 @@
+{
+  "brand": "eyeguard",
+  "nav": {
+    "timer": "计时",
+    "stats": "统计",
+    "pomodoro": "番茄钟",
+    "settings": "设置"
+  },
+  "status": {
+    "active": "进行中",
+    "paused": "已暂停",
+    "break": "休息中",
+    "idle": "已离开"
+  },
+  "timer": {
+    "minutesRemaining": "minutes remaining",
+    "lessThanMinute": "less than a minute",
+    "restInProgress": "rest in progress",
+    "pausedHint": "paused — move to resume",
+    "awayHint": "you're away",
+    "pause": "暂停",
+    "resume": "继续",
+    "breakNow": "立即休息"
+  },
+  "rings": {
+    "screen": "screen",
+    "breaks": "breaks",
+    "score": "score",
+    "streak": "streak"
+  },
+  "alerts": {
+    "title": "该让眼睛休息了",
+    "body": "你已经连续工作了 {{streak}}，让眼睛喘口气吧。",
+    "later": "稍后",
+    "startBreak": "开始休息"
+  },
+  "exercises": {
+    "lookAway": {
+      "title": "Look 20 feet away",
+      "description": "Pick a distant object — soften your gaze for 20 seconds."
+    },
+    "rolls": {
+      "title": "Eye rolls",
+      "description": "Roll your eyes slowly clockwise, then counter-clockwise."
+    },
+    "squeeze": {
+      "title": "Squeeze & release",
+      "description": "Close your eyes firmly for 3 seconds, then open wide."
+    },
+    "blink": {
+      "title": "Refresh blinks",
+      "description": "Blink rapidly for 10 seconds to refresh tear film."
+    },
+    "figure8": {
+      "title": "Figure-eight",
+      "description": "Trace a slow figure-8 with your gaze."
+    }
+  },
+  "settings": {
+    "groups": {
+      "timing": "计时",
+      "alerts": "提醒",
+      "sound": "音效",
+      "smartSnooze": "智能延期",
+      "health": "健康",
+      "privacy": "隐私",
+      "dnd": "勿扰",
+      "appearance": "界面",
+      "system": "系统"
+    },
+    "rows": {
+      "workInterval": "工作间隔",
+      "workIntervalHint": "两次休息之间的时长",
+      "breakDuration": "休息时长",
+      "breakDurationHint": "每次休息的长度",
+      "idleThreshold": "闲置阈值",
+      "idleThresholdHint": "离开多久后暂停",
+      "alertLevel": "提醒等级",
+      "alertLevelHint": "轻 · 中 · 强",
+      "strictMode": "严格模式",
+      "strictModeHint": "强提醒不可跳过",
+      "soundEffects": "提醒声音",
+      "volume": "音量",
+      "smartSnooze": "全屏自动延期",
+      "smartSnoozeHint": "检测到游戏 / 视频时静默推迟",
+      "snoozeDur": "单次延期时长",
+      "snoozeMax": "最大连续延期次数",
+      "drink": "饮水提醒",
+      "posture": "姿势提醒",
+      "footprint": "应用足迹追踪",
+      "footprintHint": "记录每个应用的使用时长",
+      "retention": "数据保留",
+      "purge": "清除全部数据",
+      "purgeHint": "删除应用足迹和休息历史",
+      "theme": "主题",
+      "language": "语言",
+      "autostart": "开机自启",
+      "exportJson": "导出 JSON",
+      "exportCsv": "导出 CSV"
+    },
+    "actions": {
+      "purge": "清除"
+    },
+    "themeOptions": {
+      "dark": "深色",
+      "light": "浅色",
+      "system": "跟随系统"
+    },
+    "langOptions": {
+      "zh": "中文",
+      "en": "English"
+    }
+  },
+  "stats": {
+    "screenToday": "今日屏幕",
+    "breaksDone": "已完成休息",
+    "breaksSkipped": "跳过的休息",
+    "longestStreak": "最长连续",
+    "weekVsLast": "本周 vs 上周",
+    "appDistribution": "应用分布",
+    "last7Days": "最近 7 天",
+    "noAppData": "还没有应用数据 — 继续工作吧",
+    "noChartData": "最近 7 天的数据将显示在这里",
+    "other": "其他"
+  },
+  "pomodoro": {
+    "title": "番茄钟模式",
+    "hintOff": "用专注循环替换自由计时",
+    "hintOn": "第 {{count}} 个循环 · 每 {{interval}} 个长休息一次",
+    "cycles": "循环",
+    "nextBreak": "下次休息",
+    "nextLong": "long",
+    "nextShort": "short",
+    "cadence": "节奏",
+    "groupCadence": "节奏",
+    "rowWork": "工作时长",
+    "rowShort": "短休息",
+    "rowLong": "长休息",
+    "rowInterval": "长休息间隔",
+    "intervalHint": "工作完成多少次之后"
+  },
+  "follow": {
+    "drinkTitle": "喝点水",
+    "drinkBody": "来一口水 — 你的眼睛会感激你的。",
+    "postureTitle": "调整一下姿势",
+    "postureBody": "坐直，放松双肩，调整屏幕距离。",
+    "gotIt": "好的"
+  },
+  "skip": "跳过",
+  "common": {
+    "add": "添加",
+    "detect": "检测",
+    "noWhitelist": "尚未添加白名单应用",
+    "dndHint": "白名单中的应用在前台时 EyeGuard 不弹提醒（仍记录用眼时间）。"
+  }
+}

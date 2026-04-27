@@ -79,6 +79,18 @@ button {
   background: linear-gradient(180deg, var(--eg-amber) 40%, color-mix(in srgb, var(--eg-amber) 40%, transparent));
   -webkit-background-clip: text;
   background-clip: text;
+  animation: warningPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.35)); }
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--eg-green) 60%, transparent);
+  outline-offset: 2px;
 }
 
 /* Break overlay massive countdown */
@@ -328,6 +340,144 @@ button {
 .orbit-rotor {
   animation: orbit 8s linear infinite;
   transform-origin: center;
+}
+
+/* Slider */
+.eg-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--eg-green) 0,
+    var(--eg-green) var(--pct, 0%),
+    var(--eg-hover) var(--pct, 0%),
+    var(--eg-hover) 100%
+  );
+  border-radius: 2px;
+  outline: none;
+  transition: filter 150ms ease;
+}
+
+.eg-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--eg-green);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.eg-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+/* Switch */
+.eg-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #3f3f46;
+  border: none;
+  cursor: pointer;
+  transition: background 200ms ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.eg-switch[data-checked="true"] {
+  background: var(--eg-green);
+}
+
+.eg-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fafafa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: transform 200ms ease;
+}
+
+.eg-switch[data-checked="true"] .eg-switch-thumb {
+  transform: translateX(16px);
+}
+
+/* Inputs */
+.eg-input {
+  background: var(--eg-bg);
+  border: 1px solid var(--eg-line);
+  color: var(--eg-text);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.eg-input:focus {
+  border-color: var(--eg-green);
+}
+
+/* Segmented */
+.eg-segmented {
+  display: inline-flex;
+  background: var(--eg-bg);
+  border: 1px solid var(--eg-line);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.eg-segmented button {
+  background: transparent;
+  border: none;
+  color: var(--eg-muted);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-transform: lowercase;
+}
+
+.eg-segmented button[aria-selected="true"] {
+  background: var(--eg-hover);
+  color: var(--eg-text);
+}
+
+.eg-segmented button:hover:not([aria-selected="true"]) {
+  color: var(--eg-text);
+}
+
+/* Toast */
+.toast-card {
+  background: var(--eg-card);
+  border: 1px solid var(--eg-line);
+  border-radius: 16px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  min-width: 280px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.toast-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--eg-green);
 }
 
 /* Scrollbar */

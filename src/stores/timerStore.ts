@@ -1,48 +1,78 @@
 import { create } from "zustand";
 
 export type TimerState = "active" | "paused" | "break" | "idle";
+export type TimerMode = "free" | "pomodoro";
+export type BreakKind = "short" | "long" | "free";
 
 export interface TimerSnapshot {
+  mode: TimerMode;
   state: TimerState;
   remainingSec: number;
   workIntervalSec: number;
   breakDurationSec: number;
+  longBreakSec: number;
+  longBreakInterval: number;
+  pomodoroCount: number;     // completed work sessions in current cycle
+  currentBreakKind: BreakKind;
   completedBreaks: number;
   skippedBreaks: number;
   longestStreakSec: number;
   currentStreakSec: number;
   todayScreenSec: number;
   healthScore: number;
+  snoozeUsed: number;        // consecutive snoozes since last break
 }
 
 interface TimerStore extends TimerSnapshot {
   setState: (state: TimerState) => void;
+  setMode: (mode: TimerMode) => void;
   tick: () => void;
-  startBreak: () => void;
+  startBreak: (kind?: BreakKind) => void;
   endBreak: (skipped: boolean) => void;
   resetCycle: () => void;
   setWorkInterval: (sec: number) => void;
   setBreakDuration: (sec: number) => void;
+  setLongBreak: (sec: number) => void;
+  setLongBreakInterval: (n: number) => void;
   bumpStreak: (deltaSec: number) => void;
   resetStreak: () => void;
+  noteSnooze: () => void;
+  resetSnooze: () => void;
 }
 
 const DEFAULT_WORK_SEC = 20 * 60;
 const DEFAULT_BREAK_SEC = 20;
+const DEFAULT_LONG_BREAK_SEC = 15 * 60;
+const DEFAULT_LONG_INTERVAL = 4;
 
 export const useTimerStore = create<TimerStore>((set, get) => ({
+  mode: "free",
   state: "active",
   remainingSec: DEFAULT_WORK_SEC,
   workIntervalSec: DEFAULT_WORK_SEC,
   breakDurationSec: DEFAULT_BREAK_SEC,
+  longBreakSec: DEFAULT_LONG_BREAK_SEC,
+  longBreakInterval: DEFAULT_LONG_INTERVAL,
+  pomodoroCount: 0,
+  currentBreakKind: "free",
   completedBreaks: 0,
   skippedBreaks: 0,
   longestStreakSec: 0,
   currentStreakSec: 0,
   todayScreenSec: 0,
   healthScore: 100,
+  snoozeUsed: 0,
 
   setState: (state) => set({ state }),
+
+  setMode: (mode) =>
+    set((s) => ({
+      mode,
+      remainingSec: s.workIntervalSec,
+      pomodoroCount: 0,
+      currentBreakKind: "free",
+      state: "active",
+    })),
 
   tick: () => {
     const s = get();
@@ -55,16 +85,31 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       longestStreakSec: Math.max(s.longestStreakSec, nextStreak),
       todayScreenSec: s.todayScreenSec + 1,
     });
-    if (next <= 0) {
-      get().startBreak();
-    }
+    // Note: actual break trigger is handled by useAlertOrchestrator so the
+    // alert tier (light/medium/hard) is honoured.
   },
 
-  startBreak: () =>
-    set((s) => ({
+  startBreak: (kind?) => {
+    const s = get();
+    let breakKind: BreakKind = kind ?? "free";
+    let duration = s.breakDurationSec;
+    if (s.mode === "pomodoro" && !kind) {
+      const nextCount = s.pomodoroCount + 1;
+      if (nextCount % s.longBreakInterval === 0) {
+        breakKind = "long";
+        duration = s.longBreakSec;
+      } else {
+        breakKind = "short";
+      }
+      set({ pomodoroCount: nextCount });
+    }
+    set({
       state: "break",
-      remainingSec: s.breakDurationSec,
-    })),
+      remainingSec: duration,
+      currentBreakKind: breakKind,
+      snoozeUsed: 0,
+    });
+  },
 
   endBreak: (skipped) =>
     set((s) => ({
@@ -73,6 +118,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       completedBreaks: skipped ? s.completedBreaks : s.completedBreaks + 1,
       skippedBreaks: skipped ? s.skippedBreaks + 1 : s.skippedBreaks,
       currentStreakSec: 0,
+      currentBreakKind: "free",
       healthScore: skipped ? Math.max(0, s.healthScore - 2) : Math.min(100, s.healthScore + 1),
     })),
 
@@ -89,6 +135,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     })),
 
   setBreakDuration: (sec) => set({ breakDurationSec: sec }),
+  setLongBreak: (sec) => set({ longBreakSec: sec }),
+  setLongBreakInterval: (n) => set({ longBreakInterval: n }),
 
   bumpStreak: (deltaSec) =>
     set((s) => ({
@@ -97,6 +145,9 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     })),
 
   resetStreak: () => set({ currentStreakSec: 0 }),
+
+  noteSnooze: () => set((s) => ({ snoozeUsed: s.snoozeUsed + 1 })),
+  resetSnooze: () => set({ snoozeUsed: 0 }),
 }));
 
 export const formatMMSS = (totalSec: number): string => {

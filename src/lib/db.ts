@@ -1,0 +1,130 @@
+// Wrapper around `tauri-plugin-sql`. Falls back to a no-op in-browser stub so
+// the app still renders during plain Vite dev (without the Tauri shell).
+
+import type { FootprintSegment, AppUsage, DailyUsage } from "../stores/footprintStore";
+
+const DB_URL = "sqlite:eyeguard.db";
+
+interface SqlDb {
+  execute: (sql: string, args?: unknown[]) => Promise<unknown>;
+  select: <T>(sql: string, args?: unknown[]) => Promise<T>;
+  close: () => Promise<void>;
+}
+
+let _db: SqlDb | null = null;
+let _opening: Promise<SqlDb | null> | null = null;
+let _attempted = false;
+
+function inTauri(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+async function open(): Promise<SqlDb | null> {
+  if (_db) return _db;
+  if (_opening) return _opening;
+  if (!inTauri()) return null;
+  _opening = (async () => {
+    if (_attempted && !_db) return null;
+    _attempted = true;
+    try {
+      const { default: Database } = await import("@tauri-apps/plugin-sql");
+      _db = (await Database.load(DB_URL)) as unknown as SqlDb;
+      return _db;
+    } catch (err) {
+      console.warn("[eyeguard] failed to open db", err);
+      return null;
+    }
+  })();
+  return _opening;
+}
+
+export async function insertFootprint(seg: FootprintSegment) {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute(
+      "INSERT INTO app_footprint (started_at, ended_at, duration_s, process, title) VALUES (?, ?, ?, ?, ?)",
+      [seg.started_at, seg.ended_at, seg.duration_s, seg.process, seg.title],
+    );
+  } catch (err) {
+    console.warn("[eyeguard] insertFootprint", err);
+  }
+}
+
+export async function insertBreak(durationSec: number, skipped: boolean) {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute(
+      "INSERT INTO break_log (occurred_at, duration_s, skipped) VALUES (?, ?, ?)",
+      [Math.floor(Date.now() / 1000), durationSec, skipped ? 1 : 0],
+    );
+  } catch (err) {
+    console.warn("[eyeguard] insertBreak", err);
+  }
+}
+
+export interface RawUsageRow {
+  process: string;
+  total: number;
+}
+
+export async function getAppUsage(sinceUnix: number): Promise<AppUsage[]> {
+  const db = await open();
+  if (!db) return [];
+  try {
+    const rows = (await db.select<RawUsageRow[]>(
+      "SELECT process, SUM(duration_s) as total FROM app_footprint WHERE started_at >= ? GROUP BY process ORDER BY total DESC",
+      [sinceUnix],
+    )) as RawUsageRow[];
+    return rows.map((r) => ({ process: r.process, totalSec: r.total }));
+  } catch (err) {
+    console.warn("[eyeguard] getAppUsage", err);
+    return [];
+  }
+}
+
+export interface RawDailyRow {
+  date: string;
+  total: number;
+}
+
+export async function getDailyUsage(daysBack: number): Promise<DailyUsage[]> {
+  const db = await open();
+  if (!db) return [];
+  try {
+    const since = Math.floor(Date.now() / 1000) - daysBack * 24 * 3600;
+    const rows = (await db.select<RawDailyRow[]>(
+      "SELECT date(started_at, 'unixepoch', 'localtime') as date, SUM(duration_s) as total FROM app_footprint WHERE started_at >= ? GROUP BY date ORDER BY date",
+      [since],
+    )) as RawDailyRow[];
+    return rows.map((r) => ({ date: r.date, totalSec: r.total }));
+  } catch (err) {
+    console.warn("[eyeguard] getDailyUsage", err);
+    return [];
+  }
+}
+
+export async function purgeAll() {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute("DELETE FROM app_footprint");
+    await db.execute("DELETE FROM break_log");
+    await db.execute("DELETE FROM app_category");
+  } catch (err) {
+    console.warn("[eyeguard] purgeAll", err);
+  }
+}
+
+export async function purgeOlderThan(days: number) {
+  const db = await open();
+  if (!db) return;
+  const cutoff = Math.floor(Date.now() / 1000) - days * 24 * 3600;
+  try {
+    await db.execute("DELETE FROM app_footprint WHERE started_at < ?", [cutoff]);
+    await db.execute("DELETE FROM break_log WHERE occurred_at < ?", [cutoff]);
+  } catch (err) {
+    console.warn("[eyeguard] purgeOlderThan", err);
+  }
+}

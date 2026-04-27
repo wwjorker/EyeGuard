@@ -1,21 +1,22 @@
+import { useTranslation } from "react-i18next";
 import { useTimerStore, formatMMSS } from "../stores/timerStore";
 
 export function HeroTimer() {
   const remainingSec = useTimerStore((s) => s.remainingSec);
   const state = useTimerStore((s) => s.state);
   const workInterval = useTimerStore((s) => s.workIntervalSec);
+  const { t } = useTranslation();
 
   const isPaused = state === "paused";
   const isWarning = state === "active" && remainingSec > 0 && remainingSec <= 120;
   const display = formatMMSS(remainingSec);
   const minutes = Math.ceil(remainingSec / 60);
 
-  // soft progress text
   const label = (() => {
-    if (state === "break") return "rest in progress";
-    if (state === "paused") return "paused — move to resume";
-    if (state === "idle") return "you're away";
-    return minutes <= 1 ? "less than a minute" : "minutes remaining";
+    if (state === "break") return t("timer.restInProgress");
+    if (state === "paused") return t("timer.pausedHint");
+    if (state === "idle") return t("timer.awayHint");
+    return minutes <= 1 ? t("timer.lessThanMinute") : t("timer.minutesRemaining");
   })();
 
   // background ring progress for visual depth

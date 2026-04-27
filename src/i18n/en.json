@@ -1,0 +1,156 @@
+{
+  "brand": "eyeguard",
+  "nav": {
+    "timer": "timer",
+    "stats": "stats",
+    "pomodoro": "pomodoro",
+    "settings": "settings"
+  },
+  "status": {
+    "active": "active",
+    "paused": "paused",
+    "break": "break",
+    "idle": "away"
+  },
+  "timer": {
+    "minutesRemaining": "minutes remaining",
+    "lessThanMinute": "less than a minute",
+    "restInProgress": "rest in progress",
+    "pausedHint": "paused — move to resume",
+    "awayHint": "you're away",
+    "pause": "pause",
+    "resume": "resume",
+    "breakNow": "break now"
+  },
+  "rings": {
+    "screen": "screen",
+    "breaks": "breaks",
+    "score": "score",
+    "streak": "streak"
+  },
+  "alerts": {
+    "title": "Time for a quick break",
+    "body": "You've been focused for {{streak}} — let your eyes rest.",
+    "later": "later",
+    "startBreak": "start break"
+  },
+  "exercises": {
+    "lookAway": {
+      "title": "Look 20 feet away",
+      "description": "Pick a distant object — soften your gaze for 20 seconds."
+    },
+    "rolls": {
+      "title": "Eye rolls",
+      "description": "Roll your eyes slowly clockwise, then counter-clockwise."
+    },
+    "squeeze": {
+      "title": "Squeeze & release",
+      "description": "Close your eyes firmly for 3 seconds, then open wide."
+    },
+    "blink": {
+      "title": "Refresh blinks",
+      "description": "Blink rapidly for 10 seconds to refresh tear film."
+    },
+    "figure8": {
+      "title": "Figure-eight",
+      "description": "Trace a slow figure-8 with your gaze."
+    }
+  },
+  "settings": {
+    "groups": {
+      "timing": "timing",
+      "alerts": "alerts",
+      "sound": "sound",
+      "smartSnooze": "smart snooze",
+      "health": "health",
+      "privacy": "privacy",
+      "dnd": "do not disturb",
+      "appearance": "appearance",
+      "system": "system"
+    },
+    "rows": {
+      "workInterval": "Work interval",
+      "workIntervalHint": "Time between breaks",
+      "breakDuration": "Break duration",
+      "breakDurationHint": "How long each rest lasts",
+      "idleThreshold": "Idle threshold",
+      "idleThresholdHint": "Pause when away for…",
+      "alertLevel": "Alert level",
+      "alertLevelHint": "Light · Medium · Hard",
+      "strictMode": "Strict mode",
+      "strictModeHint": "Hard alerts can't be skipped",
+      "soundEffects": "Sound effects",
+      "volume": "Volume",
+      "smartSnooze": "Auto-defer when fullscreen",
+      "smartSnoozeHint": "Skip alert if a video / game is playing",
+      "snoozeDur": "Defer duration",
+      "snoozeMax": "Max consecutive defers",
+      "drink": "Drink reminder",
+      "posture": "Posture reminder",
+      "footprint": "App footprint tracking",
+      "footprintHint": "Record which apps you spend time in",
+      "retention": "Data retention",
+      "purge": "Clear all stats",
+      "purgeHint": "Wipes app footprint and break history",
+      "theme": "Theme",
+      "language": "Language",
+      "autostart": "Launch at login",
+      "exportJson": "Export JSON",
+      "exportCsv": "Export CSV"
+    },
+    "actions": {
+      "purge": "purge"
+    },
+    "themeOptions": {
+      "dark": "dark",
+      "light": "light",
+      "system": "system"
+    },
+    "langOptions": {
+      "zh": "中文",
+      "en": "English"
+    }
+  },
+  "stats": {
+    "screenToday": "Screen today",
+    "breaksDone": "Breaks done",
+    "breaksSkipped": "Breaks skipped",
+    "longestStreak": "Longest streak",
+    "weekVsLast": "this week vs last",
+    "appDistribution": "App distribution",
+    "last7Days": "Last 7 days",
+    "noAppData": "no app data yet — keep working",
+    "noChartData": "last 7 days will appear here",
+    "other": "Other"
+  },
+  "pomodoro": {
+    "title": "Pomodoro mode",
+    "hintOff": "Replace free timer with focus cycles",
+    "hintOn": "Cycle {{count}} · long break every {{interval}}",
+    "cycles": "cycles",
+    "nextBreak": "next break",
+    "nextLong": "long",
+    "nextShort": "short",
+    "cadence": "cadence",
+    "groupCadence": "cadence",
+    "rowWork": "Work duration",
+    "rowShort": "Short break",
+    "rowLong": "Long break",
+    "rowInterval": "Long break interval",
+    "intervalHint": "After this many work sessions"
+  },
+  "follow": {
+    "drinkTitle": "Hydrate",
+    "drinkBody": "Grab a sip of water — your eyes will thank you.",
+    "postureTitle": "Check your posture",
+    "postureBody": "Sit tall, drop your shoulders, and adjust your screen distance.",
+    "gotIt": "got it"
+  },
+  "skip": "skip",
+  "common": {
+    "add": "add",
+    "detect": "detect",
+    "noWhitelist": "no whitelisted apps yet",
+    "dndHint": "When any of these apps is in the foreground, EyeGuard skips its alert (usage is still tracked)."
+  }
+}
