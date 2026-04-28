@@ -68,9 +68,6 @@ pub fn spawn(app: AppHandle, state: Arc<MonitorState>) {
                 "activity://active"
             };
             let _ = app.emit(event, idle);
-        } else {
-            // also broadcast a heartbeat with the current idle seconds for UI use
-            let _ = app.emit("activity://heartbeat", idle);
         }
 
         std::thread::sleep(std::time::Duration::from_secs(1));

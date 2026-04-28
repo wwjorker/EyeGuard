@@ -24,6 +24,7 @@ export interface TimerSnapshot {
 }
 
 interface TimerStore extends TimerSnapshot {
+  lastDayKey: string;
   setState: (state: TimerState) => void;
   setMode: (mode: TimerMode) => void;
   tick: () => void;
@@ -39,6 +40,11 @@ interface TimerStore extends TimerSnapshot {
   noteSnooze: () => void;
   resetSnooze: () => void;
 }
+
+const todayKey = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+};
 
 const DEFAULT_WORK_SEC = 20 * 60;
 const DEFAULT_BREAK_SEC = 20;
@@ -62,6 +68,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   todayScreenSec: 0,
   healthScore: 100,
   snoozeUsed: 0,
+  lastDayKey: todayKey(),
 
   setState: (state) => set({ state }),
 
@@ -76,10 +83,24 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
 
   tick: () => {
     const s = get();
+
+    // Roll the daily counters when the calendar day changes (covers an app
+    // that was left running across midnight).
+    const today = todayKey();
+    if (today !== s.lastDayKey) {
+      set({
+        lastDayKey: today,
+        todayScreenSec: 0,
+        healthScore: 100,
+        completedBreaks: 0,
+        skippedBreaks: 0,
+        longestStreakSec: 0,
+      });
+    }
+
     if (s.state === "break") {
-      // During a break, only the break countdown decrements — do not
-      // accumulate streak or screen time. BreakOverlay's effect closes the
-      // break when this hits zero.
+      // Break-state tick only decrements the rest countdown — do not
+      // accumulate streak / screen time.
       set({ remainingSec: Math.max(0, s.remainingSec - 1) });
       return;
     }
@@ -136,10 +157,17 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     })),
 
   setWorkInterval: (sec) =>
-    set((s) => ({
-      workIntervalSec: sec,
-      remainingSec: s.state === "active" ? sec : s.remainingSec,
-    })),
+    set((s) => {
+      // Only snap remainingSec to the new value if we haven't started
+      // ticking the current cycle yet (i.e. it's exactly the previous
+      // workIntervalSec). This avoids yanking the timer when the user
+      // adjusts the slider mid-cycle.
+      const fresh = s.remainingSec === s.workIntervalSec;
+      return {
+        workIntervalSec: sec,
+        remainingSec: fresh ? sec : s.remainingSec,
+      };
+    }),
 
   setBreakDuration: (sec) => set({ breakDurationSec: sec }),
   setLongBreak: (sec) => set({ longBreakSec: sec }),

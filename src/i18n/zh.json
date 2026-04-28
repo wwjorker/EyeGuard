@@ -104,7 +104,8 @@
       "exportCsv": "导出 CSV"
     },
     "actions": {
-      "purge": "清除"
+      "purge": "清除",
+      "purgeConfirm": "确定要永久删除所有应用足迹和休息历史吗？此操作不可恢复。"
     },
     "alertLevels": {
       "light": "轻",

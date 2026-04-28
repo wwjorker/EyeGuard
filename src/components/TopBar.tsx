@@ -20,7 +20,11 @@ export function TopBar({ page, onNavigate }: TopBarProps) {
   const { t } = useTranslation();
 
   const badgeClass =
-    state === "paused" ? "badge-pill paused" : state === "break" ? "badge-pill break" : "badge-pill";
+    state === "paused" || state === "idle"
+      ? "badge-pill paused"
+      : state === "break"
+        ? "badge-pill break"
+        : "badge-pill";
   const badgeLabel = t(`status.${state}`);
 
   return (

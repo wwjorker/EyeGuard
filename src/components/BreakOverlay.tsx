@@ -35,6 +35,19 @@ export function BreakOverlay() {
     }
   }, [state, remaining, endBreak, drinkReminder, postureReminder, completedBreaks, queueFollowup]);
 
+  // Esc / Enter shortcut to skip the break (unless strict mode).
+  useEffect(() => {
+    if (state !== "break" || strictMode) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter") {
+        e.preventDefault();
+        endBreak(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [state, strictMode, endBreak]);
+
   if (state !== "break") return null;
 
   const progress = totalDuration > 0 ? 1 - remaining / totalDuration : 0;

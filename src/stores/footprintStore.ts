@@ -21,17 +21,13 @@ export interface DailyUsage {
 interface FootprintStore {
   appUsage: AppUsage[];
   dailyUsage: DailyUsage[];
-  refreshing: boolean;
   setAppUsage: (rows: AppUsage[]) => void;
   setDailyUsage: (rows: DailyUsage[]) => void;
-  setRefreshing: (v: boolean) => void;
 }
 
 export const useFootprintStore = create<FootprintStore>((set) => ({
   appUsage: [],
   dailyUsage: [],
-  refreshing: false,
   setAppUsage: (appUsage) => set({ appUsage }),
   setDailyUsage: (dailyUsage) => set({ dailyUsage }),
-  setRefreshing: (refreshing) => set({ refreshing }),
 }));

@@ -20,11 +20,17 @@ export function TimerPage() {
       <HeroTimer />
 
       <div className="flex items-center justify-center gap-3 pb-4">
-        <button className="btn-ghost flex items-center gap-2" onClick={togglePause}>
-          {state === "paused" ? <Play size={13} /> : <Pause size={13} />}
-          <span>{state === "paused" ? t("timer.resume") : t("timer.pause")}</span>
+        <button className="btn-ghost flex items-center gap-2" onClick={togglePause} disabled={state === "break"}>
+          {state === "paused" || state === "idle" ? <Play size={13} /> : <Pause size={13} />}
+          <span>
+            {state === "paused" || state === "idle" ? t("timer.resume") : t("timer.pause")}
+          </span>
         </button>
-        <button className="btn-primary flex items-center gap-2" onClick={() => startBreak()}>
+        <button
+          className="btn-primary flex items-center gap-2"
+          onClick={() => startBreak()}
+          disabled={state === "break"}
+        >
           <Coffee size={13} />
           <span>{t("timer.breakNow")}</span>
         </button>

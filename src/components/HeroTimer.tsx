@@ -7,7 +7,7 @@ export function HeroTimer() {
   const workInterval = useTimerStore((s) => s.workIntervalSec);
   const { t } = useTranslation();
 
-  const isPaused = state === "paused";
+  const isPaused = state === "paused" || state === "idle";
   const isWarning = state === "active" && remainingSec > 0 && remainingSec <= 120;
   const display = formatMMSS(remainingSec);
   const minutes = Math.ceil(remainingSec / 60);

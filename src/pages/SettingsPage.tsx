@@ -231,7 +231,9 @@ export function SettingsPage() {
                 className="btn-ghost flex items-center gap-2"
                 style={{ color: "var(--eg-pink)", borderColor: "rgba(236,72,153,0.25)" }}
                 onClick={() => {
-                  void purgeAll();
+                  if (window.confirm(t("settings.actions.purgeConfirm"))) {
+                    void purgeAll();
+                  }
                 }}
               >
                 <Trash2 size={12} />

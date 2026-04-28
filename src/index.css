@@ -219,6 +219,13 @@ input:focus-visible {
   transform: scale(0.98);
 }
 
+.btn-primary:disabled,
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--eg-text);

@@ -104,7 +104,8 @@
       "exportCsv": "Export CSV"
     },
     "actions": {
-      "purge": "purge"
+      "purge": "purge",
+      "purgeConfirm": "Permanently delete all app footprint and break history? This cannot be undone."
     },
     "alertLevels": {
       "light": "light",
