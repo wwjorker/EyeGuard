@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
@@ -18,11 +18,6 @@ export const useAlertCommander = create<AlertCommander>((set) => ({
 }));
 
 export interface AlertOrchestrator {
-  toastVisible: boolean;
-  lightVisible: boolean;
-  acceptToast: () => void;
-  dismissToast: () => void;
-  dismissLight: () => void;
   fireTest: () => void;
 }
 
@@ -41,9 +36,60 @@ export function useAlertOrchestrator(): AlertOrchestrator {
   const snoozeMax = useSettingsStore((s) => s.snoozeMaxCount);
   const dndWhitelist = useSettingsStore((s) => s.dndWhitelist);
 
-  const [toastVisible, setToastVisible] = useState(false);
-  const [lightVisible, setLightVisible] = useState(false);
   const firedRef = useRef(false);
+
+  // Listen for action events coming back from the notification window
+  // (e.g. user clicked "Start break" in the medium toast).
+  useEffect(() => {
+    if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+    let off: (() => void) | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        off = await listen<{ action: "accept" | "later" | "dismiss" }>(
+          "notification://action",
+          (e) => {
+            const action = e.payload?.action;
+            if (action === "accept") {
+              startBreak();
+            } else if (action === "later") {
+              useTimerStore.setState({ remainingSec: 5 * 60 });
+            }
+          },
+        );
+      } catch {
+        /* ignore */
+      }
+      if (cancelled) off?.();
+    })();
+    return () => {
+      cancelled = true;
+      off?.();
+    };
+  }, [startBreak]);
+
+  // Hide the OS-level notification window when the inner UI says it's done.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+    let off: (() => void) | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        off = await listen("notification://done", () => {
+          void hideNotificationWindow();
+        });
+      } catch {
+        /* ignore */
+      }
+      if (cancelled) off?.();
+    })();
+    return () => {
+      cancelled = true;
+      off?.();
+    };
+  }, []);
 
   useEffect(() => {
     if (state !== "active") {
@@ -81,19 +127,19 @@ export function useAlertOrchestrator(): AlertOrchestrator {
         return;
       }
       if (alertLevel === "medium") {
-        // Pop the main window if it's hidden in the tray so the user
-        // can actually see the toast.
-        await ensureMainWindowVisible();
-        setToastVisible(true);
+        await showNotificationWindow({
+          variant: "medium",
+          streakSec: useTimerStore.getState().currentStreakSec,
+        });
         playBeep("medium", soundEnabled, soundVolume);
         return;
       }
-      // light: native notification (often eaten on Windows for unsigned dev
-      // builds) plus an in-app top-right pill, so the user always sees
-      // *something*. Work timer keeps going.
+      // light
       void fireNativeNotification();
-      await ensureMainWindowVisible();
-      setLightVisible(true);
+      await showNotificationWindow({
+        variant: "light",
+        streakSec: useTimerStore.getState().currentStreakSec,
+      });
       playBeep("light", soundEnabled, soundVolume);
       resetCycle();
     };
@@ -114,45 +160,33 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     resetCycle,
   ]);
 
-  // These are wrapped in useCallback so the AlertToast useEffect dep
-  // array stays stable — otherwise a new function each parent render
-  // (every 1s tick) keeps resetting the auto-dismiss timeout and the
-  // toast never closes.
-  const acceptToast = useCallback(() => {
-    setToastVisible(false);
-    startBreak();
-  }, [startBreak]);
-
-  const dismissToast = useCallback(() => {
-    setToastVisible(false);
-    useTimerStore.setState({ remainingSec: 5 * 60 });
-  }, []);
-
-  const dismissLight = useCallback(() => setLightVisible(false), []);
-
-  const fireTest = () => {
+  const fireTest = useCallback(() => {
     primeAudio();
     if (alertLevel === "hard") {
       startBreak();
       playBeep("hard", soundEnabled, soundVolume);
     } else if (alertLevel === "medium") {
-      setToastVisible(true);
+      void showNotificationWindow({
+        variant: "medium",
+        streakSec: useTimerStore.getState().currentStreakSec,
+      });
       playBeep("medium", soundEnabled, soundVolume);
     } else {
       void fireNativeNotification();
-      setLightVisible(true);
+      void showNotificationWindow({
+        variant: "light",
+        streakSec: useTimerStore.getState().currentStreakSec,
+      });
       playBeep("light", soundEnabled, soundVolume);
     }
-  };
+  }, [alertLevel, soundEnabled, soundVolume, startBreak]);
 
   // Publish the test trigger so the Settings page can call it.
   useEffect(() => {
     useAlertCommander.getState().setFireTest(fireTest);
-    // recreated each render — that's fine, it just refreshes the captured closure
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, [fireTest]);
 
-  return { toastVisible, lightVisible, acceptToast, dismissToast, dismissLight, fireTest };
+  return { fireTest };
 }
 
 interface ForegroundInfo {
@@ -171,42 +205,69 @@ async function getForeground(): Promise<ForegroundInfo | null> {
   }
 }
 
+const normalize = (s: string) => s.trim().toLowerCase().replace(/\.exe$/, "");
+
+interface NotificationPayload {
+  variant: "light" | "medium";
+  streakSec: number;
+}
+
+let notifSeq = 0;
+
 /**
- * Pop the main window out of the tray and force it in front, even when
- * Windows would normally block stealing focus from another foreground app.
- *
- * The trick: toggle alwaysOnTop ON briefly so the OS allows the window to
- * raise, then back OFF so the user can switch away again. Combined with
- * `requestUserAttention` as a fallback (flashes the taskbar entry if focus
- * stealing was blocked).
+ * Position the dedicated notification window at the bottom-right of the
+ * primary monitor, then show it and emit the payload. Falls back to a
+ * silent no-op outside the Tauri runtime.
  */
-async function ensureMainWindowVisible() {
+async function showNotificationWindow(payload: NotificationPayload) {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
   try {
     const winMod = await import("@tauri-apps/api/window");
-    const win = winMod.getCurrentWindow();
-    await win.show();
-    await win.unminimize();
-    await win.setAlwaysOnTop(true);
-    await win.setFocus();
-    // Drop always-on-top after a short delay so the user can layer
-    // other windows over it again if they want.
-    setTimeout(() => {
-      void win.setAlwaysOnTop(false);
-    }, 300);
-    // Flash the taskbar entry as belt-and-suspenders in case the OS
-    // refused the focus steal.
-    try {
-      await win.requestUserAttention(winMod.UserAttentionType.Critical);
-    } catch {
-      /* not all platforms / versions support this — ignore */
+    const { emit } = await import("@tauri-apps/api/event");
+    const win = await winMod.Window.getByLabel("notification");
+    if (!win) {
+      console.warn("[eyeguard] notification window not found");
+      return;
     }
+
+    const monitor = await winMod.primaryMonitor();
+    if (monitor) {
+      const scale = monitor.scaleFactor || 1;
+      const sizeWidth = monitor.size.width / scale;
+      const sizeHeight = monitor.size.height / scale;
+      const wWidth = 340;
+      const wHeight = 130;
+      const x = Math.max(0, sizeWidth - wWidth - 16);
+      const y = Math.max(0, sizeHeight - wHeight - 56); // 56px above taskbar
+      await win.setPosition(new winMod.LogicalPosition(x, y));
+    }
+
+    await win.show();
+    // Always-on-top is already declared in conf.json but reaffirming after
+    // show helps Windows respect it from the very first frame.
+    try {
+      await win.setAlwaysOnTop(true);
+    } catch {
+      /* ignore */
+    }
+
+    notifSeq += 1;
+    await emit("notification://show", { ...payload, id: notifSeq });
+  } catch (err) {
+    console.warn("[eyeguard] failed to show notification window", err);
+  }
+}
+
+async function hideNotificationWindow() {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+  try {
+    const { Window } = await import("@tauri-apps/api/window");
+    const win = await Window.getByLabel("notification");
+    if (win) await win.hide();
   } catch {
     /* ignore */
   }
 }
-
-const normalize = (s: string) => s.trim().toLowerCase().replace(/\.exe$/, "");
 
 async function fireNativeNotification() {
   if (typeof window === "undefined") return;

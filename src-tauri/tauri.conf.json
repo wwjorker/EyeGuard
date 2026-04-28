@@ -24,6 +24,27 @@
         "transparent": false,
         "center": true,
         "visible": true
+      },
+      {
+        "label": "notification",
+        "title": "EyeGuard Notification",
+        "url": "/?window=notification",
+        "width": 340,
+        "height": 130,
+        "minWidth": 340,
+        "minHeight": 130,
+        "maxWidth": 340,
+        "maxHeight": 130,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": false,
+        "shadow": false,
+        "x": 0,
+        "y": 0
       }
     ],
     "security": {

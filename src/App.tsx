@@ -3,20 +3,20 @@ import { TopBar } from "./components/TopBar";
 import { TimerPage } from "./pages/TimerPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { PomodoroPage } from "./pages/PomodoroPage";
-
-const StatsPage = lazy(() => import("./pages/StatsPage").then((m) => ({ default: m.StatsPage })));
 import { BreakOverlay } from "./components/BreakOverlay";
-import { AlertToast } from "./components/AlertToast";
 import { FollowupToast } from "./components/FollowupToast";
 import { useTimerStore } from "./stores/timerStore";
 import { useTrayBridge } from "./hooks/useTrayBridge";
 import { useActivityBridge } from "./hooks/useActivityBridge";
 import { useSettingsSync } from "./hooks/useSettingsSync";
-import { useAlertOrchestrator } from "./hooks/useAlertOrchestrator";
+import { useAlertOrchestrator, primeAudio } from "./hooks/useAlertOrchestrator";
 import { useFootprintBridge } from "./hooks/useFootprintBridge";
 import { useBreakLogger } from "./hooks/useBreakLogger";
 import { useHotkeys } from "./hooks/useHotkeys";
-import { primeAudio } from "./hooks/useAlertOrchestrator";
+
+const StatsPage = lazy(() =>
+  import("./pages/StatsPage").then((m) => ({ default: m.StatsPage })),
+);
 
 export type PageKey = "timer" | "stats" | "pomodoro" | "settings";
 
@@ -36,7 +36,7 @@ function App() {
   useFootprintBridge();
   useBreakLogger();
   useHotkeys();
-  const alerts = useAlertOrchestrator();
+  useAlertOrchestrator();
 
   useEffect(() => {
     const id = window.setInterval(() => tick(), 1000);
@@ -75,17 +75,6 @@ function App() {
         </div>
       </div>
       <BreakOverlay />
-      <AlertToast
-        visible={alerts.toastVisible}
-        variant="medium"
-        onAccept={alerts.acceptToast}
-        onDismiss={alerts.dismissToast}
-      />
-      <AlertToast
-        visible={alerts.lightVisible}
-        variant="light"
-        onDismiss={alerts.dismissLight}
-      />
       <FollowupToast />
     </main>
   );
