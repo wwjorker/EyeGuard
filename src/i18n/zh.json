@@ -37,7 +37,9 @@
     "title": "该让眼睛休息了",
     "body": "你已经连续工作 {{streak}}，让眼睛喘口气吧。",
     "later": "稍后",
-    "startBreak": "开始休息"
+    "startBreak": "开始休息",
+    "lightTitle": "眼睛该歇歇",
+    "lightBody": "工作满 {{streak}}，记得抬头远眺一下。"
   },
   "exercises": {
     "lookAway": {

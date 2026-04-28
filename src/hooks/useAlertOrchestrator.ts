@@ -4,8 +4,10 @@ import { useTimerStore } from "../stores/timerStore";
 
 export interface AlertOrchestrator {
   toastVisible: boolean;
+  lightVisible: boolean;
   acceptToast: () => void;
   dismissToast: () => void;
+  dismissLight: () => void;
 }
 
 export function useAlertOrchestrator(): AlertOrchestrator {
@@ -24,6 +26,7 @@ export function useAlertOrchestrator(): AlertOrchestrator {
   const dndWhitelist = useSettingsStore((s) => s.dndWhitelist);
 
   const [toastVisible, setToastVisible] = useState(false);
+  const [lightVisible, setLightVisible] = useState(false);
   const firedRef = useRef(false);
 
   useEffect(() => {
@@ -58,16 +61,20 @@ export function useAlertOrchestrator(): AlertOrchestrator {
 
       if (alertLevel === "hard") {
         startBreak();
-        playBeep(soundEnabled, soundVolume);
+        playBeep("hard", soundEnabled, soundVolume);
         return;
       }
       if (alertLevel === "medium") {
         setToastVisible(true);
-        playBeep(soundEnabled, soundVolume);
+        playBeep("medium", soundEnabled, soundVolume);
         return;
       }
+      // light: native notification (often eaten on Windows for unsigned dev
+      // builds) plus an in-app top-right pill, so the user always sees
+      // *something*. Work timer keeps going.
       void fireNativeNotification();
-      playBeep(soundEnabled, soundVolume);
+      setLightVisible(true);
+      playBeep("light", soundEnabled, soundVolume);
       resetCycle();
     };
 
@@ -97,7 +104,9 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     useTimerStore.setState({ remainingSec: 5 * 60 });
   };
 
-  return { toastVisible, acceptToast, dismissToast };
+  const dismissLight = () => setLightVisible(false);
+
+  return { toastVisible, lightVisible, acceptToast, dismissToast, dismissLight };
 }
 
 interface ForegroundInfo {
@@ -145,26 +154,51 @@ async function fireNativeNotification() {
   }
 }
 
-function playBeep(enabled: boolean, volume: number) {
+type BeepTier = "light" | "medium" | "hard";
+
+function playBeep(tier: BeepTier, enabled: boolean, volume: number) {
   if (!enabled) return;
   try {
-    const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const Ctor =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) return;
     const ctx = new Ctor();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(660, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18);
-    const v = Math.max(0, Math.min(0.4, volume / 250));
-    gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(v, ctx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.45);
-    osc.onended = () => ctx.close();
+
+    // Each tier gets a distinct ascending two-note shape: light = single
+    // soft chime, medium = warmer two-tone, hard = double pulse.
+    const profiles: Record<BeepTier, { freqs: [number, number][]; gainScale: number }> = {
+      light: { freqs: [[760, 920]], gainScale: 0.55 },
+      medium: { freqs: [[620, 820]], gainScale: 0.85 },
+      hard: {
+        freqs: [
+          [660, 880],
+          [880, 660],
+        ],
+        gainScale: 1,
+      },
+    };
+    const profile = profiles[tier];
+    const baseGain = Math.max(0, Math.min(0.4, volume / 250)) * profile.gainScale;
+
+    profile.freqs.forEach(([startHz, endHz], i) => {
+      const t0 = ctx.currentTime + i * 0.18;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(startHz, t0);
+      osc.frequency.exponentialRampToValueAtTime(endHz, t0 + 0.18);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(baseGain, t0 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+      osc.start(t0);
+      osc.stop(t0 + 0.5);
+      if (i === profile.freqs.length - 1) {
+        osc.onended = () => ctx.close();
+      }
+    });
   } catch {
     /* ignore */
   }

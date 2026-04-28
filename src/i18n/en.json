@@ -37,7 +37,9 @@
     "title": "Time for a quick break",
     "body": "You've been focused for {{streak}} — let your eyes rest.",
     "later": "later",
-    "startBreak": "start break"
+    "startBreak": "start break",
+    "lightTitle": "Eye-rest reminder",
+    "lightBody": "You've been at it for {{streak}} — look up and away for a moment."
   },
   "exercises": {
     "lookAway": {

@@ -5,15 +5,31 @@ import { useTimerStore, formatMMSS } from "../stores/timerStore";
 
 interface AlertToastProps {
   visible: boolean;
-  onAccept: () => void;
+  variant?: "medium" | "light";
+  onAccept?: () => void;
   onDismiss: () => void;
   autoDismissMs?: number;
 }
 
-export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 }: AlertToastProps) {
+/**
+ * Two visual variants share this component:
+ *  - "medium" — bottom-right card with Start break / Later actions (8s).
+ *  - "light"  — top-right pill, no buttons, briefer (4s). Used as a
+ *               fallback when system notifications are silently dropped
+ *               by Windows for an unsigned dev build.
+ */
+export function AlertToast({
+  visible,
+  variant = "medium",
+  onAccept,
+  onDismiss,
+  autoDismissMs,
+}: AlertToastProps) {
   const [exiting, setExiting] = useState(false);
   const streak = useTimerStore((s) => s.currentStreakSec);
   const { t } = useTranslation();
+
+  const ms = autoDismissMs ?? (variant === "light" ? 4000 : 8000);
 
   useEffect(() => {
     if (!visible) return;
@@ -21,17 +37,55 @@ export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 
     const id = window.setTimeout(() => {
       setExiting(true);
       window.setTimeout(onDismiss, 220);
-    }, autoDismissMs);
+    }, ms);
     return () => window.clearTimeout(id);
-  }, [visible, autoDismissMs, onDismiss]);
+  }, [visible, ms, onDismiss]);
 
   if (!visible) return null;
 
+  if (variant === "light") {
+    return (
+      <div
+        className="fixed z-40"
+        style={{ right: 18, top: 18 }}
+      >
+        <div
+          className={`toast-card ${exiting ? "toast-exit" : "toast-enter"}`}
+          style={{
+            minWidth: 220,
+            padding: "10px 14px",
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 8,
+                background: "rgba(52,211,153,0.12)",
+                color: "var(--eg-green)",
+              }}
+            >
+              <Eye size={12} strokeWidth={1.75} />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <div className="text-[12px] font-semibold" style={{ color: "var(--eg-text)" }}>
+                {t("alerts.lightTitle")}
+              </div>
+              <div className="text-[10px]" style={{ color: "var(--eg-muted)" }}>
+                {t("alerts.lightBody", { streak: formatMMSS(streak) })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // medium
   return (
-    <div
-      className="fixed z-40"
-      style={{ right: 18, bottom: 18 }}
-    >
+    <div className="fixed z-40" style={{ right: 18, bottom: 18 }}>
       <div className={`toast-card ${exiting ? "toast-exit" : "toast-enter"}`}>
         <div className="flex items-start gap-3">
           <div
@@ -69,7 +123,7 @@ export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 
             className="btn-primary"
             onClick={() => {
               setExiting(true);
-              window.setTimeout(onAccept, 220);
+              window.setTimeout(() => onAccept?.(), 220);
             }}
           >
             {t("alerts.startBreak")}

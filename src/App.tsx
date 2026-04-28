@@ -60,8 +60,14 @@ function App() {
       <BreakOverlay />
       <AlertToast
         visible={alerts.toastVisible}
+        variant="medium"
         onAccept={alerts.acceptToast}
         onDismiss={alerts.dismissToast}
+      />
+      <AlertToast
+        visible={alerts.lightVisible}
+        variant="light"
+        onDismiss={alerts.dismissLight}
       />
       <FollowupToast />
     </main>
