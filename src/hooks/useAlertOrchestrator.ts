@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
@@ -81,6 +81,9 @@ export function useAlertOrchestrator(): AlertOrchestrator {
         return;
       }
       if (alertLevel === "medium") {
+        // Pop the main window if it's hidden in the tray so the user
+        // can actually see the toast.
+        await ensureMainWindowVisible();
         setToastVisible(true);
         playBeep("medium", soundEnabled, soundVolume);
         return;
@@ -89,6 +92,7 @@ export function useAlertOrchestrator(): AlertOrchestrator {
       // builds) plus an in-app top-right pill, so the user always sees
       // *something*. Work timer keeps going.
       void fireNativeNotification();
+      await ensureMainWindowVisible();
       setLightVisible(true);
       playBeep("light", soundEnabled, soundVolume);
       resetCycle();
@@ -110,17 +114,21 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     resetCycle,
   ]);
 
-  const acceptToast = () => {
+  // These are wrapped in useCallback so the AlertToast useEffect dep
+  // array stays stable — otherwise a new function each parent render
+  // (every 1s tick) keeps resetting the auto-dismiss timeout and the
+  // toast never closes.
+  const acceptToast = useCallback(() => {
     setToastVisible(false);
     startBreak();
-  };
+  }, [startBreak]);
 
-  const dismissToast = () => {
+  const dismissToast = useCallback(() => {
     setToastVisible(false);
     useTimerStore.setState({ remainingSec: 5 * 60 });
-  };
+  }, []);
 
-  const dismissLight = () => setLightVisible(false);
+  const dismissLight = useCallback(() => setLightVisible(false), []);
 
   const fireTest = () => {
     primeAudio();
@@ -160,6 +168,23 @@ async function getForeground(): Promise<ForegroundInfo | null> {
     return (await invoke("current_foreground")) as ForegroundInfo | null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Pop the main window out of the tray and bring it to the front so the
+ * user can see the alert toast. Quietly no-ops outside Tauri.
+ */
+async function ensureMainWindowVisible() {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+  try {
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
+    const win = getCurrentWindow();
+    await win.show();
+    await win.unminimize();
+    await win.setFocus();
+  } catch {
+    /* ignore */
   }
 }
 
