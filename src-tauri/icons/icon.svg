@@ -7,12 +7,17 @@
     </linearGradient>
   </defs>
   <rect width="256" height="256" rx="56" fill="url(#bg)"/>
-  <!-- four quarter arcs forming an eye-like ring -->
-  <g fill="none" stroke-width="14" stroke-linecap="round" transform="translate(128 128)">
-    <path d="M -72 0 A 72 72 0 0 1 0 -72" stroke="#34D399"/>
-    <path d="M 0 -72 A 72 72 0 0 1 72 0" stroke="#6366F1"/>
-    <path d="M 72 0 A 72 72 0 0 1 0 72" stroke="#F59E0B"/>
-    <path d="M 0 72 A 72 72 0 0 1 -72 0" stroke="#EC4899"/>
+  <!-- lashes -->
+  <g stroke="#FAFAFA" stroke-width="6" stroke-linecap="round">
+    <line x1="92" y1="46" x2="84" y2="24"/>
+    <line x1="128" y1="38" x2="128" y2="14"/>
+    <line x1="164" y1="46" x2="172" y2="24"/>
   </g>
-  <circle cx="128" cy="128" r="14" fill="#FAFAFA"/>
+  <!-- almond eye outline -->
+  <path d="M 28 128 Q 128 56 228 128 Q 128 200 28 128 Z"
+        fill="none" stroke="#FAFAFA" stroke-width="7" stroke-linejoin="round"/>
+  <!-- iris -->
+  <circle cx="138" cy="123" r="38" fill="#34D399"/>
+  <!-- pupil highlight -->
+  <circle cx="151" cy="111" r="11" fill="#FAFAFA"/>
 </svg>

@@ -2,6 +2,7 @@ import { Timer, BarChart3, CircleDot, Settings as SettingsIcon } from "lucide-re
 import { useTranslation } from "react-i18next";
 import type { PageKey } from "../App";
 import { useTimerStore } from "../stores/timerStore";
+import { Logo } from "./Logo";
 
 interface TopBarProps {
   page: PageKey;
@@ -30,7 +31,10 @@ export function TopBar({ page, onNavigate }: TopBarProps) {
   return (
     <header className="flex items-center justify-between px-5 pt-4">
       <div className="flex items-center gap-4">
-        <span className="brand">{t("brand")}</span>
+        <span className="flex items-center gap-1.5">
+          <Logo size={16} />
+          <span className="brand">{t("brand")}</span>
+        </span>
         <nav className="flex items-center gap-1">
           {TABS.map(({ key, Icon }) => (
             <button

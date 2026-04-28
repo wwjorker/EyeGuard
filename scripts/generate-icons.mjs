@@ -47,15 +47,25 @@ function chunk(type, data) {
   return Buffer.concat([len, typeBuf, data, crc]);
 }
 
-// Render an icon: dark rounded-square background + 4 colored arcs + white center dot
+// Render the EyeGuard mark: dark rounded-square ground, white almond eye
+// outline, emerald iris, white pupil highlight, three short lashes.
+// Matches the in-app SVG <Logo /> so brand and OS icon agree.
 function renderPixels(size) {
   const px = new Uint8ClampedArray(size * size * 4);
   const cx = size / 2;
   const cy = size / 2;
   const cornerRadius = size * 0.22;
-  const outerR = size * 0.36;
-  const innerR = size * 0.28;
-  const dotR = Math.max(2, size * 0.06);
+
+  // Eye geometry — almond width spans most of the square, iris ~28% of size.
+  const eyeHalfW = size * 0.42;
+  const eyeHalfH = size * 0.18;
+  const irisR = size * 0.16;
+  const irisCx = cx + size * 0.04; // gaze slightly right
+  const irisCy = cy - size * 0.02; // ...and a hair upward
+  const pupilR = size * 0.045;
+  const pupilCx = irisCx + size * 0.05;
+  const pupilCy = irisCy - size * 0.05;
+  const outlineThickness = Math.max(1.4, size * 0.024);
 
   const inRoundedSquare = (x, y) => {
     if (x >= cornerRadius && x <= size - cornerRadius) return y >= 0 && y <= size;
@@ -74,10 +84,34 @@ function renderPixels(size) {
     return false;
   };
 
+  // Almond outline implicit fn: |dx|/eyeHalfW)^2 * 0.65 + (dy/eyeHalfH)^2 ≈ 1
+  // I use a stretched ellipse — close enough to the SVG path for this raster.
+  const eyeMetric = (dx, dy) => Math.pow(dx / eyeHalfW, 2) + Math.pow(dy / eyeHalfH, 2);
+
+  // Lash strokes: three short lines above the eye.
+  const lashes = [
+    { x1: cx - size * 0.14, y1: cy - size * 0.32, x2: cx - size * 0.18, y2: cy - size * 0.42 },
+    { x1: cx, y1: cy - size * 0.34, x2: cx, y2: cy - size * 0.46 },
+    { x1: cx + size * 0.14, y1: cy - size * 0.32, x2: cx + size * 0.18, y2: cy - size * 0.42 },
+  ];
+  const lashThickness = Math.max(1.2, size * 0.02);
+
+  const distToSegment = (px, py, x1, y1, x2, y2) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  };
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const idx = (y * size + x) * 4;
-      const inside = inRoundedSquare(x + 0.5, y + 0.5);
+      const sx = x + 0.5;
+      const sy = y + 0.5;
+      const inside = inRoundedSquare(sx, sy);
       if (!inside) {
         px[idx] = 0;
         px[idx + 1] = 0;
@@ -85,31 +119,48 @@ function renderPixels(size) {
         px[idx + 3] = 0;
         continue;
       }
-      // base bg
-      let r = COLORS.bg[0],
-        g = COLORS.bg[1],
-        b = COLORS.bg[2];
+      // background
+      let r = COLORS.bg[0];
+      let g = COLORS.bg[1];
+      let b = COLORS.bg[2];
 
-      const dx = x + 0.5 - cx;
-      const dy = y + 0.5 - cy;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist < dotR) {
+      // Pupil first (topmost layer)
+      const pupilDist = Math.hypot(sx - pupilCx, sy - pupilCy);
+      if (pupilDist <= pupilR) {
         r = COLORS.white[0];
         g = COLORS.white[1];
         b = COLORS.white[2];
-      } else if (dist >= innerR && dist <= outerR) {
-        // pick color by quadrant (top, right, bottom, left)
-        const ang = Math.atan2(dy, dx); // -PI..PI
-        let color;
-        if (ang >= -Math.PI * 0.75 && ang < -Math.PI * 0.25) color = COLORS.green; // top
-        else if (ang >= -Math.PI * 0.25 && ang < Math.PI * 0.25) color = COLORS.purple; // right
-        else if (ang >= Math.PI * 0.25 && ang < Math.PI * 0.75) color = COLORS.amber; // bottom
-        else color = COLORS.pink; // left
-        r = color[0];
-        g = color[1];
-        b = color[2];
+      } else {
+        // Iris
+        const irisDist = Math.hypot(sx - irisCx, sy - irisCy);
+        if (irisDist <= irisR) {
+          r = COLORS.green[0];
+          g = COLORS.green[1];
+          b = COLORS.green[2];
+        } else {
+          // Eye almond outline (white stroke)
+          const m = eyeMetric(sx - cx, sy - cy);
+          // outline if metric is near 1 within a band proportional to thickness
+          const band = (outlineThickness / Math.min(eyeHalfW, eyeHalfH)) * 0.5;
+          if (Math.abs(m - 1) < band) {
+            r = COLORS.white[0];
+            g = COLORS.white[1];
+            b = COLORS.white[2];
+          } else {
+            // Lashes
+            for (const lash of lashes) {
+              const d = distToSegment(sx, sy, lash.x1, lash.y1, lash.x2, lash.y2);
+              if (d <= lashThickness * 0.5) {
+                r = COLORS.white[0];
+                g = COLORS.white[1];
+                b = COLORS.white[2];
+                break;
+              }
+            }
+          }
+        }
       }
+
       px[idx] = r;
       px[idx + 1] = g;
       px[idx + 2] = b;

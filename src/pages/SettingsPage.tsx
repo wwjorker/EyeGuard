@@ -50,11 +50,11 @@ export function SettingsPage() {
             control={
               <Slider
                 value={s.workIntervalSec}
-                min={10 * 60}
+                min={30}
                 max={120 * 60}
-                step={5 * 60}
+                step={30}
                 onChange={(v) => update("workIntervalSec", v)}
-                format={formatMinutes}
+                format={(sec) => (sec < 60 ? `${sec} ${secUnit}` : formatMinutes(sec))}
               />
             }
           />
@@ -64,7 +64,7 @@ export function SettingsPage() {
             control={
               <Slider
                 value={s.breakDurationSec}
-                min={10}
+                min={5}
                 max={300}
                 step={5}
                 onChange={(v) => update("breakDurationSec", v)}
