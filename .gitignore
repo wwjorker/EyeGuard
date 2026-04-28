@@ -27,6 +27,9 @@ src-tauri/gen/
 *.swp
 *.swo
 
+# Claude Code local user prefs
+.claude/settings.local.json
+
 # OS
 .DS_Store
 Thumbs.db
