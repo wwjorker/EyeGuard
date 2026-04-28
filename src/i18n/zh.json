@@ -86,6 +86,8 @@
       "alertLevelHint": "轻 · 中 · 强",
       "strictMode": "严格模式",
       "strictModeHint": "强提醒不可跳过",
+      "testAlert": "测试当前提醒",
+      "testAlertHint": "立刻按当前等级触发一次",
       "soundEffects": "提醒声音",
       "volume": "音量",
       "smartSnooze": "全屏自动延期",
@@ -107,7 +109,8 @@
     },
     "actions": {
       "purge": "清除",
-      "purgeConfirm": "确定要永久删除所有应用足迹和休息历史吗？此操作不可恢复。"
+      "purgeConfirm": "确定要永久删除所有应用足迹和休息历史吗？此操作不可恢复。",
+      "trigger": "触发"
     },
     "alertLevels": {
       "light": "轻",

@@ -1,6 +1,21 @@
 import { useEffect, useRef, useState } from "react";
+import { create } from "zustand";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
+
+interface AlertCommander {
+  fireTest: () => void;
+  setFireTest: (fn: () => void) => void;
+}
+
+/**
+ * Lightweight bridge so any component (e.g. SettingsPage) can request
+ * the orchestrator to fire a test alert without prop-drilling.
+ */
+export const useAlertCommander = create<AlertCommander>((set) => ({
+  fireTest: () => {},
+  setFireTest: (fn) => set({ fireTest: fn }),
+}));
 
 export interface AlertOrchestrator {
   toastVisible: boolean;
@@ -8,6 +23,7 @@ export interface AlertOrchestrator {
   acceptToast: () => void;
   dismissToast: () => void;
   dismissLight: () => void;
+  fireTest: () => void;
 }
 
 export function useAlertOrchestrator(): AlertOrchestrator {
@@ -106,7 +122,29 @@ export function useAlertOrchestrator(): AlertOrchestrator {
 
   const dismissLight = () => setLightVisible(false);
 
-  return { toastVisible, lightVisible, acceptToast, dismissToast, dismissLight };
+  const fireTest = () => {
+    primeAudio();
+    if (alertLevel === "hard") {
+      startBreak();
+      playBeep("hard", soundEnabled, soundVolume);
+    } else if (alertLevel === "medium") {
+      setToastVisible(true);
+      playBeep("medium", soundEnabled, soundVolume);
+    } else {
+      void fireNativeNotification();
+      setLightVisible(true);
+      playBeep("light", soundEnabled, soundVolume);
+    }
+  };
+
+  // Publish the test trigger so the Settings page can call it.
+  useEffect(() => {
+    useAlertCommander.getState().setFireTest(fireTest);
+    // recreated each render — that's fine, it just refreshes the captured closure
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+
+  return { toastVisible, lightVisible, acceptToast, dismissToast, dismissLight, fireTest };
 }
 
 interface ForegroundInfo {
@@ -154,35 +192,67 @@ async function fireNativeNotification() {
   }
 }
 
-type BeepTier = "light" | "medium" | "hard";
+export type BeepTier = "light" | "medium" | "hard";
 
-function playBeep(tier: BeepTier, enabled: boolean, volume: number) {
-  if (!enabled) return;
+let sharedCtx: AudioContext | null = null;
+
+function getCtx(): AudioContext | null {
+  if (sharedCtx) return sharedCtx;
+  const Ctor =
+    typeof window === "undefined"
+      ? null
+      : window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) return null;
   try {
-    const Ctor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor) return;
-    const ctx = new Ctor();
+    sharedCtx = new Ctor();
+    return sharedCtx;
+  } catch {
+    return null;
+  }
+}
 
-    // Each tier gets a distinct ascending two-note shape: light = single
-    // soft chime, medium = warmer two-tone, hard = double pulse.
-    const profiles: Record<BeepTier, { freqs: [number, number][]; gainScale: number }> = {
-      light: { freqs: [[760, 920]], gainScale: 0.55 },
-      medium: { freqs: [[620, 820]], gainScale: 0.85 },
-      hard: {
-        freqs: [
-          [660, 880],
-          [880, 660],
-        ],
-        gainScale: 1,
-      },
-    };
-    const profile = profiles[tier];
-    const baseGain = Math.max(0, Math.min(0.4, volume / 250)) * profile.gainScale;
+/**
+ * Web Audio in Webview2 starts in `suspended` state and stays muted until
+ * a user gesture has resumed it. Calling this once on app boot from any
+ * click handler primes the shared context so later beeps actually play.
+ */
+export function primeAudio() {
+  const ctx = getCtx();
+  if (ctx && ctx.state === "suspended") {
+    void ctx.resume();
+  }
+}
 
+export function playBeep(tier: BeepTier, enabled: boolean, volume: number) {
+  if (!enabled) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+  // Resume in case the gesture priming hasn't happened yet — some beeps
+  // are scheduled by timers, not user clicks.
+  if (ctx.state === "suspended") {
+    void ctx.resume();
+  }
+
+  // Each tier gets a distinct shape: light = single soft chime, medium =
+  // warmer two-tone, hard = double pulse with a louder envelope.
+  const profiles: Record<BeepTier, { freqs: [number, number][]; gainScale: number }> = {
+    light: { freqs: [[760, 920]], gainScale: 0.55 },
+    medium: { freqs: [[620, 820]], gainScale: 0.85 },
+    hard: {
+      freqs: [
+        [660, 880],
+        [880, 660],
+      ],
+      gainScale: 1,
+    },
+  };
+  const profile = profiles[tier];
+  const baseGain = Math.max(0, Math.min(0.5, volume / 200)) * profile.gainScale;
+
+  try {
     profile.freqs.forEach(([startHz, endHz], i) => {
-      const t0 = ctx.currentTime + i * 0.18;
+      const t0 = ctx.currentTime + i * 0.2;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -195,9 +265,6 @@ function playBeep(tier: BeepTier, enabled: boolean, volume: number) {
       gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
       osc.start(t0);
       osc.stop(t0 + 0.5);
-      if (i === profile.freqs.length - 1) {
-        osc.onended = () => ctx.close();
-      }
     });
   } catch {
     /* ignore */

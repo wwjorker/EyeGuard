@@ -86,6 +86,8 @@
       "alertLevelHint": "Light · Medium · Hard",
       "strictMode": "Strict mode",
       "strictModeHint": "Hard alerts can't be skipped",
+      "testAlert": "Test current alert",
+      "testAlertHint": "Fire one now at the selected level",
       "soundEffects": "Sound effects",
       "volume": "Volume",
       "smartSnooze": "Auto-defer when fullscreen",
@@ -107,7 +109,8 @@
     },
     "actions": {
       "purge": "purge",
-      "purgeConfirm": "Permanently delete all app footprint and break history? This cannot be undone."
+      "purgeConfirm": "Permanently delete all app footprint and break history? This cannot be undone.",
+      "trigger": "trigger"
     },
     "alertLevels": {
       "light": "light",

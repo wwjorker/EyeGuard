@@ -16,6 +16,7 @@ import { useAlertOrchestrator } from "./hooks/useAlertOrchestrator";
 import { useFootprintBridge } from "./hooks/useFootprintBridge";
 import { useBreakLogger } from "./hooks/useBreakLogger";
 import { useHotkeys } from "./hooks/useHotkeys";
+import { primeAudio } from "./hooks/useAlertOrchestrator";
 
 export type PageKey = "timer" | "stats" | "pomodoro" | "settings";
 
@@ -41,6 +42,22 @@ function App() {
     const id = window.setInterval(() => tick(), 1000);
     return () => window.clearInterval(id);
   }, [tick]);
+
+  // Prime the shared AudioContext on the first user gesture so future
+  // alert beeps actually play (Webview2 starts contexts in suspended state).
+  useEffect(() => {
+    const handler = () => {
+      primeAudio();
+      window.removeEventListener("pointerdown", handler);
+      window.removeEventListener("keydown", handler);
+    };
+    window.addEventListener("pointerdown", handler, { once: true });
+    window.addEventListener("keydown", handler, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", handler);
+      window.removeEventListener("keydown", handler);
+    };
+  }, []);
 
   return (
     <main className="relative h-full w-full bg-bg">

@@ -157,17 +157,13 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     })),
 
   setWorkInterval: (sec) =>
-    set((s) => {
-      // Only snap remainingSec to the new value if we haven't started
-      // ticking the current cycle yet (i.e. it's exactly the previous
-      // workIntervalSec). This avoids yanking the timer when the user
-      // adjusts the slider mid-cycle.
-      const fresh = s.remainingSec === s.workIntervalSec;
-      return {
-        workIntervalSec: sec,
-        remainingSec: fresh ? sec : s.remainingSec,
-      };
-    }),
+    set((s) => ({
+      workIntervalSec: sec,
+      // Always snap when the user is in an active or idle work cycle so
+      // adjusting the slider feels responsive. Don't touch remainingSec
+      // mid-break (would shorten/lengthen the rest in unexpected ways).
+      remainingSec: s.state === "break" ? s.remainingSec : sec,
+    })),
 
   setBreakDuration: (sec) => set({ breakDurationSec: sec }),
   setLongBreak: (sec) => set({ longBreakSec: sec }),

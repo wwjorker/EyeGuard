@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { WhitelistEditor } from "../components/settings/WhitelistEditor";
 import { exportCsv, exportJson } from "../lib/export";
+import { useAlertCommander } from "../hooks/useAlertOrchestrator";
 import { Slider } from "../components/settings/Slider";
 import { Switch } from "../components/settings/Switch";
 import { SettingRow } from "../components/settings/SettingRow";
@@ -27,6 +28,7 @@ export function SettingsPage() {
   const s = useSettingsStore();
   const update = s.update;
   const { t } = useTranslation();
+  const fireTest = useAlertCommander((c) => c.fireTest);
 
   const minUnit = t("settings.units.min");
   const secUnit = t("settings.units.sec");
@@ -112,6 +114,15 @@ export function SettingsPage() {
                 checked={s.strictMode}
                 onChange={(v) => update("strictMode", v)}
               />
+            }
+          />
+          <SettingRow
+            label={t("settings.rows.testAlert")}
+            hint={t("settings.rows.testAlertHint")}
+            control={
+              <button className="btn-ghost" onClick={() => fireTest()}>
+                {t("settings.actions.trigger")}
+              </button>
             }
           />
         </SettingGroup>

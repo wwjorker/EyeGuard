@@ -48,6 +48,62 @@ export function BreakOverlay() {
     return () => window.removeEventListener("keydown", handler);
   }, [state, strictMode, endBreak]);
 
+  // While a break is active, blow up the EyeGuard window to cover the
+  // primary monitor and float on top, so the rest screen is actually
+  // unmissable. Restore the previous size + flags when the break ends.
+  useEffect(() => {
+    if (state !== "break") return;
+    const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+    if (!isTauri) return;
+
+    let restore: (() => Promise<void>) | null = null;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { getCurrentWindow } = await import("@tauri-apps/api/window");
+        const win = getCurrentWindow();
+
+        const prevSize = await win.outerSize();
+        const prevPos = await win.outerPosition();
+        const prevAlwaysOnTop = false; // we set true below; prev was app default
+        const prevDecorations = true;
+        const prevSkipTaskbar = false;
+
+        // Make sure the user can see it even if minimised to tray.
+        await win.show();
+        await win.unminimize();
+        await win.setAlwaysOnTop(true);
+        await win.setSkipTaskbar(true);
+        await win.setDecorations(false);
+        await win.setFullscreen(true);
+        await win.setFocus();
+
+        if (cancelled) return;
+
+        restore = async () => {
+          try {
+            await win.setFullscreen(false);
+            await win.setDecorations(prevDecorations);
+            await win.setSkipTaskbar(prevSkipTaskbar);
+            await win.setAlwaysOnTop(prevAlwaysOnTop);
+            await win.setSize(prevSize);
+            await win.setPosition(prevPos);
+          } catch {
+            /* ignore */
+          }
+        };
+      } catch (err) {
+        console.warn("[eyeguard] could not enter fullscreen for break", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      void restore?.();
+    };
+  }, [state]);
+
   if (state !== "break") return null;
 
   const progress = totalDuration > 0 ? 1 - remaining / totalDuration : 0;
@@ -61,9 +117,7 @@ export function BreakOverlay() {
       <div
         className="absolute inset-0"
         style={{
-          background: "rgba(9, 9, 11, 0.94)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+          background: "#09090B",
         }}
       />
       <div className="relative w-full h-full flex flex-col items-center justify-center text-white">
