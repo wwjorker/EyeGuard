@@ -1,15 +1,15 @@
 import { create } from "zustand";
 
+export type FollowupKind = "drink" | "posture";
+
 export interface Followup {
   id: number;
-  kind: "drink" | "posture";
-  title: string;
-  body: string;
+  kind: FollowupKind;
 }
 
 interface FollowupStore {
   items: Followup[];
-  queue: (item: Omit<Followup, "id">) => void;
+  queue: (kind: FollowupKind) => void;
   dismiss: (id: number) => void;
 }
 
@@ -17,9 +17,9 @@ let nextId = 1;
 
 export const useFollowupStore = create<FollowupStore>((set) => ({
   items: [],
-  queue: (item) =>
+  queue: (kind) =>
     set((s) => ({
-      items: [...s.items, { ...item, id: nextId++ }],
+      items: [...s.items, { id: nextId++, kind }],
     })),
   dismiss: (id) =>
     set((s) => ({

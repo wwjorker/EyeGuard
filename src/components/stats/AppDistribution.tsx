@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { AppUsage } from "../../stores/footprintStore";
 
 const COLORS = ["#34D399", "#6366F1", "#F59E0B", "#EC4899", "#A1A1AA"];
@@ -8,10 +9,11 @@ interface AppDistributionProps {
 }
 
 export function AppDistribution({ data }: AppDistributionProps) {
+  const { t } = useTranslation();
   const top5 = data.slice(0, 5);
   const rest = data.slice(5);
   const restTotal = rest.reduce((acc, d) => acc + d.totalSec, 0);
-  const slices = restTotal > 0 ? [...top5, { process: "Other", totalSec: restTotal }] : top5;
+  const slices = restTotal > 0 ? [...top5, { process: t("stats.other"), totalSec: restTotal }] : top5;
   const total = slices.reduce((acc, d) => acc + d.totalSec, 0);
 
   if (total === 0) {
@@ -21,7 +23,7 @@ export function AppDistribution({ data }: AppDistributionProps) {
         style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
       >
         <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
-          no app data yet — keep working
+          {t("stats.noAppData")}
         </span>
       </div>
     );
@@ -39,7 +41,7 @@ export function AppDistribution({ data }: AppDistributionProps) {
           className="text-[11px] uppercase"
           style={{ letterSpacing: 1.2, color: "var(--eg-muted)" }}
         >
-          App distribution
+          {t("stats.appDistribution")}
         </h4>
       </header>
       <div className="flex items-center gap-3">

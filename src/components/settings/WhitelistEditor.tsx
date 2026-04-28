@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 export function WhitelistEditor() {
   const list = useSettingsStore((s) => s.dndWhitelist);
   const update = useSettingsStore((s) => s.update);
   const [input, setInput] = useState("");
+  const { t } = useTranslation();
 
   const add = () => {
     const v = input.trim();
@@ -41,25 +43,25 @@ export function WhitelistEditor() {
       <div className="flex items-center gap-2">
         <input
           className="eg-input flex-1"
-          placeholder="zoom.exe"
+          placeholder={t("common.whitelistPlaceholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") add();
           }}
         />
-        <button className="btn-ghost" onClick={detect} title="Detect current foreground app">
-          detect
+        <button className="btn-ghost" onClick={detect} title={t("common.detectTitle")}>
+          {t("common.detect")}
         </button>
         <button className="btn-primary flex items-center gap-1" onClick={add}>
           <Plus size={12} />
-          add
+          {t("common.add")}
         </button>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {list.length === 0 && (
           <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
-            no whitelisted apps yet
+            {t("common.noWhitelist")}
           </span>
         )}
         {list.map((item) => (

@@ -1,29 +1,19 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 type ExerciseKind = "lookAway" | "rolls" | "squeeze" | "blink" | "figure8";
 
-interface Exercise {
-  kind: ExerciseKind;
-  title: string;
-  description: string;
-}
-
-const EXERCISES: Exercise[] = [
-  { kind: "lookAway", title: "Look 20 feet away", description: "Pick a distant object — soften your gaze for 20 seconds." },
-  { kind: "rolls", title: "Eye rolls", description: "Roll your eyes slowly clockwise, then counter-clockwise." },
-  { kind: "squeeze", title: "Squeeze & release", description: "Close your eyes firmly for 3 seconds, then open wide." },
-  { kind: "blink", title: "Refresh blinks", description: "Blink rapidly for 10 seconds to refresh tear film." },
-  { kind: "figure8", title: "Figure-eight", description: "Trace a slow figure-8 with your gaze." },
-];
+const KINDS: ExerciseKind[] = ["lookAway", "rolls", "squeeze", "blink", "figure8"];
 
 interface EyeExerciseProps {
   seed?: number;
 }
 
 export function EyeExercise({ seed }: EyeExerciseProps) {
-  const exercise = useMemo(() => {
-    const idx = seed != null ? seed % EXERCISES.length : Math.floor(Math.random() * EXERCISES.length);
-    return EXERCISES[idx];
+  const { t } = useTranslation();
+  const kind = useMemo<ExerciseKind>(() => {
+    const idx = seed != null ? seed % KINDS.length : Math.floor(Math.random() * KINDS.length);
+    return KINDS[idx];
   }, [seed]);
 
   return (
@@ -33,16 +23,16 @@ export function EyeExercise({ seed }: EyeExerciseProps) {
           className="text-[12px] uppercase"
           style={{ color: "rgba(255,255,255,0.45)", letterSpacing: 1.5 }}
         >
-          {exercise.title}
+          {t(`exercises.${kind}.title`)}
         </div>
         <div
           className="text-[12px] mt-1"
           style={{ color: "rgba(255,255,255,0.35)" }}
         >
-          {exercise.description}
+          {t(`exercises.${kind}.description`)}
         </div>
       </div>
-      <ExerciseAnimation kind={exercise.kind} />
+      <ExerciseAnimation kind={kind} />
     </div>
   );
 }

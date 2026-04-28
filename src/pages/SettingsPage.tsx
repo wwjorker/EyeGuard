@@ -21,28 +21,30 @@ import { SettingGroup } from "../components/settings/SettingGroup";
 import { useSettingsStore, AlertLevel } from "../stores/settingsStore";
 import { purgeAll } from "../lib/db";
 
-const formatMinutes = (sec: number) => `${Math.round(sec / 60)} min`;
-const formatSeconds = (sec: number) => `${sec} s`;
-const formatMinutesShort = (sec: number) => `${Math.round(sec / 60)}m`;
-
-const ALERT_LEVELS: { key: AlertLevel; label: string }[] = [
-  { key: "light", label: "light" },
-  { key: "medium", label: "medium" },
-  { key: "hard", label: "hard" },
-];
+const ALERT_LEVELS: AlertLevel[] = ["light", "medium", "hard"];
 
 export function SettingsPage() {
   const s = useSettingsStore();
   const update = s.update;
   const { t } = useTranslation();
 
+  const minUnit = t("settings.units.min");
+  const secUnit = t("settings.units.sec");
+  const minShort = t("settings.units.minShort");
+  const daysUnit = t("settings.units.days");
+  const timesUnit = t("settings.units.times");
+
+  const formatMinutes = (sec: number) => `${Math.round(sec / 60)} ${minUnit}`;
+  const formatSeconds = (sec: number) => `${sec} ${secUnit}`;
+  const formatMinutesShort = (sec: number) => `${Math.round(sec / 60)}${minShort}`;
+
   return (
     <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
       <div className="flex flex-col gap-3">
-        <SettingGroup title="timing" Icon={Clock}>
+        <SettingGroup title={t("settings.groups.timing")} Icon={Clock}>
           <SettingRow
-            label="Work interval"
-            hint="Time between breaks"
+            label={t("settings.rows.workInterval")}
+            hint={t("settings.rows.workIntervalHint")}
             control={
               <Slider
                 value={s.workIntervalSec}
@@ -55,8 +57,8 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Break duration"
-            hint="How long each rest lasts"
+            label={t("settings.rows.breakDuration")}
+            hint={t("settings.rows.breakDurationHint")}
             control={
               <Slider
                 value={s.breakDurationSec}
@@ -69,8 +71,8 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Idle threshold"
-            hint="Pause when away for…"
+            label={t("settings.rows.idleThreshold")}
+            hint={t("settings.rows.idleThresholdHint")}
             control={
               <Slider
                 value={s.idleThresholdSec}
@@ -84,27 +86,27 @@ export function SettingsPage() {
           />
         </SettingGroup>
 
-        <SettingGroup title="alerts" Icon={Bell}>
+        <SettingGroup title={t("settings.groups.alerts")} Icon={Bell}>
           <SettingRow
-            label="Alert level"
-            hint="Light · Medium · Hard"
+            label={t("settings.rows.alertLevel")}
+            hint={t("settings.rows.alertLevelHint")}
             control={
               <div className="eg-segmented" role="tablist">
-                {ALERT_LEVELS.map((l) => (
+                {ALERT_LEVELS.map((key) => (
                   <button
-                    key={l.key}
-                    aria-selected={s.alertLevel === l.key}
-                    onClick={() => update("alertLevel", l.key)}
+                    key={key}
+                    aria-selected={s.alertLevel === key}
+                    onClick={() => update("alertLevel", key)}
                   >
-                    {l.label}
+                    {t(`settings.alertLevels.${key}`)}
                   </button>
                 ))}
               </div>
             }
           />
           <SettingRow
-            label="Strict mode"
-            hint="Hard alerts can't be skipped"
+            label={t("settings.rows.strictMode")}
+            hint={t("settings.rows.strictModeHint")}
             control={
               <Switch
                 checked={s.strictMode}
@@ -114,9 +116,9 @@ export function SettingsPage() {
           />
         </SettingGroup>
 
-        <SettingGroup title="sound" Icon={Volume2}>
+        <SettingGroup title={t("settings.groups.sound")} Icon={Volume2}>
           <SettingRow
-            label="Sound effects"
+            label={t("settings.rows.soundEffects")}
             control={
               <Switch
                 checked={s.soundEnabled}
@@ -125,7 +127,7 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Volume"
+            label={t("settings.rows.volume")}
             control={
               <Slider
                 value={s.soundVolume}
@@ -138,10 +140,10 @@ export function SettingsPage() {
           />
         </SettingGroup>
 
-        <SettingGroup title="smart snooze" Icon={Hourglass}>
+        <SettingGroup title={t("settings.groups.smartSnooze")} Icon={Hourglass}>
           <SettingRow
-            label="Auto-defer when fullscreen"
-            hint="Skip alert if a video / game is playing"
+            label={t("settings.rows.smartSnooze")}
+            hint={t("settings.rows.smartSnoozeHint")}
             control={
               <Switch
                 checked={s.smartSnoozeEnabled}
@@ -150,7 +152,7 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Defer duration"
+            label={t("settings.rows.snoozeDur")}
             control={
               <Slider
                 value={s.snoozeDurationSec}
@@ -163,22 +165,22 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Max consecutive defers"
+            label={t("settings.rows.snoozeMax")}
             control={
               <Slider
                 value={s.snoozeMaxCount}
                 min={1}
                 max={6}
                 onChange={(v) => update("snoozeMaxCount", v)}
-                format={(v) => `${v}x`}
+                format={(v) => `${v}${timesUnit}`}
               />
             }
           />
         </SettingGroup>
 
-        <SettingGroup title="health" Icon={Coffee}>
+        <SettingGroup title={t("settings.groups.health")} Icon={Coffee}>
           <SettingRow
-            label="Drink reminder"
+            label={t("settings.rows.drink")}
             control={
               <Switch
                 checked={s.drinkReminder}
@@ -187,7 +189,7 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Posture reminder"
+            label={t("settings.rows.posture")}
             control={
               <Switch
                 checked={s.postureReminder}
@@ -197,10 +199,10 @@ export function SettingsPage() {
           />
         </SettingGroup>
 
-        <SettingGroup title="privacy" Icon={EyeOff}>
+        <SettingGroup title={t("settings.groups.privacy")} Icon={EyeOff}>
           <SettingRow
-            label="App footprint tracking"
-            hint="Record which apps you spend time in"
+            label={t("settings.rows.footprint")}
+            hint={t("settings.rows.footprintHint")}
             control={
               <Switch
                 checked={s.appFootprintEnabled}
@@ -209,7 +211,7 @@ export function SettingsPage() {
             }
           />
           <SettingRow
-            label="Data retention"
+            label={t("settings.rows.retention")}
             control={
               <Slider
                 value={s.dataRetentionDays}
@@ -217,13 +219,13 @@ export function SettingsPage() {
                 max={365}
                 step={1}
                 onChange={(v) => update("dataRetentionDays", v)}
-                format={(v) => `${v}d`}
+                format={(v) => `${v}${daysUnit}`}
               />
             }
           />
           <SettingRow
-            label="Clear all stats"
-            hint="Wipes app footprint and break history"
+            label={t("settings.rows.purge")}
+            hint={t("settings.rows.purgeHint")}
             control={
               <button
                 className="btn-ghost flex items-center gap-2"
@@ -233,7 +235,7 @@ export function SettingsPage() {
                 }}
               >
                 <Trash2 size={12} />
-                <span>purge</span>
+                <span>{t("settings.actions.purge")}</span>
               </button>
             }
           />

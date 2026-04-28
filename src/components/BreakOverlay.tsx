@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useTimerStore, formatMMSS } from "../stores/timerStore";
 import { EyeExercise } from "./EyeExercise";
 import { useSettingsStore } from "../stores/settingsStore";
@@ -17,6 +18,7 @@ export function BreakOverlay() {
   const drinkReminder = useSettingsStore((s) => s.drinkReminder);
   const postureReminder = useSettingsStore((s) => s.postureReminder);
   const queueFollowup = useFollowupStore((s) => s.queue);
+  const { t } = useTranslation();
 
   const totalDuration = breakKind === "long" ? longBreakSec : breakDuration;
   const exerciseSeed = useMemo(() => Math.floor(Math.random() * 1000), [completedBreaks, state]);
@@ -26,14 +28,10 @@ export function BreakOverlay() {
     if (state !== "break" || remaining > 0) return;
     endBreak(false);
     if (drinkReminder && Math.random() < 0.5) {
-      queueFollowup({ kind: "drink", title: "Hydrate", body: "Grab a sip of water — your eyes will thank you." });
+      queueFollowup("drink");
     }
     if (postureReminder && (completedBreaks + 1) % 3 === 0) {
-      queueFollowup({
-        kind: "posture",
-        title: "Check your posture",
-        body: "Sit tall, drop your shoulders, and adjust your screen distance.",
-      });
+      queueFollowup("posture");
     }
   }, [state, remaining, endBreak, drinkReminder, postureReminder, completedBreaks, queueFollowup]);
 
@@ -57,7 +55,7 @@ export function BreakOverlay() {
       />
       <div className="relative w-full h-full flex flex-col items-center justify-center text-white">
         <div className="brand mb-3" style={{ color: "rgba(255,255,255,0.18)" }}>
-          eyeguard · {breakKind === "long" ? "long break" : breakKind === "short" ? "short break" : "rest"}
+          {t("brand")} · {t(`breakKind.${breakKind}`)}
         </div>
 
         <div className="relative" style={{ width: SIZE, height: SIZE }}>
@@ -115,7 +113,7 @@ export function BreakOverlay() {
             style={{ color: "rgba(255,255,255,0.7)" }}
             onClick={() => endBreak(true)}
           >
-            skip
+            {t("skip")}
           </button>
         )}
       </div>

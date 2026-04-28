@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MetricCard } from "../components/stats/MetricCard";
 import { AppDistribution } from "../components/stats/AppDistribution";
 import { WeeklyChart } from "../components/stats/WeeklyChart";
@@ -18,6 +19,7 @@ export function StatsPage() {
   const dailyUsage = useFootprintStore((s) => s.dailyUsage);
   const setAppUsage = useFootprintStore((s) => s.setAppUsage);
   const setDailyUsage = useFootprintStore((s) => s.setDailyUsage);
+  const { t } = useTranslation();
 
   const [refreshNonce, setRefreshNonce] = useState(0);
 
@@ -39,23 +41,23 @@ export function StatsPage() {
     <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
       <div className="grid grid-cols-2 gap-2.5 mb-3">
         <MetricCard
-          label="Screen today"
+          label={t("stats.screenToday")}
           value={formatHM(todayScreenSec)}
         />
         <MetricCard
-          label="Breaks done"
+          label={t("stats.breaksDone")}
           value={completedBreaks}
           numericValue={completedBreaks}
           accent="var(--eg-purple)"
         />
         <MetricCard
-          label="Breaks skipped"
+          label={t("stats.breaksSkipped")}
           value={skippedBreaks}
           numericValue={skippedBreaks}
           accent="var(--eg-pink)"
         />
         <MetricCard
-          label="Longest streak"
+          label={t("stats.longestStreak")}
           value={`${Math.round(longestStreak / 60)}m`}
           accent="var(--eg-amber)"
         />
@@ -67,7 +69,7 @@ export function StatsPage() {
           style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
         >
           <span className="text-[11px] uppercase" style={{ color: "var(--eg-muted)", letterSpacing: 1.2 }}>
-            this week vs last
+            {t("stats.weekVsLast")}
           </span>
           <span
             className="text-[15px] font-bold"

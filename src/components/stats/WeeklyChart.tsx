@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { DailyUsage } from "../../stores/footprintStore";
 
 interface WeeklyChartProps {
@@ -14,6 +15,7 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ data }: WeeklyChartProps) {
+  const { t, i18n } = useTranslation();
   if (!data.length) {
     return (
       <div
@@ -21,7 +23,7 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
         style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
       >
         <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
-          last 7 days will appear here
+          {t("stats.noChartData")}
         </span>
       </div>
     );
@@ -41,8 +43,9 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
     });
   }
 
+  const locale = i18n.language === "zh" ? "zh-CN" : "en-US";
   const formatted = filled.map((d) => ({
-    label: new Date(d.date + "T00:00").toLocaleDateString(undefined, { weekday: "short" }),
+    label: new Date(d.date + "T00:00").toLocaleDateString(locale, { weekday: "short" }),
     minutes: Math.round(d.totalSec / 60),
   }));
 
@@ -56,7 +59,7 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
           className="text-[11px] uppercase"
           style={{ letterSpacing: 1.2, color: "var(--eg-muted)" }}
         >
-          Last 7 days
+          {t("stats.last7Days")}
         </h4>
       </header>
       <div style={{ width: "100%", height: 150 }}>
@@ -75,7 +78,7 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
               }}
               labelStyle={{ color: "rgba(255,255,255,0.5)" }}
               itemStyle={{ color: "#FAFAFA" }}
-              formatter={(value: number) => [`${value}m`, "screen"]}
+              formatter={(value: number) => [`${value}m`, t("stats.screenTooltip")]}
             />
             <Bar dataKey="minutes" fill="#34D399" radius={[4, 4, 0, 0]} />
           </BarChart>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Droplet, PersonStanding } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useFollowupStore } from "../stores/followupStore";
 
 const ICONS = {
@@ -17,6 +18,7 @@ export function FollowupToast() {
   const dismiss = useFollowupStore((s) => s.dismiss);
   const head = items[0];
   const [exiting, setExiting] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!head) return;
@@ -32,6 +34,8 @@ export function FollowupToast() {
 
   const Icon = ICONS[head.kind];
   const accent = ACCENT[head.kind];
+  const title = head.kind === "drink" ? t("follow.drinkTitle") : t("follow.postureTitle");
+  const body = head.kind === "drink" ? t("follow.drinkBody") : t("follow.postureBody");
 
   return (
     <div className="fixed z-40" style={{ right: 18, bottom: 18 }}>
@@ -54,10 +58,10 @@ export function FollowupToast() {
           </div>
           <div className="min-w-0">
             <div className="text-[13px] font-semibold" style={{ color: "var(--eg-text)" }}>
-              {head.title}
+              {title}
             </div>
             <div className="text-[11px] mt-0.5" style={{ color: "var(--eg-muted)" }}>
-              {head.body}
+              {body}
             </div>
           </div>
         </div>
@@ -69,10 +73,9 @@ export function FollowupToast() {
               window.setTimeout(() => dismiss(head.id), 220);
             }}
           >
-            got it
+            {t("follow.gotIt")}
           </button>
         </div>
-        {/* override the green stripe with the followup accent */}
         <style>{`.toast-card::before { background: ${accent} !important; }`}</style>
       </div>
     </div>

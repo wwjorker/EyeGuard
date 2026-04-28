@@ -28,6 +28,11 @@
     "score": "score",
     "streak": "streak"
   },
+  "breakKind": {
+    "long": "long break",
+    "short": "short break",
+    "free": "rest"
+  },
   "alerts": {
     "title": "Time for a quick break",
     "body": "You've been focused for {{streak}} — let your eyes rest.",
@@ -101,6 +106,11 @@
     "actions": {
       "purge": "purge"
     },
+    "alertLevels": {
+      "light": "light",
+      "medium": "medium",
+      "hard": "hard"
+    },
     "themeOptions": {
       "dark": "dark",
       "light": "light",
@@ -109,6 +119,14 @@
     "langOptions": {
       "zh": "中文",
       "en": "English"
+    },
+    "units": {
+      "min": "min",
+      "sec": "s",
+      "minShort": "m",
+      "secShort": "s",
+      "days": "d",
+      "times": "x"
     }
   },
   "stats": {
@@ -121,7 +139,8 @@
     "last7Days": "Last 7 days",
     "noAppData": "no app data yet — keep working",
     "noChartData": "last 7 days will appear here",
-    "other": "Other"
+    "other": "Other",
+    "screenTooltip": "screen"
   },
   "pomodoro": {
     "title": "Pomodoro mode",
@@ -150,7 +169,9 @@
   "common": {
     "add": "add",
     "detect": "detect",
+    "detectTitle": "Detect current foreground app",
     "noWhitelist": "no whitelisted apps yet",
-    "dndHint": "When any of these apps is in the foreground, EyeGuard skips its alert (usage is still tracked)."
+    "dndHint": "When any of these apps is in the foreground, EyeGuard skips its alert (usage is still tracked).",
+    "whitelistPlaceholder": "e.g. zoom.exe"
   }
 }

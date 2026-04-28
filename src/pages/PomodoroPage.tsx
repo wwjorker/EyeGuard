@@ -1,12 +1,11 @@
 import { CircleDot, Coffee } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Slider } from "../components/settings/Slider";
 import { Switch } from "../components/settings/Switch";
 import { SettingRow } from "../components/settings/SettingRow";
 import { SettingGroup } from "../components/settings/SettingGroup";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
-
-const formatMinutes = (sec: number) => `${Math.round(sec / 60)} min`;
 
 export function PomodoroPage() {
   const enabled = useSettingsStore((s) => s.pomodoroEnabled);
@@ -18,6 +17,10 @@ export function PomodoroPage() {
 
   const pomodoroCount = useTimerStore((s) => s.pomodoroCount);
   const breakKind = useTimerStore((s) => s.currentBreakKind);
+  const { t } = useTranslation();
+
+  const minUnit = t("settings.units.min");
+  const formatMinutes = (sec: number) => `${Math.round(sec / 60)} ${minUnit}`;
 
   return (
     <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
@@ -40,12 +43,12 @@ export function PomodoroPage() {
           </div>
           <div>
             <div className="text-[13px]" style={{ color: "var(--eg-text)" }}>
-              Pomodoro mode
+              {t("pomodoro.title")}
             </div>
             <div className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
               {enabled
-                ? `Cycle ${pomodoroCount} · long break every ${longInterval}`
-                : "Replace free timer with focus cycles"}
+                ? t("pomodoro.hintOn", { count: pomodoroCount, interval: longInterval })
+                : t("pomodoro.hintOff")}
             </div>
           </div>
         </div>
@@ -55,24 +58,28 @@ export function PomodoroPage() {
       {enabled && (
         <>
           <div className="grid grid-cols-3 gap-2 mb-3">
-            <PomodoroBubble label="cycles" value={pomodoroCount} accent="var(--eg-purple)" />
+            <PomodoroBubble label={t("pomodoro.cycles")} value={pomodoroCount} accent="var(--eg-purple)" />
             <PomodoroBubble
-              label="next break"
+              label={t("pomodoro.nextBreak")}
               value={
-                breakKind === "long" ? "long" : (pomodoroCount + 1) % longInterval === 0 ? "long" : "short"
+                breakKind === "long"
+                  ? t("pomodoro.nextLong")
+                  : (pomodoroCount + 1) % longInterval === 0
+                    ? t("pomodoro.nextLong")
+                    : t("pomodoro.nextShort")
               }
               accent="var(--eg-amber)"
             />
             <PomodoroBubble
-              label="cadence"
+              label={t("pomodoro.cadence")}
               value={`${Math.round(workSec / 60)}/${Math.round(shortBreak / 60)}`}
               accent="var(--eg-green)"
             />
           </div>
 
-          <SettingGroup title="cadence" Icon={Coffee}>
+          <SettingGroup title={t("pomodoro.groupCadence")} Icon={Coffee}>
             <SettingRow
-              label="Work duration"
+              label={t("pomodoro.rowWork")}
               control={
                 <Slider
                   value={workSec}
@@ -85,7 +92,7 @@ export function PomodoroPage() {
               }
             />
             <SettingRow
-              label="Short break"
+              label={t("pomodoro.rowShort")}
               control={
                 <Slider
                   value={shortBreak}
@@ -98,7 +105,7 @@ export function PomodoroPage() {
               }
             />
             <SettingRow
-              label="Long break"
+              label={t("pomodoro.rowLong")}
               control={
                 <Slider
                   value={longBreak}
@@ -111,15 +118,15 @@ export function PomodoroPage() {
               }
             />
             <SettingRow
-              label="Long break interval"
-              hint="After this many work sessions"
+              label={t("pomodoro.rowInterval")}
+              hint={t("pomodoro.intervalHint")}
               control={
                 <Slider
                   value={longInterval}
                   min={2}
                   max={8}
                   onChange={(v) => update("pomodoroLongInterval", v)}
-                  format={(v) => `${v} cycles`}
+                  format={(v) => `${v} ${t("pomodoro.cycles")}`}
                 />
               }
             />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useTimerStore, formatMMSS } from "../stores/timerStore";
 
 interface AlertToastProps {
@@ -12,6 +13,7 @@ interface AlertToastProps {
 export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 }: AlertToastProps) {
   const [exiting, setExiting] = useState(false);
   const streak = useTimerStore((s) => s.currentStreakSec);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!visible) return;
@@ -46,10 +48,10 @@ export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 
           </div>
           <div className="flex flex-col gap-1 min-w-0">
             <div className="text-[13px] font-semibold" style={{ color: "var(--eg-text)" }}>
-              Time for a quick break
+              {t("alerts.title")}
             </div>
             <div className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
-              You've been focused for {formatMMSS(streak)} — let your eyes rest.
+              {t("alerts.body", { streak: formatMMSS(streak) })}
             </div>
           </div>
         </div>
@@ -61,7 +63,7 @@ export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 
               window.setTimeout(onDismiss, 220);
             }}
           >
-            later
+            {t("alerts.later")}
           </button>
           <button
             className="btn-primary"
@@ -70,7 +72,7 @@ export function AlertToast({ visible, onAccept, onDismiss, autoDismissMs = 8000 
               window.setTimeout(onAccept, 220);
             }}
           >
-            start break
+            {t("alerts.startBreak")}
           </button>
         </div>
       </div>
