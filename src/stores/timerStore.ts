@@ -76,6 +76,13 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
 
   tick: () => {
     const s = get();
+    if (s.state === "break") {
+      // During a break, only the break countdown decrements — do not
+      // accumulate streak or screen time. BreakOverlay's effect closes the
+      // break when this hits zero.
+      set({ remainingSec: Math.max(0, s.remainingSec - 1) });
+      return;
+    }
     if (s.state !== "active") return;
     const next = s.remainingSec - 1;
     const nextStreak = s.currentStreakSec + 1;
