@@ -2,6 +2,7 @@ import { Pause, Play, Coffee } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HeroTimer } from "../components/HeroTimer";
 import { MetricRingsRow } from "../components/MetricRingsRow";
+import { PomodoroProgress } from "../components/PomodoroProgress";
 import { useTimerStore } from "../stores/timerStore";
 
 export function TimerPage() {
@@ -18,6 +19,8 @@ export function TimerPage() {
   return (
     <section className="flex-1 flex flex-col page-enter">
       <HeroTimer />
+
+      <PomodoroProgress />
 
       <div className="flex items-center justify-center gap-3 pb-4">
         <button className="btn-ghost flex items-center gap-2" onClick={togglePause} disabled={state === "break"}>

@@ -152,6 +152,7 @@
     "title": "Pomodoro mode",
     "hintOff": "Replace free timer with focus cycles",
     "hintOn": "Cycle {{count}} · long break every {{interval}}",
+    "focusLabel": "focus {{n}}/{{total}}",
     "cycles": "cycles",
     "nextBreak": "next break",
     "nextLong": "long",

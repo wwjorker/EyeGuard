@@ -83,6 +83,16 @@ body::before {
   animation: egBlink 6.5s ease-in-out infinite;
 }
 
+/* Pomodoro active-cycle dot pulse */
+@keyframes egPomoPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.2); }
+}
+
+.eg-pomo-active {
+  animation: egPomoPulse 2.2s ease-in-out infinite;
+}
+
 button {
   font-family: inherit;
 }

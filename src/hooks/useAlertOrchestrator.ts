@@ -172,17 +172,35 @@ async function getForeground(): Promise<ForegroundInfo | null> {
 }
 
 /**
- * Pop the main window out of the tray and bring it to the front so the
- * user can see the alert toast. Quietly no-ops outside Tauri.
+ * Pop the main window out of the tray and force it in front, even when
+ * Windows would normally block stealing focus from another foreground app.
+ *
+ * The trick: toggle alwaysOnTop ON briefly so the OS allows the window to
+ * raise, then back OFF so the user can switch away again. Combined with
+ * `requestUserAttention` as a fallback (flashes the taskbar entry if focus
+ * stealing was blocked).
  */
 async function ensureMainWindowVisible() {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
   try {
-    const { getCurrentWindow } = await import("@tauri-apps/api/window");
-    const win = getCurrentWindow();
+    const winMod = await import("@tauri-apps/api/window");
+    const win = winMod.getCurrentWindow();
     await win.show();
     await win.unminimize();
+    await win.setAlwaysOnTop(true);
     await win.setFocus();
+    // Drop always-on-top after a short delay so the user can layer
+    // other windows over it again if they want.
+    setTimeout(() => {
+      void win.setAlwaysOnTop(false);
+    }, 300);
+    // Flash the taskbar entry as belt-and-suspenders in case the OS
+    // refused the focus steal.
+    try {
+      await win.requestUserAttention(winMod.UserAttentionType.Critical);
+    } catch {
+      /* not all platforms / versions support this — ignore */
+    }
   } catch {
     /* ignore */
   }

@@ -152,6 +152,7 @@
     "title": "番茄钟模式",
     "hintOff": "用专注循环替代自由计时",
     "hintOn": "第 {{count}} 个循环 · 每 {{interval}} 个长休息一次",
+    "focusLabel": "专注 {{n}}/{{total}}",
     "cycles": "循环",
     "nextBreak": "下次休息",
     "nextLong": "长",
