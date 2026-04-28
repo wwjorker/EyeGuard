@@ -27,8 +27,8 @@ src-tauri/gen/
 *.swp
 *.swo
 
-# Claude Code local user prefs
-.claude/settings.local.json
+# Local tool config
+.claude/
 
 # OS
 .DS_Store
