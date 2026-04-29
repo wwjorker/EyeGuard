@@ -54,7 +54,11 @@ export function useAlertOrchestrator(): AlertOrchestrator {
             if (action === "accept") {
               startBreak();
             } else if (action === "later") {
-              useTimerStore.setState({ remainingSec: 5 * 60 });
+              // Push the alert back by min(5 minutes, current work interval)
+              // so testing with very short cycles isn't drowned in 5-min snoozes.
+              const work = useTimerStore.getState().workIntervalSec;
+              const snooze = Math.min(5 * 60, Math.max(15, work));
+              useTimerStore.setState({ remainingSec: snooze });
             }
           },
         );
@@ -91,12 +95,63 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     };
   }, []);
 
+  // Drive the dedicated `break` window from the timer state. Whenever the
+  // store transitions into "break", show the window with the current
+  // duration and break kind. Whenever it leaves "break", hide it.
   useEffect(() => {
-    if (state !== "active") {
+    let prevState = useTimerStore.getState().state;
+    const unsub = useTimerStore.subscribe((s) => {
+      if (s.state === "break" && prevState !== "break") {
+        const settings = useSettingsStore.getState();
+        const duration = s.currentBreakKind === "long" ? s.longBreakSec : s.breakDurationSec;
+        void showBreakWindow({
+          duration,
+          kind: s.currentBreakKind,
+          strict: settings.strictMode,
+        });
+      } else if (s.state !== "break" && prevState === "break") {
+        void hideBreakWindow();
+      }
+      prevState = s.state;
+    });
+    return unsub;
+  }, []);
+
+  // Listen for break-end events from the break window and close out the
+  // break in the main timer store.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+    let off: (() => void) | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        off = await listen<{ skipped: boolean }>("break://end", (e) => {
+          const skipped = e.payload?.skipped ?? false;
+          useTimerStore.getState().endBreak(skipped);
+        });
+      } catch {
+        /* ignore */
+      }
+      if (cancelled) off?.();
+    })();
+    return () => {
+      cancelled = true;
+      off?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Reset the "already fired" latch any time the timer is back in a
+    // healthy state — either we're not actively counting down, or the
+    // remaining time is positive again (after a resetCycle / snooze).
+    // Without this reset, a light alert (which leaves state="active")
+    // would lock the latch on, and the next cycle hitting 0 would
+    // silently no-op.
+    if (state !== "active" || remaining > 0) {
       firedRef.current = false;
       return;
     }
-    if (remaining > 0) return;
     if (firedRef.current) return;
     firedRef.current = true;
 
@@ -134,8 +189,9 @@ export function useAlertOrchestrator(): AlertOrchestrator {
         playBeep("medium", soundEnabled, soundVolume);
         return;
       }
-      // light
-      void fireNativeNotification();
+      // light: just our own notification window (Windows native would be
+      // a duplicate, since we already render the same content with more
+      // control)
       await showNotificationWindow({
         variant: "light",
         streakSec: useTimerStore.getState().currentStreakSec,
@@ -172,7 +228,6 @@ export function useAlertOrchestrator(): AlertOrchestrator {
       });
       playBeep("medium", soundEnabled, soundVolume);
     } else {
-      void fireNativeNotification();
       void showNotificationWindow({
         variant: "light",
         streakSec: useTimerStore.getState().currentStreakSec,
@@ -269,32 +324,63 @@ async function hideNotificationWindow() {
   }
 }
 
-async function fireNativeNotification() {
-  if (typeof window === "undefined") return;
-  if ("__TAURI_INTERNALS__" in window) {
-    try {
-      const mod = await import("@tauri-apps/plugin-notification");
-      const granted =
-        (await mod.isPermissionGranted()) || (await mod.requestPermission()) === "granted";
-      if (granted) {
-        mod.sendNotification({ title: "EyeGuard", body: "Time to look away — quick eye break!" });
-      }
+interface BreakPayload {
+  duration: number;
+  kind: "long" | "short" | "free";
+  strict: boolean;
+}
+
+/**
+ * Bring up the dedicated fullscreen break window. Always-on-top, no
+ * decorations, and (because it's its own window) it works regardless of
+ * whether the main window is hidden, minimised, or behind something else.
+ */
+async function showBreakWindow(payload: BreakPayload) {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+  try {
+    const winMod = await import("@tauri-apps/api/window");
+    const { emit } = await import("@tauri-apps/api/event");
+    const win = await winMod.Window.getByLabel("break");
+    if (!win) {
+      console.warn("[eyeguard] break window not found");
       return;
-    } catch {
-      /* ignore */
     }
-  }
-  if (typeof Notification !== "undefined") {
+    // Show first so the OS gives us the dimensions we need.
+    await win.show();
     try {
-      if (Notification.permission === "default") await Notification.requestPermission();
-      if (Notification.permission === "granted") {
-        new Notification("EyeGuard", { body: "Time to look away — quick eye break!" });
-      }
+      await win.setFullscreen(true);
     } catch {
-      /* ignore */
+      /* ignore — fall back to declared size */
     }
+    await win.setAlwaysOnTop(true);
+    await win.setFocus();
+    // Fire the show event so the React side starts its countdown. Use
+    // setTimeout(0) so listeners attached on first paint catch it.
+    setTimeout(() => {
+      void emit("break://show", payload);
+    }, 50);
+  } catch (err) {
+    console.warn("[eyeguard] failed to show break window", err);
   }
 }
+
+async function hideBreakWindow() {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+  try {
+    const winMod = await import("@tauri-apps/api/window");
+    const win = await winMod.Window.getByLabel("break");
+    if (!win) return;
+    try {
+      await win.setFullscreen(false);
+    } catch {
+      /* ignore */
+    }
+    await win.hide();
+  } catch {
+    /* ignore */
+  }
+}
+
 
 export type BeepTier = "light" | "medium" | "hard";
 

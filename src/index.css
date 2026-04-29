@@ -60,6 +60,33 @@ html:has(.notif-root),
   background: transparent;
 }
 
+/* Break window: full opaque dark canvas for the rest UI. */
+.break-root {
+  position: fixed;
+  inset: 0;
+  background: #09090B;
+  color: #FAFAFA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.break-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(52,211,153,0.05), transparent 60%);
+  pointer-events: none;
+}
+
+.break-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 1;
+}
+
 /* Subtle grain over the entire app — adds analog warmth so the
    surface doesn't look like a plain hex fill. */
 body::before {

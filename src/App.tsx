@@ -3,7 +3,6 @@ import { TopBar } from "./components/TopBar";
 import { TimerPage } from "./pages/TimerPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { PomodoroPage } from "./pages/PomodoroPage";
-import { BreakOverlay } from "./components/BreakOverlay";
 import { FollowupToast } from "./components/FollowupToast";
 import { useTimerStore } from "./stores/timerStore";
 import { useTrayBridge } from "./hooks/useTrayBridge";
@@ -74,7 +73,6 @@ function App() {
           {page === "settings" && <SettingsPage />}
         </div>
       </div>
-      <BreakOverlay />
       <FollowupToast />
     </main>
   );

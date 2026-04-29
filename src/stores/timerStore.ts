@@ -98,13 +98,11 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       });
     }
 
-    if (s.state === "break") {
-      // Break-state tick only decrements the rest countdown — do not
-      // accumulate streak / screen time.
-      set({ remainingSec: Math.max(0, s.remainingSec - 1) });
-      return;
-    }
+    // The break itself runs in its own dedicated window with its own
+    // countdown, so the main store does not tick during break. It also
+    // skips paused / idle states.
     if (s.state !== "active") return;
+
     const next = s.remainingSec - 1;
     const nextStreak = s.currentStreakSec + 1;
     set({

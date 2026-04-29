@@ -45,6 +45,21 @@
         "shadow": false,
         "x": 0,
         "y": 0
+      },
+      {
+        "label": "break",
+        "title": "EyeGuard Break",
+        "url": "/?window=break",
+        "width": 1280,
+        "height": 800,
+        "resizable": false,
+        "decorations": false,
+        "transparent": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": false,
+        "fullscreen": false
       }
     ],
     "security": {
