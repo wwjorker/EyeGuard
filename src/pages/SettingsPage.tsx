@@ -4,6 +4,7 @@ import {
   Coffee,
   Download,
   EyeOff,
+  FolderTree,
   Hourglass,
   Palette,
   Power,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { WhitelistEditor } from "../components/settings/WhitelistEditor";
+import { CategoryEditor } from "../components/settings/CategoryEditor";
 import { exportCsv, exportJson } from "../lib/export";
 import { useAlertCommander } from "../hooks/useAlertOrchestrator";
 import { Slider } from "../components/settings/Slider";
@@ -281,6 +283,10 @@ export function SettingsPage() {
             </div>
             <WhitelistEditor />
           </div>
+        </SettingGroup>
+
+        <SettingGroup title={t("settings.groups.categories")} Icon={FolderTree}>
+          <CategoryEditor />
         </SettingGroup>
 
         <SettingGroup title={t("settings.groups.appearance")} Icon={Palette}>

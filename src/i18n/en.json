@@ -80,6 +80,7 @@
       "health": "health",
       "privacy": "privacy",
       "dnd": "do not disturb",
+      "categories": "app categories",
       "appearance": "appearance",
       "system": "system"
     },
@@ -113,6 +114,9 @@
       "language": "Language",
       "showOnboarding": "Show welcome card again",
       "showOnboardingHint": "Re-displays on the next timer-page visit",
+      "categorySearch": "Search process name…",
+      "categoryEmpty": "No app footprint yet — come back after a while",
+      "categoryReset": "Reset to default category",
       "autoDndMeetings": "Quiet during meetings",
       "autoDndMeetingsHint": "Suppress alerts when Zoom / Teams / WeChat / Lark / DingTalk etc. is foreground",
       "autoDndGames": "Quiet during games",
@@ -156,11 +160,25 @@
     "longestStreak": "Longest streak",
     "weekVsLast": "this week vs last",
     "appDistribution": "App distribution",
+    "byApp": "by app",
+    "byCategory": "by category",
+    "hourly": "Today by hour",
+    "hourlyEmpty": "no data for today yet — check back in a few minutes",
+    "peak": "Peak {{hour}}:00 · {{minutes}}m",
+    "totalToday": "Total today: {{minutes}}m",
     "last7Days": "Last 7 days",
     "noAppData": "no app data yet — keep working",
     "noChartData": "last 7 days will appear here",
     "other": "Other",
     "screenTooltip": "screen"
+  },
+  "category": {
+    "productivity": "Productivity",
+    "browser": "Browser",
+    "communication": "Communication",
+    "entertainment": "Entertainment",
+    "system": "System",
+    "other": "Other"
   },
   "pomodoro": {
     "title": "Pomodoro mode",
@@ -228,6 +246,7 @@
     "detectTitle": "Detect current foreground app",
     "noWhitelist": "no whitelisted apps yet",
     "dndHint": "When any of these apps is in the foreground, EyeGuard skips its alert (usage is still tracked).",
-    "whitelistPlaceholder": "e.g. zoom.exe"
+    "whitelistPlaceholder": "e.g. zoom.exe",
+    "loading": "loading…"
   }
 }

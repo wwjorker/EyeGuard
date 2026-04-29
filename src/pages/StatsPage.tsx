@@ -2,8 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MetricCard } from "../components/stats/MetricCard";
 import { AppDistribution } from "../components/stats/AppDistribution";
+import { HourlyHeatmap } from "../components/stats/HourlyHeatmap";
 import { WeeklyChart } from "../components/stats/WeeklyChart";
-import { getAppUsage, getDailyUsage } from "../lib/db";
+import {
+  getAppUsage,
+  getCategoryOverrides,
+  getDailyUsage,
+  getHourlyToday,
+  type HourlyEntry,
+} from "../lib/db";
 import { useFootprintStore } from "../stores/footprintStore";
 import { useTimerStore, formatHM } from "../stores/timerStore";
 
@@ -22,14 +29,17 @@ export function StatsPage() {
   const { t } = useTranslation();
 
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const [hourly, setHourly] = useState<HourlyEntry[]>([]);
+  const [overrides, setOverrides] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     const since = Math.floor(Date.now() / 1000) - ONE_DAY;
     void getAppUsage(since).then(setAppUsage);
     void getDailyUsage(7).then(setDailyUsage);
+    void getHourlyToday().then(setHourly);
+    void getCategoryOverrides().then(setOverrides);
   }, [refreshNonce, setAppUsage, setDailyUsage]);
 
-  // Refresh whenever a new break completes
   useEffect(() => {
     const id = window.setInterval(() => setRefreshNonce((n) => n + 1), 30_000);
     return () => window.clearInterval(id);
@@ -82,7 +92,8 @@ export function StatsPage() {
       )}
 
       <div className="flex flex-col gap-3">
-        <AppDistribution data={appUsage} />
+        <HourlyHeatmap data={hourly} />
+        <AppDistribution data={appUsage} overrides={overrides} />
         <WeeklyChart data={dailyUsage} />
       </div>
     </section>

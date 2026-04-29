@@ -128,3 +128,87 @@ export async function purgeOlderThan(days: number) {
     console.warn("[eyeguard] purgeOlderThan", err);
   }
 }
+
+// ─── App-category overrides ───
+
+interface RawCategoryRow {
+  process: string;
+  category: string;
+}
+
+export async function getCategoryOverrides(): Promise<Map<string, string>> {
+  const db = await open();
+  if (!db) return new Map();
+  try {
+    const rows = (await db.select<RawCategoryRow[]>(
+      "SELECT process, category FROM app_category",
+    )) as RawCategoryRow[];
+    return new Map(rows.map((r) => [r.process.toLowerCase(), r.category]));
+  } catch (err) {
+    console.warn("[eyeguard] getCategoryOverrides", err);
+    return new Map();
+  }
+}
+
+export async function setCategoryOverride(process: string, category: string) {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute(
+      "INSERT OR REPLACE INTO app_category (process, category) VALUES (?, ?)",
+      [process.toLowerCase(), category],
+    );
+  } catch (err) {
+    console.warn("[eyeguard] setCategoryOverride", err);
+  }
+}
+
+export async function clearCategoryOverride(process: string) {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute("DELETE FROM app_category WHERE process = ?", [process.toLowerCase()]);
+  } catch (err) {
+    console.warn("[eyeguard] clearCategoryOverride", err);
+  }
+}
+
+// ─── Hourly heat map for today ───
+
+interface RawHourRow {
+  hour: string;
+  total: number;
+}
+
+export interface HourlyEntry {
+  hour: number; // 0..23
+  totalSec: number;
+}
+
+export async function getHourlyToday(): Promise<HourlyEntry[]> {
+  const db = await open();
+  const empty: HourlyEntry[] = Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    totalSec: 0,
+  }));
+  if (!db) return empty;
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const since = Math.floor(todayStart.getTime() / 1000);
+    const rows = (await db.select<RawHourRow[]>(
+      `SELECT strftime('%H', started_at, 'unixepoch', 'localtime') AS hour,
+              SUM(duration_s) AS total
+         FROM app_footprint
+        WHERE started_at >= ?
+     GROUP BY hour`,
+      [since],
+    )) as RawHourRow[];
+    const map = new Map<number, number>();
+    for (const r of rows) map.set(parseInt(r.hour, 10), r.total);
+    return empty.map((e) => ({ hour: e.hour, totalSec: map.get(e.hour) ?? 0 }));
+  } catch (err) {
+    console.warn("[eyeguard] getHourlyToday", err);
+    return empty;
+  }
+}

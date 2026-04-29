@@ -80,6 +80,7 @@
       "health": "健康",
       "privacy": "隐私",
       "dnd": "勿扰",
+      "categories": "应用分类",
       "appearance": "外观",
       "system": "系统"
     },
@@ -113,6 +114,9 @@
       "language": "语言",
       "showOnboarding": "再次显示欢迎页",
       "showOnboardingHint": "下次回到 timer 页时会再显示一次",
+      "categorySearch": "搜索进程名…",
+      "categoryEmpty": "暂时没有应用足迹 — 用一会儿再回来",
+      "categoryReset": "恢复默认分类",
       "autoDndMeetings": "会议中自动勿扰",
       "autoDndMeetingsHint": "Zoom / 腾讯会议 / 飞书 / 钉钉 / 微信等在前台时不弹提醒",
       "autoDndGames": "游戏中自动勿扰",
@@ -156,11 +160,25 @@
     "longestStreak": "最长连续",
     "weekVsLast": "本周 vs 上周",
     "appDistribution": "应用分布",
+    "byApp": "按应用",
+    "byCategory": "按类别",
+    "hourly": "今日小时分布",
+    "hourlyEmpty": "今天还没有数据 — 等几分钟再回来看看",
+    "peak": "峰值 {{hour}}:00 · {{minutes}} 分钟",
+    "totalToday": "今日合计 {{minutes}} 分钟",
     "last7Days": "最近 7 天",
     "noAppData": "还没有应用数据 — 继续工作吧",
     "noChartData": "最近 7 天的数据将显示在这里",
     "other": "其他",
     "screenTooltip": "屏幕"
+  },
+  "category": {
+    "productivity": "生产力",
+    "browser": "浏览器",
+    "communication": "通讯",
+    "entertainment": "娱乐",
+    "system": "系统",
+    "other": "其他"
   },
   "pomodoro": {
     "title": "番茄钟模式",
@@ -228,6 +246,7 @@
     "detectTitle": "检测当前前台应用",
     "noWhitelist": "尚未添加白名单应用",
     "dndHint": "白名单中的应用在前台时 EyeGuard 不弹提醒（仍记录用眼时间）。",
-    "whitelistPlaceholder": "如 zoom.exe"
+    "whitelistPlaceholder": "如 zoom.exe",
+    "loading": "加载中…"
   }
 }
