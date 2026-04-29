@@ -105,6 +105,10 @@
       "language": "Language",
       "showOnboarding": "Show welcome card again",
       "showOnboardingHint": "Re-displays on the next timer-page visit",
+      "autoDndMeetings": "Quiet during meetings",
+      "autoDndMeetingsHint": "Suppress alerts when Zoom / Teams / WeChat / Lark / DingTalk etc. is foreground",
+      "autoDndGames": "Quiet during games",
+      "autoDndGamesHint": "Suppress alerts in fullscreen apps + known game launchers",
       "autostart": "Launch at login",
       "exportJson": "Export JSON",
       "exportCsv": "Export CSV"
@@ -178,6 +182,10 @@
   "tray": {
     "pauseResume": "Pause / Resume",
     "breakNow": "Break Now",
+    "quickBreak": "Break for…",
+    "quick5": "5 minutes",
+    "quick15": "15 minutes",
+    "quick30": "30 minutes",
     "settings": "Settings",
     "quit": "Quit EyeGuard",
     "tooltip": "EyeGuard"

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
+import { isGameProcess, isMeetingProcess } from "../lib/dndPresets";
 
 interface AlertCommander {
   fireTest: () => void;
@@ -35,6 +36,8 @@ export function useAlertOrchestrator(): AlertOrchestrator {
   const snoozeDur = useSettingsStore((s) => s.snoozeDurationSec);
   const snoozeMax = useSettingsStore((s) => s.snoozeMaxCount);
   const dndWhitelist = useSettingsStore((s) => s.dndWhitelist);
+  const dndMeetings = useSettingsStore((s) => s.dndMeetings);
+  const dndGames = useSettingsStore((s) => s.dndGames);
 
   const firedRef = useRef(false);
 
@@ -177,11 +180,20 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     const decideAndFire = async () => {
       const fg = await getForeground();
 
-      // DND whitelist: silently push the alert back without burning a snooze.
-      if (fg && dndWhitelist.some((p) => normalize(p) === normalize(fg.process))) {
-        useTimerStore.setState({ remainingSec: 60 });
-        firedRef.current = false;
-        return;
+      // DND: silently push the alert back without burning a snooze.
+      // Three sources of "do not disturb": custom whitelist, built-in
+      // meeting list, built-in game list (+ fullscreen heuristic).
+      if (fg) {
+        const proc = normalize(fg.process);
+        const inCustom = dndWhitelist.some((p) => normalize(p) === proc);
+        const inMeeting = dndMeetings && isMeetingProcess(fg.process);
+        const inGame =
+          dndGames && (isGameProcess(fg.process) || fg.fullscreen === true);
+        if (inCustom || inMeeting || inGame) {
+          useTimerStore.setState({ remainingSec: 60 });
+          firedRef.current = false;
+          return;
+        }
       }
 
       const snoozeCount = useTimerStore.getState().snoozeUsed;
@@ -230,6 +242,8 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     snoozeDur,
     snoozeMax,
     dndWhitelist,
+    dndMeetings,
+    dndGames,
     noteSnooze,
     startBreak,
     resetCycle,

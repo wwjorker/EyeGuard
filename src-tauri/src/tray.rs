@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use tauri::{
-    menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem},
+    menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager,
 };
@@ -11,6 +11,10 @@ use tauri::{
 pub struct TrayItems {
     pub pause_resume: MenuItem<tauri::Wry>,
     pub break_now: MenuItem<tauri::Wry>,
+    pub quick_break: Submenu<tauri::Wry>,
+    pub quick_5: MenuItem<tauri::Wry>,
+    pub quick_15: MenuItem<tauri::Wry>,
+    pub quick_30: MenuItem<tauri::Wry>,
     pub settings: MenuItem<tauri::Wry>,
     pub quit: MenuItem<tauri::Wry>,
 }
@@ -20,13 +24,28 @@ pub struct TrayState(pub Mutex<Option<TrayItems>>);
 pub fn init_tray(app: &AppHandle) -> tauri::Result<()> {
     let pause_resume = MenuItem::with_id(app, "tray-pause", "Pause / Resume", true, None::<&str>)?;
     let break_now = MenuItem::with_id(app, "tray-break", "Break Now", true, None::<&str>)?;
+
+    // Quick-break submenu: 5 / 15 / 30 minute presets that bypass the
+    // configured break duration.
+    let quick_5 = MenuItem::with_id(app, "tray-break-5", "5 minutes", true, None::<&str>)?;
+    let quick_15 = MenuItem::with_id(app, "tray-break-15", "15 minutes", true, None::<&str>)?;
+    let quick_30 = MenuItem::with_id(app, "tray-break-30", "30 minutes", true, None::<&str>)?;
+    let quick_break = Submenu::with_items(app, "Break for…", true, &[&quick_5, &quick_15, &quick_30])?;
+
     let settings = MenuItem::with_id(app, "tray-settings", "Settings", true, None::<&str>)?;
     let separator = PredefinedMenuItem::separator(app)?;
     let quit = MenuItem::with_id(app, "tray-quit", "Quit EyeGuard", true, None::<&str>)?;
 
     let menu = Menu::with_items(
         app,
-        &[&pause_resume, &break_now, &settings, &separator, &quit],
+        &[
+            &pause_resume,
+            &break_now,
+            &quick_break,
+            &settings,
+            &separator,
+            &quit,
+        ],
     )?;
 
     let icon = app
@@ -45,6 +64,15 @@ pub fn init_tray(app: &AppHandle) -> tauri::Result<()> {
             }
             "tray-break" => {
                 let _ = app.emit("tray://break-now", ());
+            }
+            "tray-break-5" => {
+                let _ = app.emit("tray://break-custom", 5u32 * 60);
+            }
+            "tray-break-15" => {
+                let _ = app.emit("tray://break-custom", 15u32 * 60);
+            }
+            "tray-break-30" => {
+                let _ = app.emit("tray://break-custom", 30u32 * 60);
             }
             "tray-settings" => {
                 show_main(app, Some("settings"));
@@ -69,6 +97,10 @@ pub fn init_tray(app: &AppHandle) -> tauri::Result<()> {
     let items = TrayItems {
         pause_resume,
         break_now,
+        quick_break,
+        quick_5,
+        quick_15,
+        quick_30,
         settings,
         quit,
     };
@@ -96,6 +128,10 @@ pub fn update_tray_labels(
     state: tauri::State<'_, TrayState>,
     pause_resume: String,
     break_now: String,
+    quick_break: String,
+    quick_5: String,
+    quick_15: String,
+    quick_30: String,
     settings: String,
     quit: String,
     tooltip: Option<String>,
@@ -106,6 +142,10 @@ pub fn update_tray_labels(
 
     items.pause_resume.set_text(&pause_resume).map_err(|e| e.to_string())?;
     items.break_now.set_text(&break_now).map_err(|e| e.to_string())?;
+    items.quick_break.set_text(&quick_break).map_err(|e| e.to_string())?;
+    items.quick_5.set_text(&quick_5).map_err(|e| e.to_string())?;
+    items.quick_15.set_text(&quick_15).map_err(|e| e.to_string())?;
+    items.quick_30.set_text(&quick_30).map_err(|e| e.to_string())?;
     items.settings.set_text(&settings).map_err(|e| e.to_string())?;
     items.quit.set_text(&quit).map_err(|e| e.to_string())?;
 

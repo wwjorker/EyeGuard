@@ -29,6 +29,9 @@ interface TimerStore extends TimerSnapshot {
   setMode: (mode: TimerMode) => void;
   tick: () => void;
   startBreak: (kind?: BreakKind) => void;
+  /** Force a break with an explicit duration (ignores configured break /
+   *  pomodoro durations). Used by tray "Break for 5 / 15 / 30 minutes" entries. */
+  startCustomBreak: (durationSec: number) => void;
   endBreak: (skipped: boolean) => void;
   resetCycle: () => void;
   setWorkInterval: (sec: number) => void;
@@ -136,6 +139,17 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       snoozeUsed: 0,
     });
   },
+
+  startCustomBreak: (durationSec) =>
+    set({
+      state: "break",
+      // Custom-duration break is always treated as the "long" kind so its
+      // length matches the BreakWindow's progress arc denominator.
+      remainingSec: durationSec,
+      longBreakSec: durationSec,
+      currentBreakKind: "long",
+      snoozeUsed: 0,
+    }),
 
   endBreak: (skipped) =>
     set((s) => ({

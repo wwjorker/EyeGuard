@@ -95,6 +95,10 @@ export function useSettingsSync() {
         await invoke("update_tray_labels", {
           pauseResume: i18n.t("tray.pauseResume"),
           breakNow: i18n.t("tray.breakNow"),
+          quickBreak: i18n.t("tray.quickBreak"),
+          quick5: i18n.t("tray.quick5"),
+          quick15: i18n.t("tray.quick15"),
+          quick30: i18n.t("tray.quick30"),
           settings: i18n.t("tray.settings"),
           quit: i18n.t("tray.quit"),
           tooltip: i18n.t("tray.tooltip"),

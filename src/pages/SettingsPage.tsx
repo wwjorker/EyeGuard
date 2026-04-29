@@ -255,6 +255,26 @@ export function SettingsPage() {
         </SettingGroup>
 
         <SettingGroup title={t("settings.groups.dnd")} Icon={ShieldOff}>
+          <SettingRow
+            label={t("settings.rows.autoDndMeetings")}
+            hint={t("settings.rows.autoDndMeetingsHint")}
+            control={
+              <Switch
+                checked={s.dndMeetings}
+                onChange={(v) => update("dndMeetings", v)}
+              />
+            }
+          />
+          <SettingRow
+            label={t("settings.rows.autoDndGames")}
+            hint={t("settings.rows.autoDndGamesHint")}
+            control={
+              <Switch
+                checked={s.dndGames}
+                onChange={(v) => update("dndGames", v)}
+              />
+            }
+          />
           <div className="py-3">
             <div className="text-[11px] mb-2" style={{ color: "var(--eg-muted)" }}>
               {t("common.dndHint")}

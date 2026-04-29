@@ -24,13 +24,20 @@ export function useTrayBridge(onNavigate: (page: string) => void) {
         });
         const u2 = await listen("tray://break-now", () => startBreak());
         const u3 = await listen<string>("nav://goto", (e) => onNavigate(e.payload));
+        const u4 = await listen<number>("tray://break-custom", (e) => {
+          const seconds = Number(e.payload);
+          if (Number.isFinite(seconds) && seconds > 0) {
+            useTimerStore.getState().startCustomBreak(seconds);
+          }
+        });
         if (cancelled) {
           u1();
           u2();
           u3();
+          u4();
           return;
         }
-        unlistenFns = [u1, u2, u3];
+        unlistenFns = [u1, u2, u3, u4];
       } catch {
         /* runtime not available */
       }

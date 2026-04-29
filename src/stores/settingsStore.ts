@@ -41,6 +41,11 @@ export interface Settings {
   hotkeyPause: string;
   hotkeyBreak: string;
   dndWhitelist: string[];
+  /** Auto-DND when the foreground app is a known meeting client. */
+  dndMeetings: boolean;
+  /** Auto-DND in fullscreen apps (mostly games + videos) and known game
+   *  launchers. */
+  dndGames: boolean;
 
   // ui
   theme: ThemeMode;
@@ -80,6 +85,8 @@ export const DEFAULT_SETTINGS: Settings = {
   hotkeyPause: "Ctrl+Shift+P",
   hotkeyBreak: "Ctrl+Shift+B",
   dndWhitelist: [],
+  dndMeetings: true,
+  dndGames: true,
 
   theme: "dark",
   language: "zh",
