@@ -117,6 +117,21 @@ body::before {
   animation: egBlink 6.5s ease-in-out infinite;
 }
 
+/* Sleeping-eye empty state: Z puffs drift up + fade */
+@keyframes egZDrift {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(8px, -10px); opacity: 0; }
+}
+
+.eg-sleeping-z {
+  transform-origin: center;
+  animation: egZDrift 3.6s ease-in-out infinite;
+}
+.eg-z1 { animation-delay: 0s; }
+.eg-z2 { animation-delay: 0.6s; }
+.eg-z3 { animation-delay: 1.2s; }
+
 /* Pomodoro active-cycle dot pulse */
 @keyframes egPomoPulse {
   0%, 100% { transform: scale(1); }
@@ -161,6 +176,36 @@ button {
 @keyframes warningPulse {
   0%, 100% { filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0)); }
   50% { filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.35)); }
+}
+
+/* Slow "breathing" for the active hero timer — barely-perceptible scale
+   plus a soft green halo. Visual cue that the app is alive without
+   nagging the user. */
+@keyframes egBreath {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(52, 211, 153, 0));
+  }
+  50% {
+    transform: scale(1.012);
+    filter: drop-shadow(0 0 14px rgba(52, 211, 153, 0.18));
+  }
+}
+
+.hero-timer.breathing {
+  animation: egBreath 5.5s ease-in-out infinite;
+}
+
+/* Soft state-aware halo behind the hero numbers. */
+.hero-glow {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.7;
+  transition: background 700ms ease, opacity 500ms ease;
 }
 
 button:focus-visible,
@@ -211,6 +256,36 @@ input:focus-visible {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--eg-muted);
+  transition: color 200ms ease, letter-spacing 200ms ease;
+}
+
+/* Ring hover: scale the SVG up, brighten the colored arc, lift the label
+   to the foreground colour. The arc colour comes from --ring-color which
+   each MetricRing instance sets inline. */
+.metric-ring-wrap {
+  cursor: default;
+}
+
+.metric-ring-svg {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms ease;
+}
+
+.metric-ring-wrap:hover .metric-ring-svg {
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--ring-color, var(--eg-green)) 55%, transparent));
+}
+
+.metric-ring-wrap:hover .ring-label {
+  color: var(--eg-text);
+  letter-spacing: 1.8px;
+}
+
+.metric-ring-value {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metric-ring-wrap:hover .metric-ring-value {
+  transform: scale(1.05);
 }
 
 .metric-divider {

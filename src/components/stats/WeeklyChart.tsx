@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import { useTranslation } from "react-i18next";
 import type { DailyUsage } from "../../stores/footprintStore";
+import { SleepingEye } from "../SleepingEye";
 
 interface WeeklyChartProps {
   data: DailyUsage[];
@@ -19,9 +20,10 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
   if (!data.length) {
     return (
       <div
-        className="rounded-card flex flex-col items-center justify-center py-6"
+        className="rounded-card flex flex-col items-center justify-center gap-3 py-6"
         style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
       >
+        <SleepingEye size={64} />
         <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
           {t("stats.noChartData")}
         </span>

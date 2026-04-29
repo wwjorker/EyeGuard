@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useTranslation } from "react-i18next";
 import type { AppUsage } from "../../stores/footprintStore";
+import { SleepingEye } from "../SleepingEye";
 
 const COLORS = ["#34D399", "#6366F1", "#F59E0B", "#EC4899", "#A1A1AA"];
 
@@ -19,9 +20,10 @@ export function AppDistribution({ data }: AppDistributionProps) {
   if (total === 0) {
     return (
       <div
-        className="rounded-card flex flex-col items-center justify-center py-8"
+        className="rounded-card flex flex-col items-center justify-center gap-3 py-7"
         style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
       >
+        <SleepingEye size={68} />
         <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
           {t("stats.noAppData")}
         </span>

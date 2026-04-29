@@ -9,6 +9,7 @@ export function HeroTimer() {
 
   const isPaused = state === "paused" || state === "idle";
   const isWarning = state === "active" && remainingSec > 0 && remainingSec <= 120;
+  const isBreathing = state === "active" && !isWarning;
   const display = formatMMSS(remainingSec);
   const minutes = Math.ceil(remainingSec / 60);
 
@@ -19,12 +20,26 @@ export function HeroTimer() {
     return minutes <= 1 ? t("timer.lessThanMinute") : t("timer.minutesRemaining");
   })();
 
-  // background ring progress for visual depth
+  // Background ring progress
   const pct = Math.max(0, Math.min(1, remainingSec / Math.max(1, workInterval)));
+
+  // State-aware halo color behind the hero number
+  const haloBg = (() => {
+    if (isPaused) return "transparent";
+    if (isWarning) return "radial-gradient(circle, rgba(245,158,11,0.20) 0%, transparent 65%)";
+    return "radial-gradient(circle, rgba(52,211,153,0.14) 0%, transparent 65%)";
+  })();
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 relative">
-      {/* faint orbital ring behind timer */}
+      {/* state-aware halo */}
+      <span
+        aria-hidden
+        className="hero-glow"
+        style={{ background: haloBg, opacity: isPaused ? 0 : 0.85 }}
+      />
+
+      {/* faint orbital ring */}
       <svg
         className="absolute"
         width="240"
@@ -55,7 +70,9 @@ export function HeroTimer() {
         />
       </svg>
 
-      <div className={`hero-timer ${isPaused ? "paused" : ""} ${isWarning ? "warning" : ""}`}>
+      <div
+        className={`hero-timer ${isPaused ? "paused" : ""} ${isWarning ? "warning" : ""} ${isBreathing ? "breathing" : ""}`}
+      >
         {display}
       </div>
       <div className="tag-label mt-3">{label}</div>
