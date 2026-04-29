@@ -14,13 +14,21 @@
   },
   "timer": {
     "minutesRemaining": "剩余分钟",
+    "settlingIn": "刚刚开始 · 慢慢来",
+    "halfwayThere": "已经过半 · 节奏不错",
+    "wrappingUp": "接近尾声 · 准备让眼睛喘口气",
+    "almostDone": "马上就完成了",
     "lessThanMinute": "不到一分钟",
     "restInProgress": "休息进行中",
     "pausedHint": "已暂停 — 移动鼠标继续",
     "awayHint": "你已离开",
     "pause": "暂停",
     "resume": "继续",
-    "breakNow": "立即休息"
+    "breakNow": "立即休息",
+    "greetMorning": "早上好 · 慢慢进入状态",
+    "greetAfternoon": "下午好 · 注意眼睛",
+    "greetEvening": "晚上好 · 屏幕别太近",
+    "greetNight": "夜深了 · 早些休息"
   },
   "rings": {
     "screen": "屏幕",
@@ -177,6 +185,16 @@
     "postureTitle": "调整一下姿势",
     "postureBody": "坐直，放松双肩，调整屏幕距离。",
     "gotIt": "好的"
+  },
+  "celebrate": {
+    "cycleTitle": "干得漂亮 ✦",
+    "cycleBody": "完成了一整轮番茄循环 — 给眼睛点掌声。",
+    "milestone1Title": "今天的第一次休息",
+    "milestone1Body": "好的开始 — 节奏起来了。",
+    "milestone5Title": "今天第 5 次休息",
+    "milestone5Body": "节奏稳得很，眼睛会记得你的好。",
+    "milestone10Title": "今天第 10 次休息",
+    "milestone10Body": "认真自律的一天，干得好。"
   },
   "skip": "跳过",
   "tray": {

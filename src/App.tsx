@@ -1,9 +1,10 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { TopBar } from "./components/TopBar";
 import { TimerPage } from "./pages/TimerPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { PomodoroPage } from "./pages/PomodoroPage";
 import { OnboardingCard } from "./components/OnboardingCard";
+import { ConfettiBurst } from "./components/ConfettiBurst";
 import { useTimerStore } from "./stores/timerStore";
 import { useTrayBridge } from "./hooks/useTrayBridge";
 import { useActivityBridge } from "./hooks/useActivityBridge";
@@ -18,16 +19,31 @@ const StatsPage = lazy(() =>
 );
 
 export type PageKey = "timer" | "stats" | "pomodoro" | "settings";
+const TAB_ORDER: PageKey[] = ["timer", "stats", "pomodoro", "settings"];
 
 function App() {
   const [page, setPage] = useState<PageKey>("timer");
+  const prevPageRef = useRef<PageKey>("timer");
   const tick = useTimerStore((s) => s.tick);
 
-  const handleNavigate = useCallback((next: string) => {
-    if (next === "timer" || next === "stats" || next === "pomodoro" || next === "settings") {
-      setPage(next);
-    }
+  const navigate = useCallback((next: PageKey) => {
+    setPage((cur) => {
+      prevPageRef.current = cur;
+      return next;
+    });
   }, []);
+
+  const handleNavigate = useCallback(
+    (next: string) => {
+      if (next === "timer" || next === "stats" || next === "pomodoro" || next === "settings") {
+        navigate(next);
+      }
+    },
+    [navigate],
+  );
+
+  const direction =
+    TAB_ORDER.indexOf(page) >= TAB_ORDER.indexOf(prevPageRef.current) ? "right" : "left";
 
   useTrayBridge(handleNavigate);
   useActivityBridge();
@@ -61,8 +77,12 @@ function App() {
   return (
     <main className="relative h-full w-full bg-bg">
       <div className="app-frame">
-        <TopBar page={page} onNavigate={setPage} />
-        <div className="flex-1 flex flex-col min-h-0">
+        <TopBar page={page} onNavigate={navigate} />
+        <div
+          key={page}
+          data-direction={direction}
+          className="page-shell flex-1 flex flex-col min-h-0"
+        >
           {page === "timer" && <TimerPage />}
           {page === "stats" && (
             <Suspense fallback={<div className="flex-1" />}>
@@ -72,6 +92,7 @@ function App() {
           {page === "pomodoro" && <PomodoroPage />}
           {page === "settings" && <SettingsPage />}
         </div>
+        <ConfettiBurst />
         <OnboardingCard />
       </div>
     </main>

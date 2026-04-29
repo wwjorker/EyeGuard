@@ -14,13 +14,21 @@
   },
   "timer": {
     "minutesRemaining": "minutes remaining",
+    "settlingIn": "settling in · take it slow",
+    "halfwayThere": "halfway there · steady rhythm",
+    "wrappingUp": "wrapping up · eyes ready for a break",
+    "almostDone": "almost done",
     "lessThanMinute": "less than a minute",
     "restInProgress": "rest in progress",
     "pausedHint": "paused — move to resume",
     "awayHint": "you're away",
     "pause": "pause",
     "resume": "resume",
-    "breakNow": "break now"
+    "breakNow": "break now",
+    "greetMorning": "good morning · ease into it",
+    "greetAfternoon": "good afternoon · go easy on the eyes",
+    "greetEvening": "good evening · keep some distance",
+    "greetNight": "late · think about wrapping up"
   },
   "rings": {
     "screen": "screen",
@@ -177,6 +185,16 @@
     "postureTitle": "Check your posture",
     "postureBody": "Sit tall, drop your shoulders, and adjust your screen distance.",
     "gotIt": "got it"
+  },
+  "celebrate": {
+    "cycleTitle": "Well done ✦",
+    "cycleBody": "You closed out a full pomodoro cycle — your eyes thank you.",
+    "milestone1Title": "First break of the day",
+    "milestone1Body": "Nice — rhythm started.",
+    "milestone5Title": "Five breaks today",
+    "milestone5Body": "You're keeping up. Eyes notice this.",
+    "milestone10Title": "Ten breaks today",
+    "milestone10Body": "Disciplined day. Quietly proud."
   },
   "skip": "skip",
   "tray": {

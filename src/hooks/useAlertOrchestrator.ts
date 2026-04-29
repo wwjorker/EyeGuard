@@ -18,6 +18,37 @@ export const useAlertCommander = create<AlertCommander>((set) => ({
   setFireTest: (fn) => set({ fireTest: fn }),
 }));
 
+export type CelebrationKind = "cycle" | "milestone";
+
+interface CelebrationState {
+  /** monotonically increasing token — components key off this to remount */
+  token: number;
+  kind: CelebrationKind;
+  fire: (kind: CelebrationKind) => void;
+}
+
+/**
+ * Tiny pub-sub for the in-window confetti burst. The orchestrator calls
+ * `fire()` when a celebration moment lands; the confetti component
+ * subscribes and re-mounts when `token` changes.
+ */
+export const useCelebrationStore = create<CelebrationState>((set) => ({
+  token: 0,
+  kind: "cycle",
+  fire: (kind) => set((s) => ({ token: s.token + 1, kind })),
+}));
+
+/**
+ * Returns the i18n suffix ("milestone1" | "milestone5" | "milestone10")
+ * for the day's nth completed break, or null if no milestone landed.
+ */
+function milestoneFor(n: number): "milestone1" | "milestone5" | "milestone10" | null {
+  if (n === 1) return "milestone1";
+  if (n === 5) return "milestone5";
+  if (n === 10) return "milestone10";
+  return null;
+}
+
 export interface AlertOrchestrator {
   fireTest: () => void;
 }
@@ -122,8 +153,9 @@ export function useAlertOrchestrator(): AlertOrchestrator {
 
   // Listen for break-end events from the break window and close out the
   // break in the main timer store. Also queue post-break health nudges
-  // (drink + posture) by reusing the dedicated notification window so they
-  // are visible even when the main window is in the tray.
+  // (drink + posture), pomodoro-cycle celebration, and daily milestones.
+  // Routes everything through the dedicated notification window so it
+  // remains visible while the main window is hidden in the tray.
   useEffect(() => {
     if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
     let off: (() => void) | null = null;
@@ -135,19 +167,42 @@ export function useAlertOrchestrator(): AlertOrchestrator {
           const skipped = e.payload?.skipped ?? false;
           const ts = useTimerStore.getState();
           const settings = useSettingsStore.getState();
+          const wasLongBreak = ts.currentBreakKind === "long";
           const completedAfter = ts.completedBreaks + (skipped ? 0 : 1);
+
           ts.endBreak(skipped);
 
-          // Only nag when the break was actually completed; skipped breaks
-          // shouldn't reward themselves with extra reminders.
           if (skipped) return;
+
+          // Hero moment: completed a full pomodoro cycle (only fires when
+          // pomodoro mode is on and the break that just ended was a long
+          // one). Plays the celebratory bell + an in-window confetti burst.
+          if (wasLongBreak && settings.pomodoroEnabled) {
+            void showNotificationWindow({ variant: "celebration" });
+            playCelebration(settings.soundEnabled, settings.soundVolume);
+            useCelebrationStore.getState().fire("cycle");
+            return;
+          }
+
+          // Daily milestones: 1st / 5th / 10th break of the day. These
+          // beat the drink / posture nudges below to claim the slot.
+          const milestoneKey = milestoneFor(completedAfter);
+          if (milestoneKey) {
+            void showNotificationWindow({
+              variant: "celebration",
+              titleKey: `celebrate.${milestoneKey}Title`,
+              bodyKey: `celebrate.${milestoneKey}Body`,
+            });
+            useCelebrationStore.getState().fire("milestone");
+            return;
+          }
 
           // Drink (50% probability)
           if (settings.drinkReminder && Math.random() < 0.5) {
             void showNotificationWindow({ variant: "drink" });
             return;
           }
-          // Posture (every Nth break, default 3)
+          // Posture (every 3rd break)
           if (settings.postureReminder && completedAfter > 0 && completedAfter % 3 === 0) {
             void showNotificationWindow({ variant: "posture" });
           }
@@ -296,8 +351,10 @@ async function getForeground(): Promise<ForegroundInfo | null> {
 const normalize = (s: string) => s.trim().toLowerCase().replace(/\.exe$/, "");
 
 interface NotificationPayload {
-  variant: "light" | "medium" | "drink" | "posture";
+  variant: "light" | "medium" | "drink" | "posture" | "celebration";
   streakSec?: number;
+  titleKey?: string;
+  bodyKey?: string;
 }
 
 let notifSeq = 0;
@@ -447,48 +504,89 @@ export function primeAudio() {
   }
 }
 
+/**
+ * Bell-like additive synthesis: stack a sine fundamental with a few
+ * inharmonic partials, each with its own decay envelope. Sounds far less
+ * "8-bit beep" than a single sine sweep.
+ */
+function playChime(
+  ctx: AudioContext,
+  freq: number,
+  amp: number,
+  duration: number,
+  startOffset = 0,
+) {
+  const t0 = ctx.currentTime + startOffset;
+  // Inharmonic ratios approximate the partials of a tubular bell.
+  const partials: Array<{ ratio: number; gain: number; decay: number }> = [
+    { ratio: 1.0, gain: 1.0, decay: 1.0 },
+    { ratio: 2.0, gain: 0.45, decay: 0.65 },
+    { ratio: 2.4, gain: 0.28, decay: 0.5 },
+    { ratio: 3.0, gain: 0.18, decay: 0.4 },
+    { ratio: 4.2, gain: 0.1, decay: 0.28 },
+  ];
+  for (const p of partials) {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq * p.ratio, t0);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(amp * p.gain, t0 + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration * p.decay);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.05);
+  }
+}
+
 export function playBeep(tier: BeepTier, enabled: boolean, volume: number) {
   if (!enabled) return;
   const ctx = getCtx();
   if (!ctx) return;
-  // Resume in case the gesture priming hasn't happened yet — some beeps
-  // are scheduled by timers, not user clicks.
   if (ctx.state === "suspended") {
     void ctx.resume();
   }
 
-  // Each tier gets a distinct shape: light = single soft chime, medium =
-  // warmer two-tone, hard = double pulse with a louder envelope.
-  const profiles: Record<BeepTier, { freqs: [number, number][]; gainScale: number }> = {
-    light: { freqs: [[760, 920]], gainScale: 0.55 },
-    medium: { freqs: [[620, 820]], gainScale: 0.85 },
-    hard: {
-      freqs: [
-        [660, 880],
-        [880, 660],
-      ],
-      gainScale: 1,
-    },
-  };
-  const profile = profiles[tier];
-  const baseGain = Math.max(0, Math.min(0.5, volume / 200)) * profile.gainScale;
+  const baseGain = Math.max(0, Math.min(0.4, volume / 250));
 
   try {
-    profile.freqs.forEach(([startHz, endHz], i) => {
-      const t0 = ctx.currentTime + i * 0.2;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(startHz, t0);
-      osc.frequency.exponentialRampToValueAtTime(endHz, t0 + 0.18);
-      gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(baseGain, t0 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
-      osc.start(t0);
-      osc.stop(t0 + 0.5);
-    });
+    if (tier === "light") {
+      // Single bright chime — like a wind chime tap.
+      playChime(ctx, 880, baseGain * 0.6, 0.9);
+    } else if (tier === "medium") {
+      // Warmer two-tone (perfect 4th up).
+      playChime(ctx, 660, baseGain * 0.8, 1.1);
+      playChime(ctx, 880, baseGain * 0.6, 0.95, 0.18);
+    } else {
+      // Hard: ascending three-note bell — clearly the most assertive.
+      playChime(ctx, 587, baseGain * 0.95, 1.1);
+      playChime(ctx, 740, baseGain * 0.85, 1.05, 0.2);
+      playChime(ctx, 880, baseGain * 0.95, 1.2, 0.4);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * A bright "well-done" arpeggio used for the long-break / cycle-complete
+ * celebration. Three quick ascending bells in a major triad.
+ */
+export function playCelebration(enabled: boolean, volume: number) {
+  if (!enabled) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+  if (ctx.state === "suspended") {
+    void ctx.resume();
+  }
+  const g = Math.max(0, Math.min(0.4, volume / 250));
+  try {
+    // C5 - E5 - G5 - C6 (major triad + octave)
+    playChime(ctx, 523, g * 0.85, 1.1);
+    playChime(ctx, 659, g * 0.78, 1.0, 0.12);
+    playChime(ctx, 784, g * 0.78, 1.05, 0.24);
+    playChime(ctx, 1047, g * 0.85, 1.3, 0.42);
   } catch {
     /* ignore */
   }

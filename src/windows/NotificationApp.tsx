@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Droplet, Eye, PersonStanding } from "lucide-react";
+import { Droplet, Eye, PersonStanding, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-type Variant = "light" | "medium" | "drink" | "posture";
+type Variant = "light" | "medium" | "drink" | "posture" | "celebration";
 
 interface NotificationPayload {
   variant: Variant;
   streakSec?: number;
+  /** Optional translation keys for celebration / milestone copy. */
+  titleKey?: string;
+  bodyKey?: string;
   /** unique id so we can dedupe in case multiple events fire close together */
   id: number;
 }
@@ -27,6 +30,7 @@ const VARIANT_TIMEOUT_MS: Record<Variant, number> = {
   medium: 8500,
   drink: 5500,
   posture: 5500,
+  celebration: 5500,
 };
 
 const VARIANT_ACCENT: Record<Variant, string> = {
@@ -34,6 +38,7 @@ const VARIANT_ACCENT: Record<Variant, string> = {
   medium: "var(--eg-amber)",
   drink: "var(--eg-purple)",
   posture: "var(--eg-amber)",
+  celebration: "var(--eg-pink)",
 };
 
 const VARIANT_ACCENT_BG: Record<Variant, string> = {
@@ -41,6 +46,7 @@ const VARIANT_ACCENT_BG: Record<Variant, string> = {
   medium: "rgba(245,158,11,0.15)",
   drink: "rgba(99,102,241,0.15)",
   posture: "rgba(245,158,11,0.15)",
+  celebration: "rgba(236,72,153,0.18)",
 };
 
 const VARIANT_ICON: Record<Variant, LucideIcon> = {
@@ -48,6 +54,7 @@ const VARIANT_ICON: Record<Variant, LucideIcon> = {
   medium: Eye,
   drink: Droplet,
   posture: PersonStanding,
+  celebration: Sparkles,
 };
 
 /**
@@ -178,6 +185,11 @@ export function NotificationApp() {
 }
 
 function pillCopy(s: State, t: (key: string, opts?: Record<string, unknown>) => string) {
+  // Celebration / milestone variants pass explicit translation keys so a
+  // single variant can render multiple flavours of copy.
+  if (s.titleKey && s.bodyKey) {
+    return { title: t(s.titleKey), sub: t(s.bodyKey) };
+  }
   switch (s.variant) {
     case "light":
       return {
@@ -193,6 +205,11 @@ function pillCopy(s: State, t: (key: string, opts?: Record<string, unknown>) => 
       return {
         title: t("follow.postureTitle"),
         sub: t("follow.postureBody"),
+      };
+    case "celebration":
+      return {
+        title: t("celebrate.cycleTitle"),
+        sub: t("celebrate.cycleBody"),
       };
     default:
       return { title: "", sub: "" };
