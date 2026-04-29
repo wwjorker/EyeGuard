@@ -103,6 +103,8 @@
       "purgeHint": "删除应用足迹与休息历史",
       "theme": "主题",
       "language": "语言",
+      "showOnboarding": "再次显示欢迎页",
+      "showOnboardingHint": "下次回到 timer 页时会再显示一次",
       "autostart": "开机自启",
       "exportJson": "导出 JSON",
       "exportCsv": "导出 CSV"
@@ -173,6 +175,27 @@
     "gotIt": "好的"
   },
   "skip": "跳过",
+  "tray": {
+    "pauseResume": "暂停 / 恢复",
+    "breakNow": "立即休息",
+    "settings": "设置",
+    "quit": "退出 EyeGuard",
+    "tooltip": "EyeGuard · 智能护眼"
+  },
+  "onboarding": {
+    "welcome": "欢迎使用 EyeGuard",
+    "tagline": "你的桌面级护眼助手 — 不打扰、看得见、记得住。",
+    "tierTitle": "三档提醒，按需选择",
+    "tierLight": "轻：屏幕角落悄悄滑出小气泡，不打断工作流",
+    "tierMedium": "中：右下角浮窗，提供「开始休息」/「稍后」按钮",
+    "tierHard": "强：全屏遮罩 + 倒计时，强制休息",
+    "hotkeysTitle": "全局快捷键",
+    "hotkey1": "Ctrl+Shift+P · 暂停 / 恢复",
+    "hotkey2": "Ctrl+Shift+B · 立即休息",
+    "trayTitle": "藏在系统托盘",
+    "trayHint": "关闭主窗口 = 隐藏到托盘，右键托盘图标可快速操作。",
+    "cta": "开始使用"
+  },
   "common": {
     "add": "添加",
     "detect": "检测",

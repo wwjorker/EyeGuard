@@ -296,6 +296,19 @@ export function SettingsPage() {
               </div>
             }
           />
+          <SettingRow
+            label={t("settings.rows.showOnboarding")}
+            hint={t("settings.rows.showOnboardingHint")}
+            control={
+              <button
+                className="btn-ghost"
+                onClick={() => update("seenOnboarding", false)}
+                disabled={!s.seenOnboarding}
+              >
+                {t("settings.actions.trigger")}
+              </button>
+            }
+          />
         </SettingGroup>
 
         <SettingGroup title={t("settings.groups.system")} Icon={Power}>

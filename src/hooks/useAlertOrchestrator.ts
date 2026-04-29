@@ -118,7 +118,9 @@ export function useAlertOrchestrator(): AlertOrchestrator {
   }, []);
 
   // Listen for break-end events from the break window and close out the
-  // break in the main timer store.
+  // break in the main timer store. Also queue post-break health nudges
+  // (drink + posture) by reusing the dedicated notification window so they
+  // are visible even when the main window is in the tray.
   useEffect(() => {
     if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
     let off: (() => void) | null = null;
@@ -128,7 +130,24 @@ export function useAlertOrchestrator(): AlertOrchestrator {
         const { listen } = await import("@tauri-apps/api/event");
         off = await listen<{ skipped: boolean }>("break://end", (e) => {
           const skipped = e.payload?.skipped ?? false;
-          useTimerStore.getState().endBreak(skipped);
+          const ts = useTimerStore.getState();
+          const settings = useSettingsStore.getState();
+          const completedAfter = ts.completedBreaks + (skipped ? 0 : 1);
+          ts.endBreak(skipped);
+
+          // Only nag when the break was actually completed; skipped breaks
+          // shouldn't reward themselves with extra reminders.
+          if (skipped) return;
+
+          // Drink (50% probability)
+          if (settings.drinkReminder && Math.random() < 0.5) {
+            void showNotificationWindow({ variant: "drink" });
+            return;
+          }
+          // Posture (every Nth break, default 3)
+          if (settings.postureReminder && completedAfter > 0 && completedAfter % 3 === 0) {
+            void showNotificationWindow({ variant: "posture" });
+          }
         });
       } catch {
         /* ignore */
@@ -263,8 +282,8 @@ async function getForeground(): Promise<ForegroundInfo | null> {
 const normalize = (s: string) => s.trim().toLowerCase().replace(/\.exe$/, "");
 
 interface NotificationPayload {
-  variant: "light" | "medium";
-  streakSec: number;
+  variant: "light" | "medium" | "drink" | "posture";
+  streakSec?: number;
 }
 
 let notifSeq = 0;

@@ -103,6 +103,8 @@
       "purgeHint": "Wipes app footprint and break history",
       "theme": "Theme",
       "language": "Language",
+      "showOnboarding": "Show welcome card again",
+      "showOnboardingHint": "Re-displays on the next timer-page visit",
       "autostart": "Launch at login",
       "exportJson": "Export JSON",
       "exportCsv": "Export CSV"
@@ -173,6 +175,27 @@
     "gotIt": "got it"
   },
   "skip": "skip",
+  "tray": {
+    "pauseResume": "Pause / Resume",
+    "breakNow": "Break Now",
+    "settings": "Settings",
+    "quit": "Quit EyeGuard",
+    "tooltip": "EyeGuard"
+  },
+  "onboarding": {
+    "welcome": "Welcome to EyeGuard",
+    "tagline": "A desktop-grade eye-care companion — quiet, visible, memorable.",
+    "tierTitle": "Three alert tiers — pick what suits the moment",
+    "tierLight": "Light · a small pill slides in at the screen corner, never interrupts",
+    "tierMedium": "Medium · bottom-right card with Start break / Later actions",
+    "tierHard": "Hard · fullscreen rest screen with a countdown",
+    "hotkeysTitle": "Global shortcuts",
+    "hotkey1": "Ctrl+Shift+P · pause / resume",
+    "hotkey2": "Ctrl+Shift+B · break now",
+    "trayTitle": "Lives in the tray",
+    "trayHint": "Closing the main window minimises to tray. Right-click the icon for quick actions.",
+    "cta": "Get started"
+  },
   "common": {
     "add": "add",
     "detect": "detect",

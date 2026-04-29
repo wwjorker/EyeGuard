@@ -3,7 +3,7 @@ import { TopBar } from "./components/TopBar";
 import { TimerPage } from "./pages/TimerPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { PomodoroPage } from "./pages/PomodoroPage";
-import { FollowupToast } from "./components/FollowupToast";
+import { OnboardingCard } from "./components/OnboardingCard";
 import { useTimerStore } from "./stores/timerStore";
 import { useTrayBridge } from "./hooks/useTrayBridge";
 import { useActivityBridge } from "./hooks/useActivityBridge";
@@ -72,8 +72,8 @@ function App() {
           {page === "pomodoro" && <PomodoroPage />}
           {page === "settings" && <SettingsPage />}
         </div>
+        <OnboardingCard />
       </div>
-      <FollowupToast />
     </main>
   );
 }

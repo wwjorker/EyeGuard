@@ -84,9 +84,25 @@ export function useSettingsSync() {
     apply(theme);
   }, [theme]);
 
-  // i18n language
+  // i18n language + sync the OS-level tray menu so it tracks the chosen
+  // language. Has to invoke a Rust command because the tray lives in the
+  // native shell, not the webview.
   useEffect(() => {
-    void i18n.changeLanguage(language);
+    void i18n.changeLanguage(language).then(async () => {
+      if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("update_tray_labels", {
+          pauseResume: i18n.t("tray.pauseResume"),
+          breakNow: i18n.t("tray.breakNow"),
+          settings: i18n.t("tray.settings"),
+          quit: i18n.t("tray.quit"),
+          tooltip: i18n.t("tray.tooltip"),
+        });
+      } catch (err) {
+        console.warn("[eyeguard] tray label sync failed", err);
+      }
+    });
   }, [language]);
 
   // Autostart (registry/login item via tauri-plugin-autostart)

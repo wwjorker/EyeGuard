@@ -67,6 +67,7 @@ pub fn run() {
             fullscreen::check_fullscreen,
             fullscreen::current_foreground,
             database::get_db_path,
+            tray::update_tray_labels,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

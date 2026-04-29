@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Eye } from "lucide-react";
+import { Droplet, Eye, PersonStanding } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-type Variant = "light" | "medium";
+type Variant = "light" | "medium" | "drink" | "posture";
 
 interface NotificationPayload {
   variant: Variant;
-  streakSec: number;
+  streakSec?: number;
   /** unique id so we can dedupe in case multiple events fire close together */
   id: number;
 }
@@ -21,6 +22,34 @@ const formatMMSS = (totalSec: number): string => {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
+const VARIANT_TIMEOUT_MS: Record<Variant, number> = {
+  light: 4500,
+  medium: 8500,
+  drink: 5500,
+  posture: 5500,
+};
+
+const VARIANT_ACCENT: Record<Variant, string> = {
+  light: "var(--eg-green)",
+  medium: "var(--eg-amber)",
+  drink: "var(--eg-purple)",
+  posture: "var(--eg-amber)",
+};
+
+const VARIANT_ACCENT_BG: Record<Variant, string> = {
+  light: "rgba(52,211,153,0.15)",
+  medium: "rgba(245,158,11,0.15)",
+  drink: "rgba(99,102,241,0.15)",
+  posture: "rgba(245,158,11,0.15)",
+};
+
+const VARIANT_ICON: Record<Variant, LucideIcon> = {
+  light: Eye,
+  medium: Eye,
+  drink: Droplet,
+  posture: PersonStanding,
+};
+
 /**
  * UI rendered inside the dedicated notification window. It is essentially
  * a one-shot toast — listens for `notification://show` events from the main
@@ -31,7 +60,6 @@ export function NotificationApp() {
   const { t } = useTranslation();
   const [state, setState] = useState<State | null>(null);
 
-  // Subscribe to the main-window event stream.
   useEffect(() => {
     let unlistenShow: (() => void) | null = null;
     let cancelled = false;
@@ -57,7 +85,7 @@ export function NotificationApp() {
   // Auto-dismiss after the per-variant timeout.
   useEffect(() => {
     if (!state) return;
-    const ms = state.variant === "light" ? 4500 : 8500;
+    const ms = VARIANT_TIMEOUT_MS[state.variant];
     const close = window.setTimeout(() => {
       setState((prev) => (prev && prev.id === state.id ? { ...prev, exiting: true } : prev));
       window.setTimeout(emitDone, 240);
@@ -65,14 +93,12 @@ export function NotificationApp() {
     return () => window.clearTimeout(close);
   }, [state?.id]);
 
-  // Dispatch a click action back to the main window so it can decide
-  // (start a break, push remainingSec back, etc.).
   const sendAction = async (action: "accept" | "later" | "dismiss") => {
     try {
       const { emit } = await import("@tauri-apps/api/event");
       await emit("notification://action", { action });
     } catch {
-      /* ignore — main window may not be listening */
+      /* ignore */
     }
     setState((prev) => (prev ? { ...prev, exiting: true } : prev));
     window.setTimeout(emitDone, 240);
@@ -80,50 +106,97 @@ export function NotificationApp() {
 
   if (!state) return null;
 
-  if (state.variant === "light") {
+  const Icon = VARIANT_ICON[state.variant];
+  const accent = VARIANT_ACCENT[state.variant];
+  const accentBg = VARIANT_ACCENT_BG[state.variant];
+
+  if (state.variant === "medium") {
     return (
       <div className="notif-root">
-        <div className={`notif-card ${state.exiting ? "notif-out" : "notif-in"}`}>
-          <div className="notif-icon">
-            <Eye size={14} strokeWidth={1.75} />
-          </div>
-          <div className="notif-body">
-            <div className="notif-title">{t("alerts.lightTitle")}</div>
-            <div className="notif-sub">
-              {t("alerts.lightBody", { streak: formatMMSS(state.streakSec) })}
+        <div
+          className={`notif-card medium ${state.exiting ? "notif-out" : "notif-in"}`}
+          style={{ ["--notif-accent" as string]: accent }}
+        >
+          <div className="notif-row">
+            <div className="notif-icon" style={{ background: accentBg, color: accent }}>
+              <Icon size={16} strokeWidth={1.75} />
             </div>
+            <div className="notif-body">
+              <div className="notif-title">{t("alerts.title")}</div>
+              <div className="notif-sub">
+                {t("alerts.body", { streak: formatMMSS(state.streakSec ?? 0) })}
+              </div>
+            </div>
+          </div>
+          <div className="notif-actions">
+            <button className="btn-ghost notif-btn" onClick={() => sendAction("later")}>
+              {t("alerts.later")}
+            </button>
+            <button className="btn-primary notif-btn" onClick={() => sendAction("accept")}>
+              {t("alerts.startBreak")}
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // medium
+  // pill-style variants (light, drink, posture)
+  const { title, sub } = pillCopy(state, t);
   return (
     <div className="notif-root">
-      <div className={`notif-card medium ${state.exiting ? "notif-out" : "notif-in"}`}>
-        <div className="notif-row">
-          <div className="notif-icon">
-            <Eye size={16} strokeWidth={1.75} />
+      <div
+        className={`notif-card ${state.exiting ? "notif-out" : "notif-in"}`}
+        style={{ ["--notif-accent" as string]: accent }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 8,
+              background: accentBg,
+              color: accent,
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={13} strokeWidth={1.75} />
           </div>
-          <div className="notif-body">
-            <div className="notif-title">{t("alerts.title")}</div>
-            <div className="notif-sub">
-              {t("alerts.body", { streak: formatMMSS(state.streakSec) })}
+          <div className="flex flex-col min-w-0">
+            <div className="text-[12px] font-semibold" style={{ color: "var(--eg-text)" }}>
+              {title}
+            </div>
+            <div className="text-[10.5px]" style={{ color: "var(--eg-muted)" }}>
+              {sub}
             </div>
           </div>
-        </div>
-        <div className="notif-actions">
-          <button className="btn-ghost notif-btn" onClick={() => sendAction("later")}>
-            {t("alerts.later")}
-          </button>
-          <button className="btn-primary notif-btn" onClick={() => sendAction("accept")}>
-            {t("alerts.startBreak")}
-          </button>
         </div>
       </div>
     </div>
   );
+}
+
+function pillCopy(s: State, t: (key: string, opts?: Record<string, unknown>) => string) {
+  switch (s.variant) {
+    case "light":
+      return {
+        title: t("alerts.lightTitle"),
+        sub: t("alerts.lightBody", { streak: formatMMSS(s.streakSec ?? 0) }),
+      };
+    case "drink":
+      return {
+        title: t("follow.drinkTitle"),
+        sub: t("follow.drinkBody"),
+      };
+    case "posture":
+      return {
+        title: t("follow.postureTitle"),
+        sub: t("follow.postureBody"),
+      };
+    default:
+      return { title: "", sub: "" };
+  }
 }
 
 async function emitDone() {

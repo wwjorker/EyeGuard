@@ -45,6 +45,9 @@ export interface Settings {
   // ui
   theme: ThemeMode;
   language: LanguageCode;
+
+  // first-run state
+  seenOnboarding: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -80,6 +83,8 @@ export const DEFAULT_SETTINGS: Settings = {
 
   theme: "dark",
   language: "zh",
+
+  seenOnboarding: false,
 };
 
 const STORAGE_KEY = "eyeguard.settings.v1";
