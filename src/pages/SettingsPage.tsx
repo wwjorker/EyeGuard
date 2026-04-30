@@ -1,4 +1,5 @@
 import {
+  Activity,
   Bell,
   Clock,
   Coffee,
@@ -8,13 +9,22 @@ import {
   Hourglass,
   Palette,
   Power,
+  RotateCcw,
   ShieldOff,
   Trash2,
+  Upload,
   Volume2,
 } from "lucide-react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WhitelistEditor } from "../components/settings/WhitelistEditor";
 import { CategoryEditor } from "../components/settings/CategoryEditor";
+import { Diagnostics } from "../components/settings/Diagnostics";
+import {
+  exportSettings,
+  importSettings,
+  resetSettingsToDefaults,
+} from "../lib/settingsBackup";
 import { exportCsv, exportJson } from "../lib/export";
 import { useAlertCommander } from "../hooks/useAlertOrchestrator";
 import { Slider } from "../components/settings/Slider";
@@ -31,6 +41,23 @@ export function SettingsPage() {
   const update = s.update;
   const { t } = useTranslation();
   const fireTest = useAlertCommander((c) => c.fireTest);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const result = await importSettings(file);
+    if (!result.ok) {
+      window.alert(`${t("settings.actions.importFailed")}: ${result.reason ?? "unknown"}`);
+    }
+  };
+
+  const handleReset = () => {
+    if (window.confirm(t("settings.actions.resetConfirm"))) {
+      resetSettingsToDefaults();
+    }
+  };
 
   const minUnit = t("settings.units.min");
   const secUnit = t("settings.units.sec");
@@ -346,6 +373,7 @@ export function SettingsPage() {
           />
           <SettingRow
             label={t("settings.rows.exportJson")}
+            hint={t("settings.rows.exportStatsHint")}
             control={
               <button
                 className="btn-ghost flex items-center gap-2"
@@ -372,6 +400,50 @@ export function SettingsPage() {
               </button>
             }
           />
+          <SettingRow
+            label={t("settings.rows.backupSettings")}
+            hint={t("settings.rows.backupSettingsHint")}
+            control={
+              <div className="flex items-center gap-2">
+                <button className="btn-ghost flex items-center gap-2" onClick={exportSettings}>
+                  <Download size={12} />
+                  {t("settings.actions.export")}
+                </button>
+                <button
+                  className="btn-ghost flex items-center gap-2"
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  <Upload size={12} />
+                  {t("settings.actions.import")}
+                </button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  hidden
+                  onChange={handleImport}
+                />
+              </div>
+            }
+          />
+          <SettingRow
+            label={t("settings.rows.resetSettings")}
+            hint={t("settings.rows.resetSettingsHint")}
+            control={
+              <button
+                className="btn-ghost flex items-center gap-2"
+                style={{ color: "var(--eg-pink)", borderColor: "rgba(236,72,153,0.25)" }}
+                onClick={handleReset}
+              >
+                <RotateCcw size={12} />
+                {t("settings.actions.reset")}
+              </button>
+            }
+          />
+        </SettingGroup>
+
+        <SettingGroup title={t("settings.groups.diagnostics")} Icon={Activity}>
+          <Diagnostics />
         </SettingGroup>
       </div>
     </section>

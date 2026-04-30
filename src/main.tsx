@@ -2,6 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import "./i18n";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { installDiagnosticsHooks } from "./stores/diagnosticsStore";
+
+installDiagnosticsHooks();
 
 const params = new URLSearchParams(window.location.search);
 const windowKind = params.get("window");
@@ -13,7 +17,9 @@ async function bootstrap() {
     const { NotificationApp } = await import("./windows/NotificationApp");
     root.render(
       <React.StrictMode>
-        <NotificationApp />
+        <ErrorBoundary label="notification">
+          <NotificationApp />
+        </ErrorBoundary>
       </React.StrictMode>,
     );
     return;
@@ -22,7 +28,9 @@ async function bootstrap() {
     const { BreakWindow } = await import("./windows/BreakWindow");
     root.render(
       <React.StrictMode>
-        <BreakWindow />
+        <ErrorBoundary label="break">
+          <BreakWindow />
+        </ErrorBoundary>
       </React.StrictMode>,
     );
     return;
@@ -30,7 +38,9 @@ async function bootstrap() {
   const { default: App } = await import("./App");
   root.render(
     <React.StrictMode>
-      <App />
+      <ErrorBoundary label="main">
+        <App />
+      </ErrorBoundary>
     </React.StrictMode>,
   );
 }

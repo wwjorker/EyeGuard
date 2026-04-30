@@ -82,7 +82,8 @@
       "dnd": "勿扰",
       "categories": "应用分类",
       "appearance": "外观",
-      "system": "系统"
+      "system": "系统",
+      "diagnostics": "诊断"
     },
     "rows": {
       "workInterval": "工作间隔",
@@ -123,12 +124,22 @@
       "autoDndGamesHint": "全屏应用 + 已知游戏与启动器在前台时不弹提醒",
       "autostart": "开机自启",
       "exportJson": "导出 JSON",
-      "exportCsv": "导出 CSV"
+      "exportCsv": "导出 CSV",
+      "exportStatsHint": "导出最近 1 天 + 90 天的应用足迹与每日总时长",
+      "backupSettings": "设置备份",
+      "backupSettingsHint": "把所有偏好导出为 JSON / 从 JSON 还原",
+      "resetSettings": "恢复默认设置",
+      "resetSettingsHint": "把所有偏好重置为出厂默认值"
     },
     "actions": {
       "purge": "清除",
       "purgeConfirm": "确定要永久删除所有应用足迹和休息历史吗？此操作不可恢复。",
-      "trigger": "触发"
+      "trigger": "触发",
+      "export": "导出",
+      "import": "导入",
+      "importFailed": "导入失败",
+      "reset": "恢复",
+      "resetConfirm": "把所有偏好重置为出厂默认值？这不会影响已收集的统计数据。"
     },
     "alertLevels": {
       "light": "轻",
@@ -248,5 +259,14 @@
     "dndHint": "白名单中的应用在前台时 EyeGuard 不弹提醒（仍记录用眼时间）。",
     "whitelistPlaceholder": "如 zoom.exe",
     "loading": "加载中…"
+  },
+  "diag": {
+    "version": "版本",
+    "runtime": "运行环境",
+    "dbPath": "数据库路径",
+    "recentLogs": "最近日志",
+    "empty": "暂无错误或警告 — 一切正常",
+    "copy": "复制全部诊断信息到剪贴板",
+    "clear": "清空日志"
   }
 }

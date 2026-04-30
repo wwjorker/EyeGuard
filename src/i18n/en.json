@@ -82,7 +82,8 @@
       "dnd": "do not disturb",
       "categories": "app categories",
       "appearance": "appearance",
-      "system": "system"
+      "system": "system",
+      "diagnostics": "diagnostics"
     },
     "rows": {
       "workInterval": "Work interval",
@@ -123,12 +124,22 @@
       "autoDndGamesHint": "Suppress alerts in fullscreen apps + known game launchers",
       "autostart": "Launch at login",
       "exportJson": "Export JSON",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "exportStatsHint": "Exports the last day of app footprint + 90 days of daily totals",
+      "backupSettings": "Settings backup",
+      "backupSettingsHint": "Save all preferences to JSON, or restore from one",
+      "resetSettings": "Reset to defaults",
+      "resetSettingsHint": "Restores every preference to its factory default"
     },
     "actions": {
       "purge": "purge",
       "purgeConfirm": "Permanently delete all app footprint and break history? This cannot be undone.",
-      "trigger": "trigger"
+      "trigger": "trigger",
+      "export": "export",
+      "import": "import",
+      "importFailed": "Import failed",
+      "reset": "reset",
+      "resetConfirm": "Reset every preference to its factory default? This won't touch your stats."
     },
     "alertLevels": {
       "light": "light",
@@ -248,5 +259,14 @@
     "dndHint": "When any of these apps is in the foreground, EyeGuard skips its alert (usage is still tracked).",
     "whitelistPlaceholder": "e.g. zoom.exe",
     "loading": "loading…"
+  },
+  "diag": {
+    "version": "Version",
+    "runtime": "Runtime",
+    "dbPath": "Database path",
+    "recentLogs": "Recent logs",
+    "empty": "No errors or warnings — all clear",
+    "copy": "Copy all diagnostic info to clipboard",
+    "clear": "Clear log"
   }
 }
