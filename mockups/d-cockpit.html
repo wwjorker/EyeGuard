@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>D · Cockpit</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#070b14;--panel:#0d1422;--ink:#a8c8e0;--accent:#3dd9d6;--warn:#ff7849;--ok:#5fe88f;--line:rgba(168,200,224,0.1);}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#020409;color:var(--ink);font-family:"JetBrains Mono",monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;gap:30px;flex-wrap:wrap}
+  .label{font-family:"Orbitron",sans-serif;color:var(--accent);letter-spacing:4px;font-size:13px;margin-bottom:12px;text-align:center}
+  .window{width:420px;height:580px;background:var(--bg);border-radius:14px;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(61,217,214,0.15)}
+  .window::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(61,217,214,0.06),transparent 60%);pointer-events:none}
+  /* HUD grid overlay */
+  .window::after{content:"";position:absolute;inset:14px;border:1px solid rgba(61,217,214,0.18);border-radius:8px;background:repeating-linear-gradient(0deg,transparent 0 19px,rgba(61,217,214,0.03) 19px 20px);pointer-events:none}
+
+  .frame{position:absolute;inset:14px;display:flex;flex-direction:column;padding:12px 16px;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;font-family:"Orbitron";font-size:9px;letter-spacing:3px;color:var(--ink);opacity:0.6;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .top .lhs{display:flex;gap:14px;align-items:center}
+  .top .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:0.4}}
+  .top .rhs{display:flex;gap:6px}
+  .top .rhs span{padding:2px 6px;border:1px solid var(--line);border-radius:3px}
+  .top .rhs .active{color:var(--accent);border-color:var(--accent)}
+
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:14px}
+
+  /* radar circle */
+  .radar{position:absolute;width:280px;height:280px;border:1px dashed rgba(61,217,214,0.2);border-radius:50%}
+  .radar::before,.radar::after{content:"";position:absolute;inset:30px;border:1px dashed rgba(61,217,214,0.15);border-radius:50%}
+  .radar::after{inset:60px;border-color:rgba(61,217,214,0.1)}
+  .radar-sweep{position:absolute;top:50%;left:50%;width:140px;height:2px;background:linear-gradient(to right,transparent,var(--accent));transform-origin:left;animation:sweep 4s linear infinite}
+  @keyframes sweep{to{transform:rotate(360deg)}}
+
+  .hero-num{font-family:"Orbitron",sans-serif;font-weight:900;font-size:78px;color:var(--accent);text-shadow:0 0 20px rgba(61,217,214,0.4);letter-spacing:-2px;z-index:2;font-variant-numeric:tabular-nums}
+  .hero-meta{font-family:"Orbitron";font-size:9px;letter-spacing:3px;color:var(--ink);opacity:0.6;margin-top:6px;z-index:2}
+  .hero-tag{font-family:"JetBrains Mono";font-size:11px;color:var(--accent);margin-top:2px;z-index:2}
+  .hero-tag::before{content:"› "}
+
+  .actions{display:flex;justify-content:center;gap:8px;margin:12px 0}
+  .btn{font-family:"Orbitron";font-size:10px;letter-spacing:2px;padding:8px 14px;cursor:pointer;text-transform:uppercase;border-radius:3px}
+  .btn-g{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+  .btn-p{background:var(--accent);border:1px solid var(--accent);color:#001818;font-weight:700;box-shadow:0 0 16px rgba(61,217,214,0.4)}
+
+  /* gauges row */
+  .gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border-top:1px solid var(--line);padding-top:10px}
+  .gauge{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:"Orbitron";font-size:8px;letter-spacing:2px}
+  .gauge .arc{width:50px;height:30px;position:relative}
+  .gauge .arc svg{width:100%;height:100%;overflow:visible}
+  .gauge .v{font-family:"Orbitron";font-size:14px;font-weight:700;color:var(--accent);letter-spacing:0;line-height:1}
+  .gauge .l{color:var(--ink);opacity:0.5}
+</style></head><body>
+<div><div class="label">// D · COCKPIT — sci-fi instrument panel</div>
+<div class="window"><div class="frame">
+  <div class="top">
+    <div class="lhs"><div class="dot"></div><span>EYEGUARD-Ⅰ ▸ NOMINAL</span><span style="color:var(--ok)">ENG · 100%</span></div>
+    <div class="rhs"><span class="active">TIMER</span><span>STAT</span><span>POMO</span><span>SYS</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="radar"><div class="radar-sweep"></div></div>
+    <div class="hero-num">14:32</div>
+    <div class="hero-meta">REMAINING · CYCLE 03</div>
+    <div class="hero-tag">all systems holding steady, captain</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-g">▣ HOLD</button>
+    <button class="btn btn-p">▶ DISENGAGE · BREAK</button>
+  </div>
+
+  <div class="gauges">
+    <div class="gauge"><div class="arc"><svg viewBox="0 0 50 30"><path d="M5 28 A 20 20 0 0 1 45 28" fill="none" stroke="#1a3344" stroke-width="3"/><path d="M5 28 A 20 20 0 0 1 35 8" fill="none" stroke="#5fe88f" stroke-width="3" stroke-linecap="round"/></svg></div><div class="v">3:20</div><div class="l">SCREEN</div></div>
+    <div class="gauge"><div class="arc"><svg viewBox="0 0 50 30"><path d="M5 28 A 20 20 0 0 1 45 28" fill="none" stroke="#1a3344" stroke-width="3"/><path d="M5 28 A 20 20 0 0 1 30 12" fill="none" stroke="#3dd9d6" stroke-width="3" stroke-linecap="round"/></svg></div><div class="v">4/6</div><div class="l">REST</div></div>
+    <div class="gauge"><div class="arc"><svg viewBox="0 0 50 30"><path d="M5 28 A 20 20 0 0 1 45 28" fill="none" stroke="#1a3344" stroke-width="3"/><path d="M5 28 A 20 20 0 0 1 42 14" fill="none" stroke="#ff7849" stroke-width="3" stroke-linecap="round"/></svg></div><div class="v">85</div><div class="l">HEALTH</div></div>
+    <div class="gauge"><div class="arc"><svg viewBox="0 0 50 30"><path d="M5 28 A 20 20 0 0 1 45 28" fill="none" stroke="#1a3344" stroke-width="3"/><path d="M5 28 A 20 20 0 0 1 25 9" fill="none" stroke="#a8c8e0" stroke-width="3" stroke-linecap="round"/></svg></div><div class="v">42m</div><div class="l">STREAK</div></div>
+  </div>
+</div></div></div>
+</body></html>

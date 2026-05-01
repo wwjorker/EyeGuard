@@ -58,6 +58,12 @@ function App() {
     return () => window.clearInterval(id);
   }, [tick]);
 
+  // Mark the active page on <body> so CSS can adapt the window-pane
+  // crossbar (only visible on the timer scene).
+  useEffect(() => {
+    document.body.dataset.page = page;
+  }, [page]);
+
   // Prime the shared AudioContext on the first user gesture so future
   // alert beeps actually play (Webview2 starts contexts in suspended state).
   useEffect(() => {

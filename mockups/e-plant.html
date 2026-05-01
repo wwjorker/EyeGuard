@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>E · Plant</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--sky:#fde6c4;--sky2:#f9c98f;--sill:#8b6f4e;--ink:#3a2818;--leaf:#5a8c4a;--leaf2:#7ab85f;--pot:#c8845a;--accent:#c3613f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#1a0f08;color:var(--ink);font-family:"Quicksand",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px}
+  .label{font-family:"Caveat",cursive;color:#f5d896;font-size:20px;text-align:center;margin-bottom:14px;letter-spacing:1px}
+  .window{width:420px;height:580px;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.6);background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 60%,#e0a06c 100%)}
+
+  /* sun */
+  .sun{position:absolute;top:50px;right:60px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fff7d4 0%,#fde08c 70%,transparent 100%);opacity:0.85}
+
+  /* clouds */
+  .cloud{position:absolute;background:rgba(255,255,255,0.55);border-radius:20px;height:14px;animation:drift 30s linear infinite}
+  .cloud.c1{top:80px;left:-40px;width:80px;animation-duration:40s}
+  .cloud.c2{top:130px;left:-80px;width:50px;animation-duration:55s;animation-delay:-15s}
+  @keyframes drift{from{transform:translateX(-20px)}to{transform:translateX(500px)}}
+
+  /* window frame */
+  .frame{position:absolute;inset:0;border:14px solid #eee2cb;border-radius:16px;pointer-events:none}
+  .frame::before,.frame::after{content:"";position:absolute;background:#eee2cb}
+  .frame::before{top:50%;left:0;right:0;height:3px;transform:translateY(-50%)}
+  .frame::after{left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%)}
+
+  /* sill */
+  .sill{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(180deg,#a4825a 0%,#7a5a3a 100%);box-shadow:inset 0 4px 8px rgba(0,0,0,0.2);z-index:2}
+  .sill::before{content:"";position:absolute;top:-6px;left:0;right:0;height:6px;background:#bb9468;border-radius:3px 3px 0 0}
+
+  /* pot */
+  .pot{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:180px;height:90px;z-index:4}
+  .pot-body{position:absolute;bottom:0;left:10px;right:10px;height:70px;background:linear-gradient(180deg,var(--pot),#a0613a);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);border-radius:6px}
+  .pot-rim{position:absolute;top:-6px;left:0;right:0;height:14px;background:#d8956c;border-radius:6px}
+  .pot-soil{position:absolute;top:6px;left:14px;right:14px;height:8px;background:#3e2a18;border-radius:50%}
+
+  /* plant */
+  .plant{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:3}
+  .stem{position:absolute;bottom:0;left:50%;width:4px;height:120px;background:#3a5a2a;transform-origin:bottom;animation:sway 5s ease-in-out infinite;transform:translateX(-50%) rotate(-2deg)}
+  @keyframes sway{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+  .leaf{position:absolute;width:50px;height:36px;background:radial-gradient(ellipse at center,var(--leaf2) 0%,var(--leaf) 100%);border-radius:50% 0 50% 0;transform-origin:bottom right;box-shadow:inset 1px -1px 3px rgba(0,0,0,0.25)}
+  .leaf.l1{bottom:90px;left:50%;transform:translate(-100%,0) rotate(-30deg)}
+  .leaf.l2{bottom:60px;left:50%;transform:rotate(30deg) scaleX(-1)}
+  .leaf.l3{bottom:40px;left:50%;transform:translate(-90%,0) rotate(-50deg);width:44px;height:30px}
+  .leaf.l4{bottom:20px;left:50%;transform:rotate(50deg) scaleX(-1);width:42px;height:28px}
+  .flower{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,#ffe680 0%,#ff9d6c 100%);box-shadow:0 0 12px rgba(255,180,120,0.5)}
+  .flower::before{content:"";position:absolute;inset:30%;border-radius:50%;background:#fdb347}
+
+  /* HUD card on glass (timer info) */
+  .card{position:absolute;top:38px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);padding:16px 22px;border-radius:14px;text-align:center;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,0.12)}
+  .brand{font-family:"Caveat",cursive;font-size:18px;color:var(--accent);font-weight:700;line-height:1;letter-spacing:0.5px}
+  .time{font-family:"Quicksand";font-weight:700;font-size:60px;color:var(--ink);line-height:1;letter-spacing:-2px;font-feature-settings:"tnum"}
+  .meta{font-family:"Caveat",cursive;font-size:16px;color:var(--ink);opacity:0.65;margin-top:2px}
+
+  /* nav */
+  .nav{position:absolute;bottom:140px;left:0;right:0;display:flex;justify-content:center;gap:18px;z-index:5}
+  .nav button{background:transparent;border:none;font-family:"Quicksand";font-weight:600;font-size:11px;color:var(--ink);text-transform:uppercase;letter-spacing:2px;cursor:pointer;opacity:0.55;padding:4px}
+  .nav button.on{opacity:1;color:var(--accent);border-bottom:2px solid var(--accent)}
+
+  /* status badge over the sill */
+  .badges{position:absolute;bottom:14px;left:14px;right:14px;display:flex;justify-content:space-around;z-index:5}
+  .b{background:rgba(255,255,255,0.85);border-radius:10px;padding:5px 10px;text-align:center;min-width:60px;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+  .b .v{font-family:"Quicksand";font-weight:700;font-size:14px;color:var(--ink)}
+  .b .l{font-family:"Caveat",cursive;font-size:12px;color:var(--ink);opacity:0.65;line-height:1}
+  .b .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle}
+  .b .dot.g{background:var(--leaf2)}.b .dot.b{background:#7798c8}.b .dot.a{background:#e8a85c}.b .dot.p{background:#c477a8}
+
+  .desc{margin-left:30px;width:280px;color:#e8d8b4;font-family:"Quicksand";font-size:13px;line-height:1.7}
+  .desc h3{font-family:"Caveat";font-size:24px;color:#f5d896;margin-bottom:8px}
+</style></head><body>
+<div>
+  <div class="label">// E · PLANT WINDOWSILL — your eye-care plant</div>
+  <div class="window">
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div>
+
+    <div class="card">
+      <div class="brand">eyeguard</div>
+      <div class="time">14:32</div>
+      <div class="meta">stretch your gaze a bit longer</div>
+    </div>
+
+    <div class="nav"><button class="on">timer</button><button>stats</button><button>pomo</button><button>cfg</button></div>
+
+    <div class="sill">
+      <div class="plant">
+        <div class="stem"></div>
+        <div class="leaf l1"></div><div class="leaf l2"></div>
+        <div class="leaf l3"></div><div class="leaf l4"></div>
+        <div class="flower"></div>
+      </div>
+      <div class="pot"><div class="pot-body"></div><div class="pot-rim"></div><div class="pot-soil"></div></div>
+      <div class="badges">
+        <div class="b"><div class="v"><span class="dot g"></span>3:20</div><div class="l">screen</div></div>
+        <div class="b"><div class="v"><span class="dot b"></span>4/6</div><div class="l">breaks</div></div>
+        <div class="b"><div class="v"><span class="dot a"></span>85</div><div class="l">score</div></div>
+        <div class="b"><div class="v"><span class="dot p"></span>42m</div><div class="l">streak</div></div>
+      </div>
+    </div>
+
+    <div class="frame"></div>
+  </div>
+</div>
+
+<div class="desc">
+  <h3>// 植物窗台 / windowsill</h3>
+  <p>整个 app 是一扇望向窗外的窗户，沙漏与提醒嵌在玻璃半透明卡片上。</p>
+  <p>窗台上养着一棵你的眼睛之花。每完成一次休息它会长出一片新叶；你跳过太多次就会蔫；天气、太阳位置随当日时间渐变。</p>
+  <p>统计是窗台上排开的小标牌。stats 页可以看你"这一年长了多少棵"。</p>
+  <p style="opacity:0.6;margin-top:14px">工作量：3-4 轮（要做植物状态机 + 季节系统 + 真实节气联动）。</p>
+</div>
+</body></html>

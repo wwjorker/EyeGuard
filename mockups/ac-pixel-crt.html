@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>EyeGuard — A+C mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1410;
+    --bg-deep: #050a08;
+    --card: #111d18;
+    --line: rgba(180, 255, 220, 0.06);
+    --green: #4ade80;
+    --green-dim: #2da55a;
+    --green-glow: rgba(74, 222, 128, 0.45);
+    --amber: #fbbf24;
+    --pink: #f472b6;
+    --purple: #a78bfa;
+    --text: #e8fff0;
+    --muted: rgba(232, 255, 240, 0.42);
+    --faint: rgba(232, 255, 240, 0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050706;
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .preview-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .preview-label {
+    font-family: "VT323", monospace;
+    color: var(--green);
+    letter-spacing: 2px;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  /* === EyeGuard window mock === */
+  .window {
+    width: 420px; height: 580px;
+    background: var(--bg);
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(74,222,128,0.08);
+  }
+
+  /* CRT scanlines */
+  .window::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(0,0,0,0.18) 3px,
+      transparent 4px
+    );
+    pointer-events: none;
+    z-index: 5;
+  }
+  /* Subtle phosphor glow */
+  .window::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .frame {
+    position: absolute; inset: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+  }
+
+  /* === Top bar === */
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 6px 14px;
+  }
+  .brand-row {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .brand {
+    font-family: "VT323", monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--green);
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .nav { display: flex; gap: 2px; }
+  .nav button {
+    background: transparent; border: none; cursor: pointer;
+    font-family: "VT323", monospace;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 3px 7px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+  .nav button.active {
+    color: var(--green);
+    background: rgba(74,222,128,0.08);
+  }
+  .badge {
+    font-family: "VT323", monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--green);
+    padding: 2px 7px;
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 10px;
+    background: rgba(74,222,128,0.08);
+    text-shadow: 0 0 4px var(--green-glow);
+  }
+
+  /* === Iris companion === */
+  .iris-wrap {
+    position: absolute;
+    top: 38px;
+    right: 14px;
+    z-index: 3;
+    width: 46px; height: 46px;
+    cursor: pointer;
+  }
+  .iris-svg { width: 100%; height: 100%; }
+  .iris-svg .pupil { animation: pupilLook 8s ease-in-out infinite; }
+  @keyframes pupilLook {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 1px); }
+    50% { transform: translate(2px, -1px); }
+    75% { transform: translate(0, 2px); }
+  }
+  .iris-svg .lid { transform-origin: center; animation: blink 5.5s ease-in-out infinite; }
+  @keyframes blink {
+    0%, 95%, 100% { transform: scaleY(0); }
+    96%, 98% { transform: scaleY(1); }
+  }
+
+  /* Speech bubble */
+  .iris-bubble {
+    position: absolute;
+    top: 90px;
+    right: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: "VT323", monospace;
+    font-size: 13px;
+    color: var(--green);
+    text-shadow: 0 0 4px var(--green-glow);
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .iris-wrap:hover ~ .iris-bubble { opacity: 1; transform: translateY(0); }
+  .iris-bubble::before {
+    content: "";
+    position: absolute;
+    top: -5px; right: 10px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--card);
+  }
+
+  /* === Hero LCD timer === */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 16px 0;
+  }
+
+  .lcd-frame {
+    background: rgba(74, 222, 128, 0.04);
+    border: 1px solid rgba(74, 222, 128, 0.18);
+    border-radius: 12px;
+    padding: 18px 32px 14px 32px;
+    box-shadow:
+      inset 0 0 30px rgba(74,222,128,0.06),
+      0 0 30px rgba(74,222,128,0.05);
+    position: relative;
+  }
+  .lcd-frame::before {
+    content: "";
+    position: absolute; inset: 6px;
+    border-radius: 8px;
+    background:
+      repeating-linear-gradient(to right, transparent 0 4px, rgba(74,222,128,0.025) 4px 5px),
+      repeating-linear-gradient(to bottom, transparent 0 4px, rgba(74,222,128,0.025) 4px 5px);
+    pointer-events: none;
+  }
+  .lcd-time {
+    font-family: "VT323", monospace;
+    font-size: 92px;
+    line-height: 0.85;
+    color: var(--green);
+    letter-spacing: 6px;
+    text-shadow:
+      0 0 8px var(--green-glow),
+      0 0 24px var(--green-glow);
+    font-feature-settings: "tnum";
+  }
+  .lcd-time .colon {
+    color: var(--green);
+    animation: colonBlink 1s steps(1) infinite;
+  }
+  @keyframes colonBlink {
+    50% { opacity: 0.25; }
+  }
+
+  .hero-meta {
+    margin-top: 10px;
+    font-family: "VT323", monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-size: 13px;
+    text-transform: uppercase;
+  }
+
+  /* === Action row === */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-bottom: 14px;
+  }
+  .actions button {
+    font-family: "VT323", monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(74,222,128,0.25);
+    color: var(--green);
+  }
+  .btn-ghost:hover { background: rgba(74,222,128,0.08); }
+  .btn-primary {
+    background: var(--green);
+    border: 1px solid var(--green);
+    color: #051208;
+    text-shadow: none;
+    box-shadow: 0 0 14px var(--green-glow);
+  }
+
+  /* === Metric rings === */
+  .rings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 8px;
+    gap: 4px;
+  }
+  .ring {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex: 0 0 auto;
+  }
+  .ring svg { width: 56px; height: 56px; }
+  .ring-num {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "VT323", monospace;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .ring-wrap { position: relative; width: 56px; height: 56px; }
+  .ring-label {
+    font-family: "VT323", monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .ring-divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(74,222,128,0.1), transparent);
+  }
+
+  /* === Right side: state demo panel === */
+  .demo-panel {
+    width: 280px;
+    background: #0a1310;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+  }
+  .demo-panel h3 {
+    font-family: "VT323", monospace;
+    font-size: 16px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .demo-panel p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .state-buttons {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .state-buttons button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: "VT323", monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 4px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .state-buttons button:hover { border-color: var(--green); color: var(--green); }
+  .state-buttons button.on {
+    background: rgba(74,222,128,0.12);
+    border-color: var(--green);
+    color: var(--green);
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-wrap">
+  <div class="preview-label">A + C COMBO · IRIS PIXEL COMPANION + LCD CRT</div>
+
+  <div class="window" id="window">
+    <div class="frame">
+      <!-- top bar -->
+      <div class="top">
+        <div class="brand-row">
+          <!-- pixel logo -->
+          <svg width="14" height="14" viewBox="0 0 14 14">
+            <rect x="0" y="0" width="14" height="14" fill="none"/>
+            <rect x="2" y="6" width="2" height="2" fill="#4ade80"/>
+            <rect x="10" y="6" width="2" height="2" fill="#4ade80"/>
+            <rect x="4" y="4" width="6" height="2" fill="#4ade80"/>
+            <rect x="4" y="8" width="6" height="2" fill="#4ade80"/>
+            <rect x="6" y="6" width="2" height="2" fill="#fafafa"/>
+          </svg>
+          <span class="brand">EYEGUARD</span>
+        </div>
+        <nav class="nav">
+          <button class="active">TIMER</button>
+          <button>STATS</button>
+          <button>POMO</button>
+          <button>CFG</button>
+        </nav>
+        <span class="badge">● ACTIVE</span>
+      </div>
+
+      <!-- Iris companion (top-right corner) -->
+      <div class="iris-wrap" id="iris">
+        <svg class="iris-svg" id="iris-svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+          <!-- pixel eye (working state by default) -->
+          <g id="iris-default">
+            <!-- eye outline -->
+            <rect x="6" y="10" width="20" height="12" fill="#4ade80" opacity="0.15"/>
+            <rect x="8" y="8" width="16" height="2" fill="#4ade80"/>
+            <rect x="6" y="10" width="2" height="12" fill="#4ade80"/>
+            <rect x="24" y="10" width="2" height="12" fill="#4ade80"/>
+            <rect x="8" y="22" width="16" height="2" fill="#4ade80"/>
+            <!-- iris green -->
+            <rect class="pupil-outer" x="12" y="12" width="8" height="8" fill="#4ade80"/>
+            <!-- pupil -->
+            <g class="pupil">
+              <rect x="14" y="14" width="4" height="4" fill="#051208"/>
+              <rect x="15" y="14" width="2" height="2" fill="#fafafa"/>
+            </g>
+            <!-- top lid (blink animation) -->
+            <rect class="lid" x="6" y="10" width="20" height="6" fill="#0b1410"/>
+            <!-- lashes -->
+            <rect x="9" y="6" width="1" height="2" fill="#4ade80"/>
+            <rect x="15" y="5" width="2" height="3" fill="#4ade80"/>
+            <rect x="22" y="6" width="1" height="2" fill="#4ade80"/>
+          </g>
+        </svg>
+      </div>
+      <div class="iris-bubble" id="iris-bubble">坚持就是胜利～</div>
+
+      <!-- hero LCD -->
+      <div class="hero">
+        <div class="lcd-frame">
+          <div class="lcd-time" id="lcd">14<span class="colon">:</span>32</div>
+        </div>
+        <div class="hero-meta" id="hero-meta">~ MINUTES REMAINING ~</div>
+      </div>
+
+      <!-- actions -->
+      <div class="actions">
+        <button class="btn-ghost">|| PAUSE</button>
+        <button class="btn-primary">▶ BREAK NOW</button>
+      </div>
+
+      <!-- metric rings -->
+      <div class="rings">
+        <div class="ring">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(74,222,128,0.08)" stroke-width="3"/>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-dasharray="151" stroke-dashoffset="60" transform="rotate(-90 28 28)"/>
+            </svg>
+            <span class="ring-num">3:20</span>
+          </div>
+          <span class="ring-label">SCREEN</span>
+        </div>
+        <div class="ring-divider"></div>
+        <div class="ring">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(74,222,128,0.08)" stroke-width="3"/>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" stroke-dasharray="151" stroke-dashoffset="50" transform="rotate(-90 28 28)"/>
+            </svg>
+            <span class="ring-num">4/6</span>
+          </div>
+          <span class="ring-label">BREAKS</span>
+        </div>
+        <div class="ring-divider"></div>
+        <div class="ring">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(74,222,128,0.08)" stroke-width="3"/>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-dasharray="151" stroke-dashoffset="22" transform="rotate(-90 28 28)"/>
+            </svg>
+            <span class="ring-num">85</span>
+          </div>
+          <span class="ring-label">SCORE</span>
+        </div>
+        <div class="ring-divider"></div>
+        <div class="ring">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(74,222,128,0.08)" stroke-width="3"/>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" stroke-dasharray="151" stroke-dashoffset="80" transform="rotate(-90 28 28)"/>
+            </svg>
+            <span class="ring-num">42m</span>
+          </div>
+          <span class="ring-label">STREAK</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- right-side panel: try Iris states -->
+<div class="demo-panel">
+  <h3>// IRIS 状态预览</h3>
+  <p>点下面的按钮切换 Iris 表情。鼠标悬停 Iris（窗口右上的小眼睛）会弹出对应的小气泡。</p>
+  <div class="state-buttons" id="states">
+    <button class="on" data-state="default" data-msg="坚持就是胜利～">工作中</button>
+    <button data-state="warn" data-msg="...有点累了">即将休息</button>
+    <button data-state="sleep" data-msg="zZz...嘘">休息中</button>
+    <button data-state="happy" data-msg="干得漂亮 ✦">完成</button>
+    <button data-state="grumpy" data-msg="又跳过啦…">被跳过</button>
+    <button data-state="sparkle" data-msg="今天好厉害！">里程碑</button>
+  </div>
+
+  <p style="margin-top: 16px; font-size: 11px; color: rgba(232,255,240,0.3);">
+    一个 SVG 角色 6 种状态。集成后会根据 timer state + healthScore + remainingSec
+    自动切换，鼠标悬停 Iris 弹出根据当前状态变化的鼓励文案。
+  </p>
+</div>
+
+<script>
+  const irisSvg = document.getElementById('iris-svg');
+  const bubble = document.getElementById('iris-bubble');
+  const states = document.getElementById('states');
+
+  const SVG_STATES = {
+    default: `<g>
+      <rect x="6" y="10" width="20" height="12" fill="#4ade80" opacity="0.15"/>
+      <rect x="8" y="8" width="16" height="2" fill="#4ade80"/>
+      <rect x="6" y="10" width="2" height="12" fill="#4ade80"/>
+      <rect x="24" y="10" width="2" height="12" fill="#4ade80"/>
+      <rect x="8" y="22" width="16" height="2" fill="#4ade80"/>
+      <rect x="12" y="12" width="8" height="8" fill="#4ade80"/>
+      <g class="pupil">
+        <rect x="14" y="14" width="4" height="4" fill="#051208"/>
+        <rect x="15" y="14" width="2" height="2" fill="#fafafa"/>
+      </g>
+      <rect class="lid" x="6" y="10" width="20" height="6" fill="#0b1410"/>
+      <rect x="9" y="6" width="1" height="2" fill="#4ade80"/>
+      <rect x="15" y="5" width="2" height="3" fill="#4ade80"/>
+      <rect x="22" y="6" width="1" height="2" fill="#4ade80"/>
+    </g>`,
+    warn: `<g>
+      <rect x="6" y="11" width="20" height="11" fill="#fbbf24" opacity="0.15"/>
+      <rect x="8" y="9" width="16" height="2" fill="#fbbf24"/>
+      <rect x="6" y="11" width="2" height="11" fill="#fbbf24"/>
+      <rect x="24" y="11" width="2" height="11" fill="#fbbf24"/>
+      <rect x="8" y="22" width="16" height="2" fill="#fbbf24"/>
+      <rect x="12" y="13" width="8" height="7" fill="#fbbf24"/>
+      <rect x="14" y="15" width="4" height="3" fill="#3a2904"/>
+      <!-- droopy lid -->
+      <rect x="6" y="11" width="20" height="3" fill="#0b1410"/>
+      <rect x="6" y="14" width="20" height="2" fill="#0b1410" opacity="0.5"/>
+      <!-- tear -->
+      <rect x="22" y="23" width="1" height="3" fill="#67e8f9"/>
+    </g>`,
+    sleep: `<g>
+      <rect x="6" y="14" width="20" height="2" fill="#4ade80"/>
+      <rect x="9" y="13" width="2" height="1" fill="#4ade80"/>
+      <rect x="14" y="13" width="4" height="1" fill="#4ade80"/>
+      <rect x="21" y="13" width="2" height="1" fill="#4ade80"/>
+      <!-- z's -->
+      <text x="22" y="9" font-family="VT323, monospace" font-size="8" fill="#4ade80">z</text>
+      <text x="26" y="6" font-family="VT323, monospace" font-size="6" fill="#4ade80">z</text>
+    </g>`,
+    happy: `<g>
+      <rect x="6" y="10" width="20" height="12" fill="#4ade80" opacity="0.2"/>
+      <rect x="8" y="8" width="16" height="2" fill="#4ade80"/>
+      <rect x="6" y="10" width="2" height="12" fill="#4ade80"/>
+      <rect x="24" y="10" width="2" height="12" fill="#4ade80"/>
+      <rect x="8" y="22" width="16" height="2" fill="#4ade80"/>
+      <rect x="12" y="12" width="8" height="8" fill="#4ade80"/>
+      <rect x="14" y="14" width="4" height="4" fill="#051208"/>
+      <rect x="15" y="14" width="2" height="2" fill="#fafafa"/>
+      <!-- happy curved bottom -->
+      <rect x="9" y="22" width="2" height="2" fill="#4ade80"/>
+      <rect x="21" y="22" width="2" height="2" fill="#4ade80"/>
+      <!-- sparkles -->
+      <rect x="2" y="4" width="2" height="2" fill="#fbbf24"/>
+      <rect x="28" y="6" width="2" height="2" fill="#fbbf24"/>
+      <rect x="0" y="20" width="2" height="2" fill="#f472b6"/>
+    </g>`,
+    grumpy: `<g>
+      <rect x="6" y="11" width="20" height="11" fill="#f472b6" opacity="0.15"/>
+      <rect x="8" y="9" width="16" height="2" fill="#f472b6"/>
+      <rect x="6" y="11" width="2" height="11" fill="#f472b6"/>
+      <rect x="24" y="11" width="2" height="11" fill="#f472b6"/>
+      <rect x="8" y="22" width="16" height="2" fill="#f472b6"/>
+      <!-- squinted iris -->
+      <rect x="12" y="14" width="8" height="4" fill="#f472b6"/>
+      <rect x="14" y="15" width="4" height="2" fill="#3a1c2c"/>
+      <!-- eyebag -->
+      <rect x="8" y="24" width="16" height="1" fill="#7c2d4f" opacity="0.6"/>
+      <!-- angry brows -->
+      <rect x="9" y="6" width="6" height="1" fill="#f472b6"/>
+      <rect x="17" y="6" width="6" height="1" fill="#f472b6"/>
+      <rect x="9" y="7" width="3" height="1" fill="#f472b6"/>
+      <rect x="20" y="7" width="3" height="1" fill="#f472b6"/>
+    </g>`,
+    sparkle: `<g>
+      <rect x="6" y="10" width="20" height="12" fill="#a78bfa" opacity="0.25"/>
+      <rect x="8" y="8" width="16" height="2" fill="#a78bfa"/>
+      <rect x="6" y="10" width="2" height="12" fill="#a78bfa"/>
+      <rect x="24" y="10" width="2" height="12" fill="#a78bfa"/>
+      <rect x="8" y="22" width="16" height="2" fill="#a78bfa"/>
+      <rect x="12" y="12" width="8" height="8" fill="#a78bfa"/>
+      <rect x="14" y="14" width="4" height="4" fill="#fafafa"/>
+      <rect x="15" y="14" width="2" height="2" fill="#fbbf24"/>
+      <!-- many sparkles -->
+      <rect x="2" y="3" width="2" height="2" fill="#fbbf24"/>
+      <rect x="28" y="5" width="2" height="2" fill="#fbbf24"/>
+      <rect x="0" y="18" width="2" height="2" fill="#f472b6"/>
+      <rect x="29" y="20" width="2" height="2" fill="#a78bfa"/>
+      <rect x="4" y="28" width="2" height="2" fill="#4ade80"/>
+      <rect x="26" y="28" width="2" height="2" fill="#fbbf24"/>
+    </g>`,
+  };
+
+  states.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    states.querySelectorAll('button').forEach((b) => b.classList.remove('on'));
+    btn.classList.add('on');
+    const state = btn.dataset.state;
+    irisSvg.innerHTML = SVG_STATES[state];
+    bubble.textContent = btn.dataset.msg;
+    bubble.style.opacity = 1;
+    bubble.style.transform = 'translateY(0)';
+    clearTimeout(window._bubbleTimer);
+    window._bubbleTimer = setTimeout(() => {
+      bubble.style.opacity = 0;
+      bubble.style.transform = 'translateY(-4px)';
+    }, 1800);
+  });
+</script>
+</body>
+</html>

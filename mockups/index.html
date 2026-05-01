@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>EyeGuard UI — Mockup index</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: #09090b;
+    color: #fafafa;
+    font-family: "Inter", system-ui, sans-serif;
+    margin: 0;
+    padding: 50px 30px 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  h1 {
+    font-family: "VT323", monospace;
+    font-size: 32px;
+    letter-spacing: 4px;
+    color: #34d399;
+    text-shadow: 0 0 12px rgba(52,211,153,0.4);
+  }
+  p { color: rgba(255,255,255,0.5); font-size: 13px; max-width: 580px; text-align: center; line-height: 1.6;}
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; max-width: 1100px; width: 100%; }
+  a.card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 18px;
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+  }
+  a.card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.18); background: #1d1d20; }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fafafa;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+  }
+  .card-tag {
+    font-family: "VT323", monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--tag, #34d399);
+    margin-bottom: 2px;
+  }
+  .meta { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-transform: uppercase; }
+  .meta .effort { color: #f59e0b; }
+
+  h2 { font-family: "VT323"; color: rgba(255,255,255,0.4); font-size: 20px; letter-spacing: 4px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<h1>UI MOCKUPS</h1>
+<p>
+  9 个独立的视觉草案。所有都是静态 HTML，独立于 EyeGuard 应用本身，**不会影响任何代码**。<br/>
+  挑你喜欢的方向告诉我，我把对应的设计语言落到真 app 里。
+</p>
+
+<h2>// 第一批（之前给过）</h2>
+<div class="grid">
+  <a class="card" href="ac-pixel-crt.html" style="--tag:#34d399">
+    <span class="card-tag">// A + C COMBO</span>
+    <span class="card-title">Iris 像素眼伴 + LCD 复古</span>
+    <span class="card-desc">像素小眼睛角色 + LCD 磷光绿计时 + CRT 扫描线。Iris 6 种状态可点。</span>
+    <div class="meta"><span>科技 · 萌</span><span class="effort">中难度</span></div>
+  </a>
+  <a class="card" href="sketchbook.html" style="--tag:#e07856">
+    <span class="card-tag">// SKETCHBOOK</span>
+    <span class="card-title">手账纸感 / journal</span>
+    <span class="card-desc">米色纸 + 横线 + 红边距，手写字体，统计是胶带便签。</span>
+    <div class="meta"><span>温暖 · 手作</span><span class="effort">大难度</span></div>
+  </a>
+</div>
+
+<h2>// ★ 完整流程预览（你选了 E）</h2>
+<div class="grid">
+  <a class="card" href="e-plant-full.html" style="--tag:#7ab85f">
+    <span class="card-tag">// E · FULL FLOW</span>
+    <span class="card-title">植物窗台 · 全部 4 个页面</span>
+    <span class="card-desc">同一个窗口里 timer / stats / pomodoro / settings 四个页面统一风格。点 tab 来回切换感受一致性。番茄藤蔓、花圃统计、木质滑块、花苞开关都画出来了。</span>
+    <div class="meta"><span>已统一</span><span class="effort">3-4 轮</span></div>
+  </a>
+</div>
+
+<h2>// 第二批（这次新做）</h2>
+<div class="grid">
+  <a class="card" href="d-cockpit.html" style="--tag:#3dd9d6">
+    <span class="card-tag">// D · COCKPIT</span>
+    <span class="card-title">太空舱仪表盘</span>
+    <span class="card-desc">飞船 HUD，雷达扫描，圆弧仪表。Orbitron 字体。"all systems holding steady, captain"</span>
+    <div class="meta"><span>科幻 · 严肃</span><span class="effort">中难度</span></div>
+  </a>
+  <a class="card" href="e-plant.html" style="--tag:#7ab85f">
+    <span class="card-tag">// E · PLANT</span>
+    <span class="card-title">植物窗台</span>
+    <span class="card-desc">一扇窗 + 窗台上的盆栽。每完成休息植物长高，跳过会蔫。日落色调。</span>
+    <div class="meta"><span>治愈 · 治疗系</span><span class="effort">大难度</span></div>
+  </a>
+  <a class="card" href="f-zine.html" style="--tag:#e83a2c">
+    <span class="card-tag">// F · ZINE</span>
+    <span class="card-title">90s 拼贴杂志</span>
+    <span class="card-desc">撕边、撞色、错版排版。黑红黄三色 + 故意"凌乱有节奏"。设计圈最爱。</span>
+    <div class="meta"><span>叛逆 · 个性</span><span class="effort">大难度</span></div>
+  </a>
+  <a class="card" href="g-manuscript.html" style="--tag:#a8821a">
+    <span class="card-tag">// G · MANUSCRIPT</span>
+    <span class="card-title">中世纪手抄本</span>
+    <span class="card-desc">羊皮纸 + 烫金 + 哥特体首字母。罗马数字配统计。圣经体文案。</span>
+    <div class="meta"><span>古典 · 仪式</span><span class="effort">中难度</span></div>
+  </a>
+  <a class="card" href="h-tearoom.html" style="--tag:#7a5a3a">
+    <span class="card-tag">// H · TEAROOM</span>
+    <span class="card-title">日式茶室 wabi-sabi</span>
+    <span class="card-desc">极致留白 + enso 水墨圆 + 单字汉字标注 + 俳句微文案。最克制的一个。</span>
+    <div class="meta"><span>禅 · 极简</span><span class="effort">小难度</span></div>
+  </a>
+  <a class="card" href="i-rpg.html" style="--tag:#ffd633">
+    <span class="card-tag">// I · 8-BIT RPG</span>
+    <span class="card-title">像素 RPG 任务</span>
+    <span class="card-desc">HP/XP 条 + 城堡背景 + 对话框 + 等级系统。休息 = 喝补血药水。viral 潜力最高。</span>
+    <div class="meta"><span>游戏感 · 拉满</span><span class="effort">最大难度</span></div>
+  </a>
+  <a class="card" href="j-steampunk.html" style="--tag:#c4a062">
+    <span class="card-tag">// J · STEAMPUNK</span>
+    <span class="card-title">维多利亚怀表</span>
+    <span class="card-desc">黄铜齿轮 + 罗马刻度怀表 + 副表盘统计 + 哥特字体 + 19 世纪文案。</span>
+    <div class="meta"><span>古董 · 精雕</span><span class="effort">大难度</span></div>
+  </a>
+</div>
+
+<p style="font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 30px;">
+  双击文件直接在浏览器打开，或者命令行跑 <code>start mockups\index.html</code>
+</p>
+
+</body>
+</html>

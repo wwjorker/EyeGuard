@@ -258,6 +258,13 @@
     "milestone10PomoBody": "Focused all-in day. Reward yourself."
   },
   "skip": "skip",
+  "snail": {
+    "happy": "no rush, take it slow ~",
+    "focused": "almost there… stay with it",
+    "sleeping": "shh… i'm napping too",
+    "frowning": "too many skips today…",
+    "cheering": "you're absolutely crushing it!"
+  },
   "tray": {
     "pauseResume": "Pause / Resume",
     "breakNow": "Break Now",

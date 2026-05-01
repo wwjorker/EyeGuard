@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTimerStore, formatMMSS } from "../stores/timerStore";
 
-// Module-level flag so the greeting only shows once per app session,
-// even if the user navigates timer page → another → timer.
 let greetingShown = false;
 
 const greetingKeyForNow = (): string => {
@@ -23,12 +21,9 @@ export function HeroTimer() {
 
   const isPaused = state === "paused" || state === "idle";
   const isWarning = state === "active" && remainingSec > 0 && remainingSec <= 120;
-  const isBreathing = state === "active" && !isWarning;
   const display = formatMMSS(remainingSec);
-
-  // Pick microcopy from the progress through the cycle. Warning state
-  // wins over the percentage-based copy.
   const pct = workInterval > 0 ? remainingSec / workInterval : 0;
+
   const labelByPct = (() => {
     if (remainingSec <= 60) return t("timer.lessThanMinute");
     if (remainingSec <= 120) return t("timer.almostDone");
@@ -45,17 +40,6 @@ export function HeroTimer() {
     return labelByPct;
   })();
 
-  // Background ring progress
-  const progressPct = Math.max(0, Math.min(1, pct));
-
-  // State-aware halo colour
-  const haloBg = (() => {
-    if (isPaused) return "transparent";
-    if (isWarning) return "radial-gradient(circle, rgba(245,158,11,0.20) 0%, transparent 65%)";
-    return "radial-gradient(circle, rgba(52,211,153,0.14) 0%, transparent 65%)";
-  })();
-
-  // One-shot greeting at session start
   const [showGreeting, setShowGreeting] = useState(!greetingShown);
   const greetTimerRef = useRef<number | null>(null);
   useEffect(() => {
@@ -68,41 +52,39 @@ export function HeroTimer() {
   }, [showGreeting]);
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 relative">
-      <span aria-hidden className="hero-glow" style={{ background: haloBg, opacity: isPaused ? 0 : 0.85 }} />
-
-      <svg
-        className="absolute"
-        width="240"
-        height="240"
-        viewBox="0 0 240 240"
-        style={{ opacity: 0.55 }}
-      >
-        <circle cx="120" cy="120" r="112" fill="none" stroke="var(--eg-track)" strokeWidth="1" />
-        <circle
-          cx="120"
-          cy="120"
-          r="112"
-          fill="none"
-          stroke={isWarning ? "var(--eg-amber)" : "var(--eg-green)"}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeDasharray={`${2 * Math.PI * 112}`}
-          strokeDashoffset={`${2 * Math.PI * 112 * (1 - progressPct)}`}
-          transform="rotate(-90 120 120)"
-          style={{ transition: "stroke-dashoffset 800ms ease, stroke 600ms ease" }}
-        />
-      </svg>
-
+    <div
+      className="garden-card"
+      style={{
+        opacity: isPaused ? 0.55 : 1,
+        transition: "opacity 300ms ease",
+      }}
+    >
       <div
-        className={`hero-timer ${isPaused ? "paused" : ""} ${isWarning ? "warning" : ""} ${isBreathing ? "breathing" : ""}`}
+        className="time"
+        style={{
+          color: isWarning ? "var(--eg-pink)" : "var(--eg-text)",
+          transition: "color 600ms ease",
+        }}
       >
         {display}
       </div>
-      <div className="tag-label mt-3">{label}</div>
-
+      <div className="meta">{label}</div>
       {showGreeting && state === "active" && (
-        <div className="hero-greeting" aria-hidden>
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            bottom: -22,
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontFamily: "Caveat, cursive",
+            fontSize: 13,
+            color: "var(--eg-text-soft)",
+            whiteSpace: "nowrap",
+            animation: "heroGreetingShow 5s ease forwards",
+            pointerEvents: "none",
+          }}
+        >
           {t(greetingKeyForNow())}
         </div>
       )}

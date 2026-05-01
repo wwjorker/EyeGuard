@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>E · Plant — full app</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#fde6c4;--sky2:#f9c98f;--sky3:#e0a06c;
+    --paper:#fdf6e3;--paper2:#f5ead0;--paper-dark:#e8d6a8;
+    --ink:#3a2818;--ink-soft:#7a5a3a;--ink-faint:#b09870;
+    --leaf:#5a8c4a;--leaf2:#7ab85f;--leaf3:#9ed179;--moss:#3a6e2a;
+    --soil:#8b6f4e;--pot:#c8845a;--pot-dark:#a0613a;
+    --tomato:#e25a3a;--tomato-dark:#b53d23;--bud:#f5b568;
+    --accent:#c3613f;--cool:#7798c8;--amber:#c89a4a;--violet:#a87fa8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#1a0f08;color:var(--ink);font-family:"Quicksand",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;flex-wrap:wrap;gap:30px}
+
+  .label{font-family:"Caveat",cursive;color:#f5d896;font-size:18px;text-align:center;margin-bottom:14px;letter-spacing:1px}
+
+  /* === main window === */
+  .window{width:420px;height:580px;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.6);background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 60%,var(--sky3) 100%)}
+  .window.paper{background:linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%)}
+
+  /* === window decorations === */
+  .sun{position:absolute;top:50px;right:60px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fff7d4 0%,#fde08c 70%,transparent 100%);opacity:0.85;z-index:1}
+  .cloud{position:absolute;background:rgba(255,255,255,0.55);border-radius:20px;height:14px;animation:drift 30s linear infinite;z-index:1}
+  .cloud.c1{top:80px;left:-40px;width:80px;animation-duration:40s}
+  .cloud.c2{top:130px;left:-80px;width:50px;animation-duration:55s;animation-delay:-15s}
+  @keyframes drift{from{transform:translateX(-20px)}to{transform:translateX(500px)}}
+  .frame{position:absolute;inset:0;border:14px solid #eee2cb;border-radius:16px;pointer-events:none;z-index:6}
+  .frame::before,.frame::after{content:"";position:absolute;background:#eee2cb}
+  .frame::before{top:50%;left:0;right:0;height:3px;transform:translateY(-50%)}
+  .frame::after{left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%)}
+
+  /* === top bar (always visible across pages) === */
+  .topbar{position:absolute;top:24px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);padding:6px 12px;border-radius:18px;display:flex;align-items:center;gap:10px;z-index:7;box-shadow:0 4px 14px rgba(0,0,0,0.1)}
+  .topbar .brand{font-family:"Caveat",cursive;font-size:16px;color:var(--accent);font-weight:700;line-height:1}
+  .topbar .nav{display:flex;gap:2px}
+  .topbar .nav button{background:transparent;border:none;font-family:"Quicksand";font-weight:600;font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;padding:3px 8px;border-radius:8px}
+  .topbar .nav button.on{background:var(--accent);color:#fff}
+
+  /* status badge */
+  .status-leaf{position:absolute;top:24px;right:30px;background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);padding:4px 8px 4px 6px;border-radius:14px;display:flex;align-items:center;gap:4px;font-family:"Caveat",cursive;font-size:13px;color:var(--moss);z-index:7;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  .status-leaf::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--leaf2);box-shadow:0 0 6px var(--leaf2)}
+
+  /* === pages === */
+  .page{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 250ms ease;z-index:2}
+  .page.on{opacity:1;pointer-events:auto;z-index:3}
+
+  /* === PAGE 1: TIMER === */
+  .timer-card{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);padding:18px 30px;border-radius:14px;text-align:center;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,0.12);min-width:200px}
+  .timer-card .time{font-family:"Quicksand";font-weight:700;font-size:60px;color:var(--ink);line-height:1;letter-spacing:-2px;font-feature-settings:"tnum"}
+  .timer-card .meta{font-family:"Caveat",cursive;font-size:16px;color:var(--ink);opacity:0.65;margin-top:4px}
+
+  .actions{position:absolute;bottom:200px;left:0;right:0;display:flex;justify-content:center;gap:10px;z-index:5}
+  .btn{font-family:"Quicksand";font-weight:600;font-size:13px;padding:6px 16px;cursor:pointer;border-radius:18px}
+  .btn-pause{background:rgba(255,255,255,0.75);border:2px solid var(--ink);color:var(--ink)}
+  .btn-break{background:var(--accent);color:#fff;border:2px solid var(--tomato-dark);box-shadow:2px 2px 0 var(--ink)}
+
+  /* sill */
+  .sill{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(180deg,#a4825a 0%,#7a5a3a 100%);box-shadow:inset 0 4px 8px rgba(0,0,0,0.2);z-index:4}
+  .sill::before{content:"";position:absolute;top:-6px;left:0;right:0;height:6px;background:#bb9468;border-radius:3px 3px 0 0}
+
+  .pot{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:140px;height:80px;z-index:5}
+  .pot-body{position:absolute;bottom:0;left:8px;right:8px;height:60px;background:linear-gradient(180deg,var(--pot),var(--pot-dark));clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);border-radius:6px}
+  .pot-rim{position:absolute;top:-6px;left:0;right:0;height:12px;background:#d8956c;border-radius:6px}
+  .pot-soil{position:absolute;top:5px;left:12px;right:12px;height:7px;background:#3e2a18;border-radius:50%}
+
+  .plant{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:4}
+  .stem{position:absolute;bottom:0;left:50%;width:4px;height:120px;background:#3a5a2a;transform-origin:bottom;animation:sway 5s ease-in-out infinite;transform:translateX(-50%) rotate(-2deg)}
+  @keyframes sway{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+  .leaf{position:absolute;width:50px;height:36px;background:radial-gradient(ellipse at center,var(--leaf2) 0%,var(--leaf) 100%);border-radius:50% 0 50% 0;box-shadow:inset 1px -1px 3px rgba(0,0,0,0.25)}
+  .leaf.l1{bottom:90px;left:50%;transform:translate(-100%,0) rotate(-30deg)}
+  .leaf.l2{bottom:60px;left:50%;transform:rotate(30deg) scaleX(-1)}
+  .leaf.l3{bottom:40px;left:50%;transform:translate(-90%,0) rotate(-50deg);width:44px;height:30px}
+  .leaf.l4{bottom:20px;left:50%;transform:rotate(50deg) scaleX(-1);width:42px;height:28px}
+  .flower{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,#ffe680 0%,#ff9d6c 100%);box-shadow:0 0 12px rgba(255,180,120,0.5)}
+
+  .badges{position:absolute;bottom:14px;left:14px;right:14px;display:flex;justify-content:space-around;z-index:6}
+  .b{background:rgba(255,255,255,0.85);border-radius:10px;padding:5px 10px;text-align:center;min-width:54px;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+  .b .v{font-family:"Quicksand";font-weight:700;font-size:13px;color:var(--ink)}
+  .b .l{font-family:"Caveat",cursive;font-size:11px;color:var(--ink);opacity:0.65;line-height:1}
+  .b .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle}
+  .b .dot.g{background:var(--leaf2)}.b .dot.b{background:var(--cool)}.b .dot.a{background:var(--amber)}.b .dot.p{background:var(--accent)}
+
+  /* === PAGE 2: STATS === */
+  .stats-page{padding:64px 18px 18px;overflow-y:auto}
+
+  .seed-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .seed-card{background:#fff;border-radius:8px;padding:10px 12px;border:1px solid var(--paper-dark);box-shadow:0 2px 6px rgba(0,0,0,0.06);position:relative;overflow:hidden}
+  .seed-card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--c)}
+  .seed-card .lbl{font-family:"Caveat",cursive;font-size:13px;color:var(--ink-soft)}
+  .seed-card .v{font-family:"Quicksand";font-weight:700;font-size:22px;color:var(--ink);line-height:1;margin-top:2px}
+  .seed-card .s{font-family:"Caveat",cursive;font-size:11px;color:var(--ink-faint);margin-top:2px}
+
+  .section-title{font-family:"Caveat",cursive;font-size:18px;color:var(--ink);font-weight:700;margin:8px 0 8px;display:flex;align-items:center;gap:6px}
+  .section-title::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--moss)}
+
+  .garden-plot{background:#fff;border-radius:10px;padding:12px;border:1px solid var(--paper-dark);box-shadow:0 2px 6px rgba(0,0,0,0.06);margin-bottom:12px}
+
+  /* hourly heatmap as growing plants */
+  .hourly{display:flex;align-items:flex-end;gap:2px;height:46px;padding-top:4px}
+  .h-cell{flex:1;background:linear-gradient(to top,var(--moss),var(--leaf2));border-radius:3px 3px 0 0;min-height:2px;opacity:var(--o);position:relative}
+  .h-cell::before{content:"";position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--leaf3);opacity:var(--o)}
+  .hourly-axis{display:flex;justify-content:space-between;font-family:"Caveat",cursive;font-size:11px;color:var(--ink-faint);margin-top:4px}
+
+  /* app distribution as flower bouquet */
+  .pie-row{display:flex;align-items:center;gap:14px}
+  .pie-svg{width:110px;height:110px;flex-shrink:0}
+  .pie-list{flex:1;display:flex;flex-direction:column;gap:4px;font-family:"Quicksand";font-size:11px}
+  .pie-list li{display:flex;align-items:center;gap:6px;color:var(--ink);list-style:none}
+  .pie-list .dot{width:8px;height:8px;border-radius:50%}
+  .pie-list .pct{margin-left:auto;color:var(--ink-soft);font-family:"Caveat",cursive;font-size:13px}
+
+  /* weekly chart as a row of plant pots */
+  .week{display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px}
+  .day-pot{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+  .day-stem{width:4px;background:linear-gradient(to top,var(--moss),var(--leaf2));border-radius:2px;height:var(--h,30px)}
+  .day-label{font-family:"Caveat",cursive;font-size:10px;color:var(--ink-faint)}
+
+  /* === PAGE 3: POMODORO (tomato vine) === */
+  .pomo-page{padding:64px 22px 18px;overflow-y:auto}
+
+  .pomo-card{background:#fff;border-radius:14px;padding:14px;border:1px solid var(--paper-dark);box-shadow:0 4px 14px rgba(0,0,0,0.08);margin-bottom:14px;position:relative}
+
+  .pomo-toggle{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .pomo-toggle .label{font-family:"Caveat",cursive;font-size:18px;color:var(--ink);font-weight:700}
+  .pomo-toggle .hint{font-family:"Quicksand";font-size:11px;color:var(--ink-faint);margin-top:2px}
+  .toggle{position:relative;width:34px;height:18px;background:var(--leaf);border-radius:10px;cursor:pointer}
+  .toggle::after{content:"";position:absolute;top:2px;right:2px;width:14px;height:14px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+
+  .vine-row{position:relative;height:90px;margin:14px -4px;display:flex;align-items:flex-end;justify-content:space-around;padding-top:24px}
+  .vine-line{position:absolute;top:30px;left:8%;right:8%;height:2px;background:linear-gradient(to right,transparent,var(--moss),transparent)}
+  .tomato-spot{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;width:60px}
+  .tomato-spot .stem{position:absolute;top:0;width:2px;height:16px;background:var(--moss)}
+  .tomato{width:34px;height:34px;border-radius:50%;position:relative;margin-top:14px;transition:transform 200ms ease}
+  .tomato.done{background:radial-gradient(circle at 35% 30%,var(--tomato),var(--tomato-dark))}
+  .tomato.now{background:radial-gradient(circle at 35% 30%,var(--tomato),var(--tomato-dark));transform:scale(1.18);box-shadow:0 0 16px rgba(226,90,58,0.5);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.25)}}
+  .tomato.future{background:radial-gradient(circle at 35% 30%,var(--leaf3),var(--moss));opacity:0.5}
+  .tomato::before{content:"";position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:8px;height:5px;background:var(--moss);border-radius:50% 50% 30% 30%}
+  .tomato-label{font-family:"Caveat",cursive;font-size:11px;color:var(--ink-soft)}
+  .vine-end{font-family:"Caveat",cursive;font-size:11px;color:var(--accent);text-align:center;margin-top:4px}
+
+  /* settings sliders as wooden vines */
+  .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px dashed var(--paper-dark);font-family:"Quicksand"}
+  .row:first-child{border-top:none}
+  .row .lbl{font-size:12px;color:var(--ink)}
+  .row .ctl{flex:1;max-width:120px;margin-left:14px;display:flex;align-items:center;gap:8px}
+  .vine-slider{flex:1;height:4px;background:var(--paper-dark);border-radius:2px;position:relative;cursor:pointer}
+  .vine-slider::before{content:"";position:absolute;top:0;left:0;height:4px;background:linear-gradient(to right,var(--moss),var(--leaf2));border-radius:2px;width:var(--w,40%)}
+  .vine-slider::after{content:"";position:absolute;top:50%;left:var(--w,40%);transform:translate(-50%,-50%);width:12px;height:12px;background:var(--bud);border-radius:50%;box-shadow:0 0 0 2px var(--moss),0 0 6px rgba(0,0,0,0.2)}
+  .row .v{font-family:"Caveat",cursive;font-size:13px;color:var(--ink-soft);min-width:36px;text-align:right}
+
+  /* === PAGE 4: SETTINGS === */
+  .settings-page{padding:64px 18px 18px;overflow-y:auto}
+
+  .plot{background:#fff;border-radius:12px;padding:12px;border:1px solid var(--paper-dark);box-shadow:0 2px 6px rgba(0,0,0,0.06);margin-bottom:12px}
+  .plot h3{font-family:"Caveat",cursive;font-size:17px;color:var(--ink);font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .plot h3 .icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
+
+  /* switch as flower bud */
+  .bud-switch{position:relative;width:36px;height:18px;background:var(--paper-dark);border-radius:10px;cursor:pointer}
+  .bud-switch.on{background:var(--leaf)}
+  .bud-switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--bud);border-radius:50%;transition:all 200ms;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+  .bud-switch.on::after{left:20px;background:#fff}
+
+  /* segmented as petals */
+  .petal-seg{display:inline-flex;background:var(--paper);border:1px solid var(--paper-dark);border-radius:14px;padding:2px;gap:1px}
+  .petal-seg button{font-family:"Quicksand";font-weight:600;font-size:10px;background:transparent;border:none;color:var(--ink-soft);padding:4px 9px;border-radius:11px;cursor:pointer;text-transform:lowercase}
+  .petal-seg button.on{background:var(--accent);color:#fff}
+
+  /* === right panel description === */
+  .desc{margin-left:30px;width:300px;color:#e8d8b4;font-family:"Quicksand";font-size:13px;line-height:1.7}
+  .desc h3{font-family:"Caveat";font-size:24px;color:#f5d896;margin-bottom:8px}
+  .desc h4{font-family:"Caveat";font-size:18px;color:#d4ad60;margin-top:14px;margin-bottom:4px}
+  .desc ul{list-style:none;font-size:12px;line-height:1.7}
+  .desc ul li::before{content:"🌱 ";font-size:11px}
+</style></head><body>
+
+<div>
+  <div class="label">// E · PLANT — 主窗口完整流程（点 tab 切页面看一致性）</div>
+
+  <div class="window" id="window">
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div>
+
+    <!-- top bar (always visible) -->
+    <div class="topbar">
+      <span class="brand">eyeguard</span>
+      <span style="color:var(--ink-faint)">·</span>
+      <div class="nav">
+        <button class="on" data-page="timer">timer</button>
+        <button data-page="stats">stats</button>
+        <button data-page="pomo">pomo</button>
+        <button data-page="cfg">cfg</button>
+      </div>
+    </div>
+    <div class="status-leaf">active</div>
+
+    <!-- ============== PAGE 1: TIMER ============== -->
+    <div class="page on" data-page="timer">
+      <div class="timer-card">
+        <div class="time">14:32</div>
+        <div class="meta">stretch your gaze a bit longer</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-pause">|| pause</button>
+        <button class="btn btn-break">☕ break now</button>
+      </div>
+      <div class="sill">
+        <div class="plant">
+          <div class="stem"></div>
+          <div class="leaf l1"></div><div class="leaf l2"></div>
+          <div class="leaf l3"></div><div class="leaf l4"></div>
+          <div class="flower"></div>
+        </div>
+        <div class="pot"><div class="pot-body"></div><div class="pot-rim"></div><div class="pot-soil"></div></div>
+        <div class="badges">
+          <div class="b"><div class="v"><span class="dot g"></span>3:20</div><div class="l">screen</div></div>
+          <div class="b"><div class="v"><span class="dot b"></span>4/6</div><div class="l">breaks</div></div>
+          <div class="b"><div class="v"><span class="dot a"></span>85</div><div class="l">score</div></div>
+          <div class="b"><div class="v"><span class="dot p"></span>42m</div><div class="l">streak</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== PAGE 2: STATS ============== -->
+    <div class="page" data-page="stats" style="background:linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%)">
+      <div class="stats-page">
+        <!-- 4 seed packets -->
+        <div class="seed-grid">
+          <div class="seed-card" style="--c:var(--leaf2)"><div class="lbl">screen today</div><div class="v">3:20</div><div class="s">a steady morning</div></div>
+          <div class="seed-card" style="--c:var(--cool)"><div class="lbl">breaks done</div><div class="v">4</div><div class="s">+1 from yesterday</div></div>
+          <div class="seed-card" style="--c:var(--amber)"><div class="lbl">virtue score</div><div class="v">85</div><div class="s">eyes are happy</div></div>
+          <div class="seed-card" style="--c:var(--accent)"><div class="lbl">longest streak</div><div class="v">42m</div><div class="s">3:14 to 3:56pm</div></div>
+        </div>
+
+        <!-- hourly garden -->
+        <div class="section-title">🌱 today by hour · peak at 14:00</div>
+        <div class="garden-plot">
+          <div class="hourly" id="hourly"></div>
+          <div class="hourly-axis"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
+        </div>
+
+        <!-- app garden plot -->
+        <div class="section-title">🪴 garden plots · which apps you live in</div>
+        <div class="garden-plot">
+          <div class="pie-row">
+            <svg class="pie-svg" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="38" fill="#f5ead0"/>
+              <!-- 5 slices -->
+              <path d="M 50 50 L 50 12 A 38 38 0 0 1 86 64 Z" fill="#7ab85f"/>
+              <path d="M 50 50 L 86 64 A 38 38 0 0 1 50 88 Z" fill="#7798c8"/>
+              <path d="M 50 50 L 50 88 A 38 38 0 0 1 14 50 Z" fill="#c89a4a"/>
+              <path d="M 50 50 L 14 50 A 38 38 0 0 1 30 20 Z" fill="#c3613f"/>
+              <path d="M 50 50 L 30 20 A 38 38 0 0 1 50 12 Z" fill="#a87fa8"/>
+              <circle cx="50" cy="50" r="22" fill="#fff"/>
+              <text x="50" y="54" text-anchor="middle" font-family="Quicksand" font-size="10" font-weight="700" fill="#3a2818">2h 20m</text>
+            </svg>
+            <ul class="pie-list">
+              <li><span class="dot" style="background:#7ab85f"></span>productivity<span class="pct">42%</span></li>
+              <li><span class="dot" style="background:#7798c8"></span>browser<span class="pct">28%</span></li>
+              <li><span class="dot" style="background:#c89a4a"></span>communication<span class="pct">14%</span></li>
+              <li><span class="dot" style="background:#c3613f"></span>entertainment<span class="pct">10%</span></li>
+              <li><span class="dot" style="background:#a87fa8"></span>system<span class="pct">6%</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- weekly -->
+        <div class="section-title">📅 last 7 days · how the garden's been</div>
+        <div class="garden-plot">
+          <div class="week">
+            <div class="day-pot"><div class="day-stem" style="--h:18px"></div><span class="day-label">M</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:30px"></div><span class="day-label">T</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:42px"></div><span class="day-label">W</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:25px"></div><span class="day-label">T</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:50px"></div><span class="day-label">F</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:22px"></div><span class="day-label">S</span></div>
+            <div class="day-pot"><div class="day-stem" style="--h:36px"></div><span class="day-label">today</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== PAGE 3: POMODORO ============== -->
+    <div class="page" data-page="pomo" style="background:linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%)">
+      <div class="pomo-page">
+        <div class="pomo-card">
+          <div class="pomo-toggle">
+            <div>
+              <div class="label">🍅 番茄藤蔓 / pomodoro vine</div>
+              <div class="hint">cycle 2 · long harvest after 4</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+
+          <!-- the vine + 4 tomatoes -->
+          <div class="vine-row">
+            <div class="vine-line"></div>
+            <div class="tomato-spot">
+              <div class="stem" style="left:50%"></div>
+              <div class="tomato done"></div>
+              <span class="tomato-label">picked</span>
+            </div>
+            <div class="tomato-spot">
+              <div class="stem" style="left:50%"></div>
+              <div class="tomato now"></div>
+              <span class="tomato-label">ripening…</span>
+            </div>
+            <div class="tomato-spot">
+              <div class="stem" style="left:50%"></div>
+              <div class="tomato future"></div>
+              <span class="tomato-label">growing</span>
+            </div>
+            <div class="tomato-spot">
+              <div class="stem" style="left:50%"></div>
+              <div class="tomato future"></div>
+              <span class="tomato-label">growing</span>
+            </div>
+          </div>
+          <div class="vine-end">— harvest ahead in 2 tomatoes —</div>
+        </div>
+
+        <div class="pomo-card">
+          <h3 style="font-family:'Caveat';font-size:17px;font-weight:700;margin-bottom:8px;color:var(--ink)">🌿 cadence</h3>
+          <div class="row"><span class="lbl">work duration</span><div class="ctl"><div class="vine-slider" style="--w:40%"></div><span class="v">25 min</span></div></div>
+          <div class="row"><span class="lbl">short rest</span><div class="ctl"><div class="vine-slider" style="--w:25%"></div><span class="v">5 min</span></div></div>
+          <div class="row"><span class="lbl">long rest</span><div class="ctl"><div class="vine-slider" style="--w:55%"></div><span class="v">15 min</span></div></div>
+          <div class="row"><span class="lbl">cycles per harvest</span><div class="ctl"><div class="vine-slider" style="--w:50%"></div><span class="v">4</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== PAGE 4: SETTINGS ============== -->
+    <div class="page" data-page="cfg" style="background:linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%)">
+      <div class="settings-page">
+        <div class="plot">
+          <h3><span class="icon">⏱</span> timing · the rhythm</h3>
+          <div class="row"><span class="lbl">work interval</span><div class="ctl"><div class="vine-slider" style="--w:33%"></div><span class="v">20 min</span></div></div>
+          <div class="row"><span class="lbl">break length</span><div class="ctl"><div class="vine-slider" style="--w:6%"></div><span class="v">20 s</span></div></div>
+          <div class="row"><span class="lbl">idle threshold</span><div class="ctl"><div class="vine-slider" style="--w:18%"></div><span class="v">5 m</span></div></div>
+        </div>
+
+        <div class="plot">
+          <h3><span class="icon">🔔</span> alerts · how you'd like to be nudged</h3>
+          <div class="row"><span class="lbl">tier</span><div class="ctl" style="max-width:none"><div class="petal-seg"><button>light</button><button class="on">medium</button><button>hard</button></div></div></div>
+          <div class="row"><span class="lbl">strict mode</span><div class="ctl" style="max-width:none;justify-content:flex-end"><div class="bud-switch"></div></div></div>
+        </div>
+
+        <div class="plot">
+          <h3><span class="icon">💧</span> health · little nudges</h3>
+          <div class="row"><span class="lbl">drink reminder</span><div class="ctl" style="max-width:none;justify-content:flex-end"><div class="bud-switch on"></div></div></div>
+          <div class="row"><span class="lbl">posture reminder</span><div class="ctl" style="max-width:none;justify-content:flex-end"><div class="bud-switch on"></div></div></div>
+        </div>
+
+        <div class="plot">
+          <h3><span class="icon">🎨</span> appearance</h3>
+          <div class="row"><span class="lbl">theme</span><div class="ctl" style="max-width:none"><div class="petal-seg"><button class="on">day</button><button>dusk</button><button>night</button></div></div></div>
+          <div class="row"><span class="lbl">language</span><div class="ctl" style="max-width:none"><div class="petal-seg"><button class="on">中文</button><button>EN</button></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame"></div>
+  </div>
+</div>
+
+<div class="desc">
+  <h3>// 整套统一的样子</h3>
+  <p>同一个窗户、同一个色彩体系、同一个植物隐喻贯穿四个页面。点上面 tab 切换感受一下：</p>
+
+  <h4>📍 timer 页</h4>
+  <ul>
+    <li>窗外天空 + 窗台上的植物</li>
+    <li>计时器是窗户上的卡片</li>
+    <li>四个统计藏在窗台底部</li>
+  </ul>
+
+  <h4>📊 stats 页</h4>
+  <ul>
+    <li>背景换成纸黄（像是翻开的"花园日记本"）</li>
+    <li>4 个统计卡 = 种子袋</li>
+    <li>小时分布 = 一排逐渐长高的草</li>
+    <li>应用分布 = 圆形的"花圃"</li>
+    <li>7 天柱图 = 一排花茎</li>
+  </ul>
+
+  <h4>🍅 pomodoro 页</h4>
+  <ul>
+    <li>4 个番茄挂在藤蔓上</li>
+    <li>已完成 = 红色摘下；当前 = 红色脉动；未来 = 绿色未熟</li>
+    <li>"harvest ahead in 2 tomatoes" 真的有种期待感</li>
+  </ul>
+
+  <h4>⚙️ settings 页</h4>
+  <ul>
+    <li>每个分组 = 一块"花圃"</li>
+    <li>滑块 = 木质藤蔓 + 花苞滑钮</li>
+    <li>开关 = 闭合/绽放的花苞</li>
+    <li>分段 = 花瓣选择</li>
+  </ul>
+
+  <p style="margin-top:14px;opacity:0.7">通知窗口 / 休息窗口我这没画但思路也一致：通知是"飘过的小种子"，休息是"看向窗外的安静风景"，结束时窗台多一片新叶。</p>
+
+  <h4 style="margin-top:14px">⏳ 工作量估算</h4>
+  <ul>
+    <li>第 1 轮：timer 页 + 主窗口框架 + 色彩 / 字体体系</li>
+    <li>第 2 轮：stats 页（4 种数据可视化重画）</li>
+    <li>第 3 轮：pomodoro 页（番茄藤动画 + 花圃化设置）</li>
+    <li>第 4 轮：settings 页 + 通知窗口 + 休息窗口</li>
+    <li>合计 <b>3-4 轮</b>。每轮我都先 build 验证不破坏功能。</li>
+  </ul>
+</div>
+
+<script>
+  // page switch
+  const tabs = document.querySelectorAll('.topbar button');
+  const pages = document.querySelectorAll('.page');
+  const win = document.getElementById('window');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('on'));
+    t.classList.add('on');
+    const target = t.dataset.page;
+    pages.forEach(p => p.classList.toggle('on', p.dataset.page === target));
+  }));
+
+  // hourly bars
+  const hours = [3,5,8,12,18,25,32,38,42,50,55,60,80,72,55,40,32,28,22,15,10,6,3,1];
+  const max = Math.max(...hours);
+  const hourly = document.getElementById('hourly');
+  hours.forEach((v,i) => {
+    const div = document.createElement('div');
+    div.className = 'h-cell';
+    const ratio = v / max;
+    div.style.height = (8 + ratio * 36) + 'px';
+    div.style.setProperty('--o', (0.2 + ratio * 0.8).toFixed(2));
+    hourly.appendChild(div);
+  });
+</script>
+</body></html>

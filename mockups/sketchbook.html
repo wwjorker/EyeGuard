@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>EyeGuard — Sketchbook mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4ede0;
+    --paper-edge: #e6dcc6;
+    --ink: #2a2620;
+    --ink-soft: rgba(42, 38, 32, 0.55);
+    --ink-faint: rgba(42, 38, 32, 0.28);
+    --accent: #e07856;       /* warm coral */
+    --green: #6c8e58;        /* sage */
+    --blue: #6f88a8;         /* dusty blue */
+    --amber: #c89a4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1612;
+    color: var(--ink);
+    font-family: "Patrick Hand", "Caveat", system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .preview-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .preview-label {
+    font-family: "Caveat", cursive;
+    color: #d6c79e;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  /* === paper window === */
+  .window {
+    width: 420px; height: 580px;
+    background: var(--paper);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.45),
+      inset 0 0 0 1px rgba(0,0,0,0.05);
+  }
+  /* paper grain */
+  .window::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.14  0 0 0 0 0.12  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: multiply;
+  }
+  /* margin lines */
+  .window::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 60px;
+    width: 1px;
+    background: rgba(180, 80, 80, 0.18);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* horizontal ruled lines */
+  .ruled {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      rgba(70, 110, 160, 0.12) 28px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .frame {
+    position: absolute; inset: 0;
+    padding: 18px 22px 22px 70px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  /* === top bar === */
+  .top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .brand {
+    font-family: "Caveat", cursive;
+    font-size: 28px;
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .date {
+    font-family: "Patrick Hand", cursive;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .nav {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    border-bottom: 1.5px dashed var(--ink-faint);
+    padding-bottom: 6px;
+  }
+  .nav button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: "Caveat", cursive;
+    font-size: 18px;
+    color: var(--ink-soft);
+    padding: 0 4px;
+    position: relative;
+  }
+  .nav button.active {
+    color: var(--accent);
+  }
+  .nav button.active::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 1px;
+    transform: rotate(-1deg);
+  }
+
+  /* === hero === */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* hand-drawn circle around the timer */
+  .hero-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 240px;
+    height: 240px;
+  }
+
+  .hero-num {
+    font-family: "Caveat", cursive;
+    font-weight: 700;
+    font-size: 96px;
+    color: var(--ink);
+    letter-spacing: -3px;
+    line-height: 0.9;
+    transform: rotate(-2deg);
+    z-index: 2;
+  }
+
+  .hero-meta {
+    font-family: "Patrick Hand", cursive;
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-top: 4px;
+    transform: rotate(-1deg);
+    z-index: 2;
+  }
+
+  /* hand-drawn arrow + label */
+  .annotation {
+    position: absolute;
+    font-family: "Caveat", cursive;
+    color: var(--accent);
+    font-size: 14px;
+    transform: rotate(-6deg);
+    z-index: 2;
+  }
+  .annotation.right {
+    top: 80px;
+    right: 12px;
+  }
+
+  /* === actions === */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 12px 0;
+  }
+  .actions button {
+    font-family: "Patrick Hand", cursive;
+    font-size: 16px;
+    padding: 6px 16px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink);
+    position: relative;
+  }
+  .btn-pause {
+    border: 2px solid var(--ink);
+    border-radius: 18px 22px 24px 20px / 22px 18px 22px 24px;
+  }
+  .btn-break {
+    background: var(--accent);
+    color: var(--paper);
+    border: 2px solid #b35a3a;
+    border-radius: 22px 18px 22px 24px / 18px 24px 20px 22px;
+    box-shadow: 2px 2px 0 0 var(--ink);
+  }
+
+  /* === stickers (the metric badges) === */
+  .stickers {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 6px 4px 0 4px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .sticker {
+    background: white;
+    padding: 8px 10px;
+    border-radius: 4px;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    transform: rotate(var(--rot, 0deg));
+    border: 1px dashed transparent;
+    position: relative;
+  }
+  .sticker .num {
+    font-family: "Caveat", cursive;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .sticker .lbl {
+    font-family: "Patrick Hand", cursive;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .sticker.green { border-top: 3px solid var(--green); }
+  .sticker.blue  { border-top: 3px solid var(--blue); }
+  .sticker.amber { border-top: 3px solid var(--amber); }
+  .sticker.coral { border-top: 3px solid var(--accent); }
+
+  /* tape across top */
+  .tape {
+    position: absolute;
+    top: -8px; left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 30px; height: 12px;
+    background: rgba(255, 220, 130, 0.55);
+    border-radius: 1px;
+  }
+
+  /* === eye doodle (top right) === */
+  .eye-doodle {
+    position: absolute;
+    top: 14px; right: 18px;
+    width: 50px; height: 50px;
+    z-index: 3;
+  }
+
+  /* === right side panel === */
+  .demo-panel {
+    width: 280px;
+    background: #2a2520;
+    color: #e8d8b4;
+    border: 1px solid #4a3f30;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: "Patrick Hand", cursive;
+  }
+  .demo-panel h3 {
+    font-family: "Caveat", cursive;
+    font-size: 22px;
+    color: #f4d4a4;
+    margin-bottom: 8px;
+  }
+  .demo-panel p {
+    font-size: 13px;
+    color: rgba(232, 216, 180, 0.7);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .demo-panel ul {
+    list-style: none;
+    font-size: 13px;
+    color: #e8d8b4;
+    line-height: 1.8;
+  }
+  .demo-panel li::before {
+    content: "✓ ";
+    color: #d4ad60;
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-wrap">
+  <div class="preview-label">SKETCHBOOK · 手账纸感 / journal</div>
+
+  <div class="window">
+    <div class="ruled"></div>
+    <div class="frame">
+      <!-- top -->
+      <div class="top">
+        <div class="brand">EyeGuard</div>
+        <div class="date">2026 · 04 · 30  Wed</div>
+      </div>
+
+      <!-- nav -->
+      <div class="nav">
+        <button class="active">timer</button>
+        <button>stats</button>
+        <button>pomo</button>
+        <button>settings</button>
+      </div>
+
+      <!-- eye doodle -->
+      <svg class="eye-doodle" viewBox="0 0 60 60">
+        <!-- hand-drawn almond eye -->
+        <path d="M 6 30 Q 30 12 54 30 Q 30 48 6 30 Z" fill="none" stroke="#2a2620" stroke-width="2" stroke-linejoin="round"
+              style="filter: url(#wobble);"/>
+        <circle cx="32" cy="29" r="7" fill="#6c8e58"/>
+        <circle cx="34" cy="27" r="2.5" fill="#fafafa"/>
+        <circle cx="31" cy="29" r="3" fill="#2a2620"/>
+        <!-- lashes -->
+        <line x1="14" y1="20" x2="11" y2="14" stroke="#2a2620" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="30" y1="14" x2="30" y2="8" stroke="#2a2620" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="46" y1="20" x2="49" y2="14" stroke="#2a2620" stroke-width="1.4" stroke-linecap="round"/>
+        <defs>
+          <filter id="wobble">
+            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2"/>
+            <feDisplacementMap in="SourceGraphic" scale="2"/>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- hero -->
+      <div class="hero">
+        <svg class="hero-circle" viewBox="0 0 240 240">
+          <!-- imperfect hand-drawn circle -->
+          <path d="M 220 120
+                   C 220 175, 175 222, 120 220
+                   C 65 218, 18 173, 20 118
+                   C 22 64, 67 18, 122 20
+                   C 178 22, 220 65, 220 120 Z"
+                fill="none" stroke="#2a2620" stroke-width="2" stroke-linejoin="round"
+                opacity="0.5" stroke-dasharray="2 4"/>
+          <!-- progress arc (sage) -->
+          <path d="M 120 20 A 100 100 0 1 1 50 200"
+                fill="none" stroke="#6c8e58" stroke-width="3" stroke-linecap="round"
+                opacity="0.85"/>
+        </svg>
+        <div class="hero-num">14:32</div>
+        <div class="hero-meta">~ minutes 'till a good break ~</div>
+
+        <div class="annotation right">
+          ← gentle pace<br/>
+          today 🌿
+        </div>
+      </div>
+
+      <!-- actions -->
+      <div class="actions">
+        <button class="btn-pause">|| pause</button>
+        <button class="btn-break">☕ break now</button>
+      </div>
+
+      <!-- stickers -->
+      <div class="stickers">
+        <div class="sticker green" style="--rot: -2deg;">
+          <span class="tape"></span>
+          <div class="num">3:20</div>
+          <div class="lbl">screen</div>
+        </div>
+        <div class="sticker blue" style="--rot: 1.5deg;">
+          <span class="tape"></span>
+          <div class="num">4/6</div>
+          <div class="lbl">breaks</div>
+        </div>
+        <div class="sticker amber" style="--rot: -1deg;">
+          <span class="tape"></span>
+          <div class="num">85</div>
+          <div class="lbl">score</div>
+        </div>
+        <div class="sticker coral" style="--rot: 2deg;">
+          <span class="tape"></span>
+          <div class="num">42m</div>
+          <div class="lbl">streak</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-panel">
+  <h3>// 手账纸感概念</h3>
+  <p>
+    把整个 app 设计成一本日记本。米色纸底 + 横线 + 红色边距线，
+    所有元素用手写字体 + 歪歪的边框，配合纸张噪点和小胶带装饰。
+  </p>
+  <p>
+    四个统计变成"贴纸"，每个用胶带固定在底部，颜色温和（鼠尾草绿、
+    暮蓝、土黄、珊瑚色）—— 没有冷冰冰的 SaaS 感。
+  </p>
+  <p style="font-family: 'Caveat', cursive; font-size: 18px; color: #f4d4a4; margin-top: 16px;">
+    适合的人 →
+  </p>
+  <ul>
+    <li>喜欢 Notion / Bear / iA Writer 这种克制工具</li>
+    <li>想要"和自己对话"的感觉，不是仪表盘</li>
+    <li>愿意用色彩温暖换掉酷炫</li>
+  </ul>
+  <p style="margin-top: 12px; font-size: 11px; opacity: 0.5;">
+    工作量：3 轮（手绘字体 + SVG 拟手绘 + 颜色重写 + stats 重新风格化）
+  </p>
+</div>
+
+</body>
+</html>

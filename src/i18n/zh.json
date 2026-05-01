@@ -258,6 +258,13 @@
     "milestone10PomoBody": "硬核专注一整天 — 别忘了奖励自己。"
   },
   "skip": "跳过",
+  "snail": {
+    "happy": "慢慢来，没什么急的～",
+    "focused": "再坚持几分钟～",
+    "sleeping": "嘘…我也要小睡一会",
+    "frowning": "你跳过太多啦…",
+    "cheering": "你今天棒极啦！"
+  },
   "tray": {
     "pauseResume": "暂停 / 恢复",
     "breakNow": "立即休息",

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8">
+<title>J · Steampunk</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Pirata+One&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{--brass:#c4a062;--brass2:#9a7a40;--brass-dark:#5a4220;--copper:#b87340;--copper2:#8a4f24;--ink:#3a2410;--paper:#dfc78c;--ruby:#a02818;--steel:#5a5450}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#1a0e05;color:var(--ink);font-family:"Cormorant Garamond",serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;flex-wrap:wrap;gap:30px}
+  .label{font-family:"Pirata One",cursive;color:var(--brass);font-size:18px;letter-spacing:3px;text-align:center;margin-bottom:14px}
+  .window{width:420px;height:580px;border-radius:12px;overflow:hidden;position:relative;background:radial-gradient(ellipse at center,#3a2818 0%,#1a0e05 100%);box-shadow:0 30px 80px rgba(0,0,0,0.7),0 0 0 4px var(--brass-dark),0 0 0 6px var(--brass)}
+
+  /* brass border ornament */
+  .brass-frame{position:absolute;inset:6px;border:3px double var(--brass);border-radius:8px;pointer-events:none;z-index:5}
+  .brass-frame::before{content:"❦";position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#1a0e05;color:var(--brass);padding:0 6px;font-size:14px}
+
+  /* corner gears */
+  .gear{position:absolute;width:50px;height:50px;z-index:4}
+  .gear svg{width:100%;height:100%;animation:spin 30s linear infinite}
+  .gear.tl{top:14px;left:14px}.gear.tr{top:14px;right:14px}
+  .gear.bl{bottom:14px;left:14px}.gear.br{bottom:14px;right:14px}
+  .gear.tr svg,.gear.bl svg{animation-direction:reverse}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .frame{position:absolute;inset:14px;display:flex;flex-direction:column;align-items:center;padding:20px 18px;z-index:2}
+
+  /* heading plate */
+  .plate{background:linear-gradient(180deg,var(--brass) 0%,var(--brass2) 100%);color:var(--ink);padding:6px 22px;border-radius:3px;font-family:"Pirata One",cursive;font-size:18px;letter-spacing:5px;text-transform:uppercase;box-shadow:0 3px 0 var(--brass-dark),0 4px 8px rgba(0,0,0,0.4);margin-bottom:6px}
+  .subplate{font-family:"IM Fell English";font-style:italic;font-size:11px;color:var(--brass);letter-spacing:2px;margin-bottom:10px}
+
+  /* nav */
+  .nav{display:flex;gap:6px;margin-bottom:10px}
+  .nav button{font-family:"IM Fell English";font-size:11px;background:transparent;border:1px solid var(--brass);color:var(--brass);padding:3px 10px;cursor:pointer;letter-spacing:2px;border-radius:2px}
+  .nav button.on{background:var(--brass);color:var(--ink)}
+
+  /* the watch face */
+  .watch{position:relative;width:280px;height:280px;margin-top:6px}
+  .watch-bg{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--paper) 0%,#c8a868 70%,#8a6a3a 100%);box-shadow:inset 0 0 30px rgba(0,0,0,0.4),0 0 0 8px var(--brass),0 0 0 11px var(--brass-dark),0 8px 20px rgba(0,0,0,0.6)}
+  /* roman ticks */
+  .ticks{position:absolute;inset:0}
+  .tick{position:absolute;top:50%;left:50%;width:120px;height:1px;background:var(--ink);transform-origin:left;opacity:0.5}
+  /* center number */
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .center .n{font-family:"Pirata One";font-size:64px;color:var(--ink);letter-spacing:0;line-height:1;font-feature-settings:"tnum"}
+  .center .l{font-family:"IM Fell English";font-style:italic;font-size:11px;color:var(--copper2);margin-top:4px;letter-spacing:2px}
+
+  /* clock hands */
+  .hand{position:absolute;top:50%;left:50%;background:var(--ink);transform-origin:0 50%;border-radius:0 50% 50% 0}
+  .hand.h{width:80px;height:4px;transform:rotate(-90deg)}
+  .hand.m{width:115px;height:2px;transform:rotate(160deg)}
+  .pivot{position:absolute;top:50%;left:50%;width:14px;height:14px;background:var(--brass);border:2px solid var(--ink);border-radius:50%;transform:translate(-50%,-50%);z-index:5;box-shadow:0 0 4px rgba(0,0,0,0.4)}
+
+  /* actions as engraved buttons */
+  .actions{display:flex;gap:14px;margin:14px 0 10px}
+  .btn{font-family:"Pirata One";font-size:13px;letter-spacing:3px;padding:6px 18px;cursor:pointer;text-transform:uppercase;border:2px solid var(--brass);color:var(--brass);background:transparent;border-radius:3px}
+  .btn.p{background:var(--brass);color:var(--ink);box-shadow:0 3px 0 var(--brass-dark)}
+
+  /* gauges as smaller dials at bottom */
+  .gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
+  .dial{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .dial .face{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,var(--paper) 0%,#a88440 100%);border:2px solid var(--brass);display:flex;align-items:center;justify-content:center;font-family:"Pirata One";font-size:11px;color:var(--ink);box-shadow:inset 0 0 6px rgba(0,0,0,0.3)}
+  .dial .l{font-family:"IM Fell English";font-style:italic;font-size:9px;color:var(--brass);letter-spacing:1px}
+
+  .desc{margin-left:30px;width:280px;color:#dfc78c;font-family:"Cormorant Garamond";font-size:14px;line-height:1.7}
+  .desc h3{font-family:"Pirata One";font-size:24px;color:var(--brass);margin-bottom:10px;letter-spacing:2px}
+</style></head><body>
+<div>
+  <div class="label">// J · STEAMPUNK — pocket watch</div>
+  <div class="window">
+    <div class="brass-frame"></div>
+
+    <!-- 4 corner gears -->
+    <div class="gear tl"><svg viewBox="0 0 50 50"><g fill="#c4a062"><circle cx="25" cy="25" r="18"/><circle cx="25" cy="25" r="10" fill="#5a4220"/><circle cx="25" cy="25" r="3" fill="#c4a062"/></g><g fill="#9a7a40"><rect x="22" y="0" width="6" height="8"/><rect x="22" y="42" width="6" height="8"/><rect x="0" y="22" width="8" height="6"/><rect x="42" y="22" width="8" height="6"/><rect x="6" y="6" width="6" height="6" transform="rotate(45 9 9)"/><rect x="38" y="6" width="6" height="6" transform="rotate(45 41 9)"/><rect x="6" y="38" width="6" height="6" transform="rotate(45 9 41)"/><rect x="38" y="38" width="6" height="6" transform="rotate(45 41 41)"/></g></svg></div>
+    <div class="gear tr"><svg viewBox="0 0 50 50"><g fill="#c4a062"><circle cx="25" cy="25" r="18"/><circle cx="25" cy="25" r="10" fill="#5a4220"/><circle cx="25" cy="25" r="3" fill="#c4a062"/></g><g fill="#9a7a40"><rect x="22" y="0" width="6" height="8"/><rect x="22" y="42" width="6" height="8"/><rect x="0" y="22" width="8" height="6"/><rect x="42" y="22" width="8" height="6"/></g></svg></div>
+    <div class="gear bl"><svg viewBox="0 0 50 50"><g fill="#c4a062"><circle cx="25" cy="25" r="18"/><circle cx="25" cy="25" r="10" fill="#5a4220"/><circle cx="25" cy="25" r="3" fill="#c4a062"/></g><g fill="#9a7a40"><rect x="22" y="0" width="6" height="8"/><rect x="22" y="42" width="6" height="8"/><rect x="0" y="22" width="8" height="6"/><rect x="42" y="22" width="8" height="6"/></g></svg></div>
+    <div class="gear br"><svg viewBox="0 0 50 50"><g fill="#c4a062"><circle cx="25" cy="25" r="18"/><circle cx="25" cy="25" r="10" fill="#5a4220"/><circle cx="25" cy="25" r="3" fill="#c4a062"/></g><g fill="#9a7a40"><rect x="22" y="0" width="6" height="8"/><rect x="22" y="42" width="6" height="8"/><rect x="0" y="22" width="8" height="6"/><rect x="42" y="22" width="8" height="6"/></g></svg></div>
+
+    <div class="frame">
+      <div class="plate">EyeGuard</div>
+      <div class="subplate">— a chronometer for thy gaze —</div>
+
+      <div class="nav">
+        <button class="on">CHRONO</button>
+        <button>RECORDS</button>
+        <button>CYCLES</button>
+        <button>WORKSHOP</button>
+      </div>
+
+      <div class="watch">
+        <div class="watch-bg"></div>
+        <!-- ticks (12 of them) -->
+        <div class="ticks" id="ticks"></div>
+        <div class="hand h"></div>
+        <div class="hand m"></div>
+        <div class="pivot"></div>
+        <div class="center">
+          <div class="n">14:32</div>
+          <div class="l">till the bell</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn">⏸ Halt</button>
+        <button class="btn p">⌛ Repose</button>
+      </div>
+
+      <div class="gauges">
+        <div class="dial"><div class="face">3·20</div><div class="l">Glass</div></div>
+        <div class="dial"><div class="face">IV/VI</div><div class="l">Repose</div></div>
+        <div class="dial"><div class="face">85</div><div class="l">Vitality</div></div>
+        <div class="dial"><div class="face">42</div><div class="l">Streak</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="desc">
+  <h3>// 蒸汽朋克怀表</h3>
+  <p>整个 app 是一只维多利亚时代的黄铜怀表。背景齿轮缓慢转动，中央是嵌着罗马刻度的怀表，时针/分针真实走动。</p>
+  <p>统计是表盘下方的小副表盘。文案有 19 世纪绅士口吻：<i>"a chronometer for thy gaze"</i>。</p>
+  <p>颜色 = 黄铜 + 古铜 + 老纸黄。质感非常重，每个元素都"精雕细琢"。</p>
+  <p>很有作品集 / 设计奖项相。</p>
+  <p style="opacity:0.6;margin-top:14px">工作量：3-4 轮（齿轮、表盘、装饰边框、罗马数字 ticks、副表盘 — 全部要做精致）。</p>
+</div>
+
+<script>
+  // generate roman ticks
+  const ticks = document.getElementById('ticks');
+  for (let i = 0; i < 12; i++) {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    t.style.transform = `rotate(${i * 30}deg)`;
+    ticks.appendChild(t);
+  }
+</script>
+</body></html>

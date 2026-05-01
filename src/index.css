@@ -2,36 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Plant theme — "day" mode (default) ===
+   Warm sky cream + paper card + ink brown text. Time-aware sky gradient
+   is layered on top by the Sky component, but these tokens are the
+   neutral fallback every other component reads from. */
 :root {
-  --eg-bg: #09090b;
-  --eg-card: #18181b;
-  --eg-hover: #27272a;
-  --eg-line: rgba(255, 255, 255, 0.06);
-  --eg-frame: rgba(255, 255, 255, 0.04);
-  --eg-text: #fafafa;
-  --eg-muted: rgba(255, 255, 255, 0.25);
-  --eg-faint: rgba(255, 255, 255, 0.15);
-  --eg-green: #34d399;
-  --eg-purple: #6366f1;
-  --eg-amber: #f59e0b;
-  --eg-pink: #ec4899;
-  --eg-track: rgba(255, 255, 255, 0.05);
+  --eg-bg: #fde6c4;            /* base sky cream */
+  --eg-card: #fdf6e3;           /* paper card */
+  --eg-card-2: #f5ead0;
+  --eg-hover: rgba(58, 40, 24, 0.06);
+  --eg-line: rgba(58, 40, 24, 0.14);
+  --eg-frame: rgba(58, 40, 24, 0.18);
+  --eg-text: #3a2818;
+  --eg-text-soft: #7a5a3a;
+  --eg-muted: rgba(58, 40, 24, 0.55);
+  --eg-faint: rgba(58, 40, 24, 0.32);
+  --eg-track: rgba(58, 40, 24, 0.12);
+
+  /* Plant palette */
+  --eg-green: #5a8c4a;
+  --eg-leaf: #7ab85f;
+  --eg-leaf-light: #9ed179;
+  --eg-moss: #3a6e2a;
+  --eg-purple: #7798c8;          /* dusty blue (was indigo) */
+  --eg-amber: #c89a4a;
+  --eg-pink: #c3613f;            /* coral (was hot pink) */
+  --eg-bud: #f5b568;
+  --eg-soil: #8b6f4e;
+  --eg-pot: #c8845a;
+  --eg-pot-dark: #a0613a;
+
+  /* Sky gradient — overridden at runtime by Sky component */
+  --eg-sky-1: #fde6c4;
+  --eg-sky-2: #f9c98f;
+  --eg-sky-3: #e0a06c;
 }
 
+/* === Plant theme — "night" mode ===
+   Deep navy sky + paper-on-glass cards. The visible app palette stays
+   consistent with day; everything just feels like dusk. */
+:root.dark {
+  --eg-bg: #1a2d4a;
+  --eg-card: rgba(255, 255, 255, 0.92);
+  --eg-card-2: rgba(255, 255, 255, 0.78);
+  --eg-hover: rgba(0, 0, 0, 0.05);
+  --eg-line: rgba(58, 40, 24, 0.12);
+  --eg-frame: rgba(245, 230, 200, 0.18);
+  --eg-text: #2a1f12;
+  --eg-text-soft: #5a4220;
+  --eg-muted: rgba(58, 40, 24, 0.5);
+  --eg-faint: rgba(58, 40, 24, 0.3);
+  --eg-track: rgba(58, 40, 24, 0.12);
+
+  --eg-green: #5a8c4a;
+  --eg-leaf: #7ab85f;
+  --eg-leaf-light: #9ed179;
+  --eg-moss: #3a6e2a;
+  --eg-purple: #6b88c4;
+  --eg-amber: #c89a4a;
+  --eg-pink: #c3613f;
+  --eg-bud: #f5b568;
+  --eg-soil: #6a4f30;
+  --eg-pot: #8a5a3a;
+  --eg-pot-dark: #5a3a1f;
+
+  --eg-sky-1: #1a2d4a;
+  --eg-sky-2: #0e1c33;
+  --eg-sky-3: #051028;
+}
+
+/* Explicit "light" tag = day (same as :root). Kept for clarity in
+   useSettingsSync's class toggle. */
 :root.light {
-  --eg-bg: #fafaf9;
-  --eg-card: #ffffff;
-  --eg-hover: #f1f1ef;
-  --eg-line: #e7e5e4;
-  --eg-frame: rgba(0, 0, 0, 0.06);
-  --eg-text: #09090b;
-  --eg-muted: #a1a1aa;
-  --eg-faint: rgba(0, 0, 0, 0.18);
-  --eg-green: #059669;
-  --eg-purple: #4f46e5;
-  --eg-amber: #d97706;
-  --eg-pink: #db2777;
-  --eg-track: rgba(0, 0, 0, 0.06);
+  /* default already day; nothing to override */
 }
 
 * {
@@ -46,7 +89,7 @@ body,
   padding: 0;
   background: var(--eg-bg);
   color: var(--eg-text);
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Quicksand", "Inter", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   user-select: none;
@@ -69,9 +112,9 @@ html:has(.notif-root),
   align-items: center;
   justify-content: center;
   padding: 18px;
-  background: linear-gradient(180deg, rgba(9,9,11,0.92), rgba(9,9,11,0.96));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(180deg, rgba(253, 230, 196, 0.92), rgba(224, 160, 108, 0.96));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   animation: onboardFade 280ms ease;
 }
 
@@ -207,26 +250,382 @@ html:has(.notif-root),
   z-index: 1;
 }
 
-/* Subtle grain over the entire app — adds analog warmth so the
-   surface doesn't look like a plain hex fill. */
+/* Faint paper grain — adds analog warmth so the cream surfaces don't
+   look like a flat gradient. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.035;
-  mix-blend-mode: screen;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-}
-
-:root.light body::before {
-  opacity: 0.06;
+  opacity: 0.07;
   mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.14  0 0 0 0 0.12  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* Logo blink — eyes that occasionally close, never enough to annoy.
-   The almond and iris together get squashed vertically for ~120ms. */
+:root.dark body::before {
+  opacity: 0.045;
+  mix-blend-mode: screen;
+}
+
+/* === Garden / plant theme — scene primitives === */
+
+/* Whole-window sky backdrop. Real gradient set by JS based on time
+   of day, but the CSS defaults are the warm-day palette. */
+.garden-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--eg-sky-1) 0%,
+    var(--eg-sky-2) 60%,
+    var(--eg-sky-3) 100%
+  );
+  z-index: 0;
+  transition: background 1.6s ease;
+}
+.garden-sun {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff7d4 0%, #fde08c 70%, transparent 100%);
+  opacity: 0.85;
+  z-index: 1;
+  pointer-events: none;
+}
+.garden-moon {
+  position: absolute;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4ecc8 0%, #d8d0a8 70%, transparent 100%);
+  box-shadow: 0 0 24px rgba(244, 236, 200, 0.35);
+  z-index: 1;
+  pointer-events: none;
+}
+.garden-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 20px;
+  height: 14px;
+  z-index: 1;
+  animation: cloudDrift 50s linear infinite;
+  pointer-events: none;
+}
+:root.dark .garden-cloud { background: rgba(220, 230, 250, 0.18); }
+@keyframes cloudDrift {
+  from { transform: translateX(-30px); }
+  to   { transform: translateX(440px); }
+}
+
+.garden-star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #f4ecc8;
+  border-radius: 50%;
+  opacity: 0.8;
+  z-index: 1;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.95; }
+}
+
+.garden-firefly {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #f5e645;
+  box-shadow: 0 0 8px #f5e645, 0 0 14px rgba(245, 230, 69, 0.5);
+  z-index: 2;
+  animation: fireflyDrift 9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes fireflyDrift {
+  0%, 100% { opacity: 0; transform: translate(0, 0); }
+  20%      { opacity: 1; }
+  50%      { opacity: 0.7; transform: translate(40px, -20px); }
+  80%      { opacity: 1; transform: translate(-15px, -30px); }
+}
+
+/* Wooden windowsill at the bottom of the timer scene. */
+.garden-sill {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 130px;
+  background: linear-gradient(180deg, #a4825a 0%, #7a5a3a 100%);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 4;
+}
+.garden-sill::before {
+  content: "";
+  position: absolute;
+  top: -6px; left: 0; right: 0;
+  height: 6px;
+  background: #bb9468;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Pot + plant stack (positioned inside the sill) */
+.garden-pot {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 138px; height: 78px;
+  z-index: 6;
+}
+.garden-pot-body {
+  position: absolute;
+  bottom: 0; left: 8px; right: 8px;
+  height: 58px;
+  background: linear-gradient(180deg, var(--eg-pot), var(--eg-pot-dark));
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+  border-radius: 6px;
+}
+.garden-pot-rim {
+  position: absolute;
+  top: -6px; left: 0; right: 0;
+  height: 12px;
+  background: #d8956c;
+  border-radius: 6px;
+}
+.garden-pot-soil {
+  position: absolute;
+  top: 5px; left: 12px; right: 12px;
+  height: 7px;
+  background: #3e2a18;
+  border-radius: 50%;
+}
+
+.garden-plant {
+  position: absolute;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px; height: 130px;
+  z-index: 5;
+  pointer-events: none;
+}
+.garden-stem {
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: 4px; height: 100%;
+  background: #3a5a2a;
+  transform-origin: bottom;
+  transform: translateX(-50%) rotate(-2deg);
+  animation: plantSway 5s ease-in-out infinite;
+}
+@keyframes plantSway {
+  0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+  50%      { transform: translateX(-50%) rotate(2deg); }
+}
+
+/* Wilting state when health score is low */
+.garden-plant.wilting .garden-stem { animation-duration: 9s; }
+.garden-plant.wilting .garden-leaf {
+  filter: hue-rotate(-12deg) saturate(0.7) brightness(0.85);
+}
+.garden-plant.wilting .garden-flower { opacity: 0.5; transform: translateX(-50%) translateY(4px); }
+
+.garden-leaf {
+  position: absolute;
+  width: 50px; height: 36px;
+  background: radial-gradient(ellipse at center, var(--eg-leaf-light) 0%, var(--eg-leaf) 100%);
+  border-radius: 50% 0 50% 0;
+  box-shadow: inset 1px -1px 3px rgba(0, 0, 0, 0.25);
+  transition: filter 600ms ease, transform 600ms ease;
+}
+.garden-leaf-1 { bottom: 90px; left: 50%; transform: translate(-100%, 0) rotate(-30deg); }
+.garden-leaf-2 { bottom: 60px; left: 50%; transform: rotate(30deg) scaleX(-1); }
+.garden-leaf-3 { bottom: 40px; left: 50%; transform: translate(-90%, 0) rotate(-50deg); width: 44px; height: 30px; }
+.garden-leaf-4 { bottom: 20px; left: 50%; transform: rotate(50deg) scaleX(-1); width: 42px; height: 28px; }
+
+.garden-flower {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe680 0%, var(--eg-bud) 70%, var(--eg-pink) 100%);
+  box-shadow: 0 0 14px rgba(245, 181, 104, 0.5);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+
+/* Glass timer card on the window pane */
+.garden-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 18px 30px;
+  text-align: center;
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  z-index: 5;
+  min-width: 220px;
+}
+.garden-card .time {
+  font-family: "Quicksand", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -2px;
+  font-feature-settings: "tnum";
+  color: var(--eg-text);
+}
+.garden-card .meta {
+  font-family: "Caveat", cursive;
+  font-size: 16px;
+  color: var(--eg-text);
+  opacity: 0.65;
+  margin-top: 4px;
+}
+
+/* Action row in plant theme */
+.garden-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 5;
+}
+.garden-btn {
+  font-family: "Quicksand", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: transform 150ms ease, filter 150ms ease;
+  border: 2px solid var(--eg-text);
+}
+.garden-btn:hover { transform: translateY(-1px); }
+.garden-btn:active { transform: translateY(0) scale(0.98); }
+.garden-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.garden-btn.ghost {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--eg-text);
+}
+.garden-btn.primary {
+  background: var(--eg-pink);
+  color: #fff;
+  border-color: var(--eg-pot-dark);
+  box-shadow: 2px 2px 0 var(--eg-text);
+}
+
+/* Sill badges row (the four metric stickers) */
+.garden-badges {
+  position: absolute;
+  bottom: 14px;
+  left: 14px; right: 14px;
+  display: flex;
+  justify-content: space-around;
+  z-index: 7;
+  pointer-events: none;
+}
+.garden-badge {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  padding: 5px 10px;
+  text-align: center;
+  min-width: 56px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+}
+.garden-badge .v {
+  font-family: "Quicksand", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--eg-text);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.garden-badge .v::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--badge-c, var(--eg-leaf));
+}
+.garden-badge .l {
+  font-family: "Caveat", cursive;
+  font-size: 11px;
+  color: var(--eg-text);
+  opacity: 0.65;
+  line-height: 1;
+}
+
+/* Snail mascot */
+.garden-snail-wrap {
+  position: absolute;
+  bottom: 18px; left: 18px;
+  z-index: 7;
+  cursor: pointer;
+  width: 56px; height: 36px;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.garden-snail-wrap:hover { transform: translateY(-2px); }
+.garden-snail-wrap svg { width: 100%; height: 100%; overflow: visible; }
+.garden-snail-bubble {
+  position: absolute;
+  bottom: 60px; left: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-family: "Caveat", cursive;
+  font-size: 13px;
+  color: var(--eg-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  z-index: 8;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.garden-snail-wrap:hover + .garden-snail-bubble,
+.garden-snail-bubble.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.garden-snail-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -5px; left: 18px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(255, 255, 255, 0.92);
+}
+@keyframes snailGlide {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1px); }
+}
+.garden-snail-wrap.glide { animation: snailGlide 4s ease-in-out infinite; }
+
+/* Visiting cat (10+ breaks) and bird/butterfly fly-bys */
+.garden-visitor-cat {
+  position: absolute;
+  bottom: 80px; right: 20px;
+  width: 58px; height: 50px;
+  z-index: 6;
+  animation: catSettle 1.6s ease-out both;
+}
+@keyframes catSettle {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.garden-visitor-fly {
+  position: absolute;
+  top: 35%;
+  z-index: 5;
+  animation: flyBy 8s linear forwards;
+}
+@keyframes flyBy {
+  from { left: -40px; }
+  to   { left: 110%; }
+}
+
 @keyframes egBlink {
   0%, 92%, 100% { transform: scaleY(1); }
   94%, 96%      { transform: scaleY(0.06); }
@@ -856,13 +1255,51 @@ html[lang="en"] .badge-pill {
 /* Frame */
 .app-frame {
   position: absolute;
-  inset: 12px;
-  border: 1px solid var(--eg-frame);
-  border-radius: 20px;
+  inset: 0;
+  border: 14px solid #eee2cb;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 2;       /* keep above the body::before grain */
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 2px rgba(58, 40, 24, 0.08),
+    0 0 0 1px rgba(58, 40, 24, 0.05);
+}
+
+/* The white wooden cross divider that turns the frame into a window
+   pane. Hidden on stats / settings / pomodoro pages where the cross
+   would interfere with content (toggled via body class). */
+.app-frame::before,
+.app-frame::after {
+  content: "";
+  position: absolute;
+  background: #eee2cb;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.95;
+}
+.app-frame::before {
+  top: 50%;
+  left: 0; right: 0;
+  height: 3px;
+  transform: translateY(-50%);
+}
+.app-frame::after {
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 3px;
+  transform: translateX(-50%);
+}
+/* Suppress the cross when not on the timer page (stats / settings have
+   too much content for it). The class is set on body via App.tsx. */
+body[data-page="stats"] .app-frame::before,
+body[data-page="stats"] .app-frame::after,
+body[data-page="settings"] .app-frame::before,
+body[data-page="settings"] .app-frame::after,
+body[data-page="pomodoro"] .app-frame::before,
+body[data-page="pomodoro"] .app-frame::after {
+  display: none;
 }
 
 /* Buttons */
