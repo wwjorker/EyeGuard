@@ -139,7 +139,9 @@
       "import": "导入",
       "importFailed": "导入失败",
       "reset": "恢复",
-      "resetConfirm": "把所有偏好重置为出厂默认值？这不会影响已收集的统计数据。"
+      "resetConfirm": "把所有偏好重置为出厂默认值？这不会影响已收集的统计数据。",
+      "savedTo": "已保存到：",
+      "exportFailed": "导出失败"
     },
     "alertLevels": {
       "light": "轻",
@@ -211,8 +213,32 @@
   "follow": {
     "drinkTitle": "喝点水",
     "drinkBody": "来一口水 — 你的眼睛会感激你的。",
+    "drinkTitleVariants": {
+      "0": "来一口水",
+      "1": "杯子还有水吗",
+      "2": "起身倒杯水",
+      "3": "补充点水分"
+    },
+    "drinkBodyVariants": {
+      "0": "工作时人均喝水量都不够，趁现在补一口。",
+      "1": "握杯子的手是不是有点干？",
+      "2": "走两步、倒杯水，顺便让眼睛走走神。",
+      "3": "脱水会让眼睛更干，也会更容易疲劳。"
+    },
     "postureTitle": "调整一下姿势",
     "postureBody": "坐直，放松双肩，调整屏幕距离。",
+    "postureTitleVariants": {
+      "0": "坐直一下",
+      "1": "肩膀松一松",
+      "2": "看看屏幕距离",
+      "3": "腰椎需要你"
+    },
+    "postureBodyVariants": {
+      "0": "下巴回收，背靠椅背，脖子会感谢你。",
+      "1": "耸两下肩，再缓缓往后转一圈。",
+      "2": "屏幕离你的眼睛 50-70 厘米最合适。",
+      "3": "腰椎中立位 = 屁股贴椅背、双脚平放地面。"
+    },
     "gotIt": "好的"
   },
   "celebrate": {
@@ -223,7 +249,13 @@
     "milestone5Title": "今天第 5 次休息",
     "milestone5Body": "节奏稳得很，眼睛会记得你的好。",
     "milestone10Title": "今天第 10 次休息",
-    "milestone10Body": "认真自律的一天，干得好。"
+    "milestone10Body": "认真自律的一天，干得好。",
+    "milestone1PomoTitle": "完成第 1 个番茄",
+    "milestone1PomoBody": "起手不凡 — 进入专注节奏了。",
+    "milestone5PomoTitle": "完成第 5 个番茄",
+    "milestone5PomoBody": "你已经盖了 5 个番茄章，眼睛喜欢这种规律。",
+    "milestone10PomoTitle": "完成第 10 个番茄",
+    "milestone10PomoBody": "硬核专注一整天 — 别忘了奖励自己。"
   },
   "skip": "跳过",
   "tray": {

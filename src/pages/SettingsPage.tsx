@@ -59,6 +59,23 @@ export function SettingsPage() {
     }
   };
 
+  const announceSave = (label: string, result: { ok: boolean; path?: string; reason?: string }) => {
+    if (result.ok) {
+      window.alert(
+        result.path
+          ? `${label}\n${t("settings.actions.savedTo")}\n${result.path}`
+          : `${label} ✓`,
+      );
+    } else {
+      window.alert(`${label}\n${t("settings.actions.exportFailed")}: ${result.reason ?? "unknown"}`);
+    }
+  };
+
+  const handleExportJson = async () => announceSave(t("settings.rows.exportJson"), await exportJson());
+  const handleExportCsv = async () => announceSave(t("settings.rows.exportCsv"), await exportCsv());
+  const handleExportSettings = async () =>
+    announceSave(t("settings.rows.backupSettings"), await exportSettings());
+
   const minUnit = t("settings.units.min");
   const secUnit = t("settings.units.sec");
   const minShort = t("settings.units.minShort");
@@ -377,9 +394,7 @@ export function SettingsPage() {
             control={
               <button
                 className="btn-ghost flex items-center gap-2"
-                onClick={() => {
-                  void exportJson();
-                }}
+                onClick={handleExportJson}
               >
                 <Download size={12} />
                 JSON
@@ -389,12 +404,7 @@ export function SettingsPage() {
           <SettingRow
             label={t("settings.rows.exportCsv")}
             control={
-              <button
-                className="btn-ghost flex items-center gap-2"
-                onClick={() => {
-                  void exportCsv();
-                }}
-              >
+              <button className="btn-ghost flex items-center gap-2" onClick={handleExportCsv}>
                 <Download size={12} />
                 CSV
               </button>
@@ -405,7 +415,7 @@ export function SettingsPage() {
             hint={t("settings.rows.backupSettingsHint")}
             control={
               <div className="flex items-center gap-2">
-                <button className="btn-ghost flex items-center gap-2" onClick={exportSettings}>
+                <button className="btn-ghost flex items-center gap-2" onClick={handleExportSettings}>
                   <Download size={12} />
                   {t("settings.actions.export")}
                 </button>

@@ -1,7 +1,7 @@
 // Export footprint + break log to JSON or CSV.
-// Falls back to a browser download in non-Tauri contexts.
 
 import { getAppUsage, getDailyUsage } from "./db";
+import { saveText, type SaveResult } from "./fileSave";
 
 export interface ExportPayload {
   generated_at: string;
@@ -20,13 +20,12 @@ export async function buildPayload(): Promise<ExportPayload> {
   };
 }
 
-export async function exportJson() {
+export async function exportJson(): Promise<SaveResult> {
   const payload = await buildPayload();
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  triggerDownload(blob, `eyeguard-${stamp()}.json`);
+  return saveText(`eyeguard-stats-${stamp()}.json`, JSON.stringify(payload, null, 2));
 }
 
-export async function exportCsv() {
+export async function exportCsv(): Promise<SaveResult> {
   const payload = await buildPayload();
   const lines: string[] = [];
   lines.push("# app_usage_today");
@@ -40,19 +39,7 @@ export async function exportCsv() {
   for (const row of payload.daily_screen_time) {
     lines.push(`${csv(row.date)},${row.total_seconds}`);
   }
-  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
-  triggerDownload(blob, `eyeguard-${stamp()}.csv`);
-}
-
-function triggerDownload(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return saveText(`eyeguard-stats-${stamp()}.csv`, lines.join("\n"));
 }
 
 function stamp(): string {

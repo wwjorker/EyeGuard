@@ -738,6 +738,25 @@ input:focus-visible {
   color: var(--eg-muted);
 }
 
+/* Tighter top bar in English so the four tabs + status badge actually
+   fit inside the 420 px main window. */
+html[lang="en"] .brand {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+}
+
+html[lang="en"] .tab-btn {
+  font-size: 10px;
+  padding: 5px 7px;
+  letter-spacing: 0.6px;
+}
+
+html[lang="en"] .badge-pill {
+  font-size: 9px;
+  padding: 3px 8px;
+  letter-spacing: 0.8px;
+}
+
 .tag-label {
   font-size: 11px;
   letter-spacing: 1px;

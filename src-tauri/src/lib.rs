@@ -67,6 +67,7 @@ pub fn run() {
             fullscreen::check_fullscreen,
             fullscreen::current_foreground,
             database::get_db_path,
+            database::save_to_downloads,
             tray::update_tray_labels,
         ])
         .run(tauri::generate_context!())

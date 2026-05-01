@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Droplet, Eye, PersonStanding, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useSatelliteTheme } from "../lib/themeListener";
 
 type Variant = "light" | "medium" | "drink" | "posture" | "celebration";
 
@@ -66,6 +67,7 @@ const VARIANT_ICON: Record<Variant, LucideIcon> = {
 export function NotificationApp() {
   const { t } = useTranslation();
   const [state, setState] = useState<State | null>(null);
+  useSatelliteTheme();
 
   useEffect(() => {
     let unlistenShow: (() => void) | null = null;

@@ -2,7 +2,17 @@ import { useEffect } from "react";
 import i18n from "i18next";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTimerStore } from "../stores/timerStore";
-import { purgeOlderThan } from "../lib/db";
+import { purgeOlderThan, tidyLegacyPidRows } from "../lib/db";
+
+async function broadcastTheme(mode: "dark" | "light") {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+  try {
+    const { emit } = await import("@tauri-apps/api/event");
+    await emit("theme://changed", { theme: mode });
+  } catch {
+    /* ignore */
+  }
+}
 
 /**
  * Propagates settings changes to: (1) the timer store work/break durations,
@@ -47,8 +57,10 @@ export function useSettingsSync() {
     useTimerStore.getState().setLongBreakInterval(pomodoroLongInterval);
   }, [pomodoroLongInterval]);
 
-  // Roll off old footprint rows on launch + once a day.
+  // Roll off old footprint rows on launch + once a day. Also clean up
+  // any legacy pid: process names from older builds.
   useEffect(() => {
+    void tidyLegacyPidRows();
     void purgeOlderThan(dataRetentionDays);
     const id = window.setInterval(() => purgeOlderThan(dataRetentionDays), 24 * 3600 * 1000);
     return () => window.clearInterval(id);
@@ -67,12 +79,14 @@ export function useSettingsSync() {
     })();
   }, [idleThresholdSec]);
 
-  // Theme
+  // Theme: apply to main window AND broadcast so the break / notification
+  // satellite windows can mirror it.
   useEffect(() => {
     const root = document.documentElement;
     const apply = (mode: "dark" | "light") => {
       root.classList.toggle("dark", mode === "dark");
       root.classList.toggle("light", mode === "light");
+      void broadcastTheme(mode);
     };
     if (theme === "system") {
       const m = window.matchMedia("(prefers-color-scheme: light)");
@@ -84,10 +98,34 @@ export function useSettingsSync() {
     apply(theme);
   }, [theme]);
 
+  // Reply to satellite windows asking for the current theme on their boot.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
+    let off: (() => void) | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        off = await listen("theme://request", () => {
+          const isLight = document.documentElement.classList.contains("light");
+          void broadcastTheme(isLight ? "light" : "dark");
+        });
+      } catch {
+        /* ignore */
+      }
+      if (cancelled) off?.();
+    })();
+    return () => {
+      cancelled = true;
+      off?.();
+    };
+  }, []);
+
   // i18n language + sync the OS-level tray menu so it tracks the chosen
   // language. Has to invoke a Rust command because the tray lives in the
   // native shell, not the webview.
   useEffect(() => {
+    document.documentElement.lang = language;
     void i18n.changeLanguage(language).then(async () => {
       if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return;
       try {

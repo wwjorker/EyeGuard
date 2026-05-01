@@ -139,7 +139,9 @@
       "import": "import",
       "importFailed": "Import failed",
       "reset": "reset",
-      "resetConfirm": "Reset every preference to its factory default? This won't touch your stats."
+      "resetConfirm": "Reset every preference to its factory default? This won't touch your stats.",
+      "savedTo": "Saved to:",
+      "exportFailed": "Export failed"
     },
     "alertLevels": {
       "light": "light",
@@ -211,8 +213,32 @@
   "follow": {
     "drinkTitle": "Hydrate",
     "drinkBody": "Grab a sip of water — your eyes will thank you.",
+    "drinkTitleVariants": {
+      "0": "Sip of water?",
+      "1": "Refill the cup",
+      "2": "Stand up, grab water",
+      "3": "Hydration check"
+    },
+    "drinkBodyVariants": {
+      "0": "Most of us under-drink at the desk. Top up now.",
+      "1": "Dry mouth or just deep focus? Either way — water.",
+      "2": "Walk a few steps, refill, let your eyes wander too.",
+      "3": "Dehydration makes eyes drier and tires you faster."
+    },
     "postureTitle": "Check your posture",
     "postureBody": "Sit tall, drop your shoulders, and adjust your screen distance.",
+    "postureTitleVariants": {
+      "0": "Sit tall",
+      "1": "Roll the shoulders",
+      "2": "Screen distance check",
+      "3": "Look after your back"
+    },
+    "postureBodyVariants": {
+      "0": "Chin in, back to the chair — your neck will say thanks.",
+      "1": "Two shoulder shrugs, then a slow roll back.",
+      "2": "Aim for 50-70 cm between your eyes and the screen.",
+      "3": "Neutral spine = hips back, feet flat on the floor."
+    },
     "gotIt": "got it"
   },
   "celebrate": {
@@ -223,7 +249,13 @@
     "milestone5Title": "Five breaks today",
     "milestone5Body": "You're keeping up. Eyes notice this.",
     "milestone10Title": "Ten breaks today",
-    "milestone10Body": "Disciplined day. Quietly proud."
+    "milestone10Body": "Disciplined day. Quietly proud.",
+    "milestone1PomoTitle": "First pomodoro done",
+    "milestone1PomoBody": "Strong start — focus rhythm engaged.",
+    "milestone5PomoTitle": "Five pomodoros done",
+    "milestone5PomoBody": "Five tomatoes stacked. Your eyes love the cadence.",
+    "milestone10PomoTitle": "Ten pomodoros done",
+    "milestone10PomoBody": "Focused all-in day. Reward yourself."
   },
   "skip": "skip",
   "tray": {

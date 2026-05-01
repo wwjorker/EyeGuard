@@ -49,6 +49,17 @@ function milestoneFor(n: number): "milestone1" | "milestone5" | "milestone10" | 
   return null;
 }
 
+/**
+ * Returns an indexed i18n key like `follow.drinkTitleVariants.2` so the
+ * notification window can render one of N copy variants instead of the
+ * same line every time.
+ */
+const VARIANT_COUNT = 4;
+function pickVariant(prefix: string): string {
+  const i = Math.floor(Math.random() * VARIANT_COUNT);
+  return `${prefix}.${i}`;
+}
+
 export interface AlertOrchestrator {
   fireTest: () => void;
 }
@@ -163,7 +174,7 @@ export function useAlertOrchestrator(): AlertOrchestrator {
     (async () => {
       try {
         const { listen } = await import("@tauri-apps/api/event");
-        off = await listen<{ skipped: boolean }>("break://end", (e) => {
+        off = await listen<{ skipped: boolean }>("break://end", async (e) => {
           const skipped = e.payload?.skipped ?? false;
           const ts = useTimerStore.getState();
           const settings = useSettingsStore.getState();
@@ -173,6 +184,10 @@ export function useAlertOrchestrator(): AlertOrchestrator {
           ts.endBreak(skipped);
 
           if (skipped) return;
+
+          // Soft chime acknowledging the break just ended. Independent of
+          // the celebration / followup decision below.
+          playBreakDone(settings.soundEnabled, settings.soundVolume);
 
           // Hero moment: completed a full pomodoro cycle (only fires when
           // pomodoro mode is on and the break that just ended was a long
@@ -184,27 +199,49 @@ export function useAlertOrchestrator(): AlertOrchestrator {
             return;
           }
 
-          // Daily milestones: 1st / 5th / 10th break of the day. These
-          // beat the drink / posture nudges below to claim the slot.
+          // Daily milestones: 1st / 5th / 10th break of the day. Pick
+          // pomodoro-flavoured copy when pomodoro mode is on.
           const milestoneKey = milestoneFor(completedAfter);
           if (milestoneKey) {
+            const flavour = settings.pomodoroEnabled ? "Pomo" : "";
             void showNotificationWindow({
               variant: "celebration",
-              titleKey: `celebrate.${milestoneKey}Title`,
-              bodyKey: `celebrate.${milestoneKey}Body`,
+              titleKey: `celebrate.${milestoneKey}${flavour}Title`,
+              bodyKey: `celebrate.${milestoneKey}${flavour}Body`,
             });
             useCelebrationStore.getState().fire("milestone");
             return;
           }
 
-          // Drink (50% probability)
+          // Don't tack a drink / posture nudge onto the user when they're
+          // back in a meeting / game / whitelisted app — same DND rules
+          // as the pre-break alert.
+          const fg = await getForeground();
+          if (fg) {
+            const proc = normalize(fg.process);
+            const inDnd =
+              settings.dndWhitelist.some((p) => normalize(p) === proc) ||
+              (settings.dndMeetings && isMeetingProcess(fg.process)) ||
+              (settings.dndGames && (isGameProcess(fg.process) || fg.fullscreen === true));
+            if (inDnd) return;
+          }
+
+          // Drink (50% probability) — a fresh random copy variant per fire
           if (settings.drinkReminder && Math.random() < 0.5) {
-            void showNotificationWindow({ variant: "drink" });
+            void showNotificationWindow({
+              variant: "drink",
+              titleKey: pickVariant("follow.drinkTitleVariants"),
+              bodyKey: pickVariant("follow.drinkBodyVariants"),
+            });
             return;
           }
           // Posture (every 3rd break)
           if (settings.postureReminder && completedAfter > 0 && completedAfter % 3 === 0) {
-            void showNotificationWindow({ variant: "posture" });
+            void showNotificationWindow({
+              variant: "posture",
+              titleKey: pickVariant("follow.postureTitleVariants"),
+              bodyKey: pickVariant("follow.postureBodyVariants"),
+            });
           }
         });
       } catch {
@@ -587,6 +624,26 @@ export function playCelebration(enabled: boolean, volume: number) {
     playChime(ctx, 659, g * 0.78, 1.0, 0.12);
     playChime(ctx, 784, g * 0.78, 1.05, 0.24);
     playChime(ctx, 1047, g * 0.85, 1.3, 0.42);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Soft descending two-note chime when a break naturally finishes — the
+ * "gentle tap on the shoulder" that says you can resume.
+ */
+export function playBreakDone(enabled: boolean, volume: number) {
+  if (!enabled) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+  if (ctx.state === "suspended") {
+    void ctx.resume();
+  }
+  const g = Math.max(0, Math.min(0.4, volume / 250));
+  try {
+    playChime(ctx, 784, g * 0.6, 0.8); // G5
+    playChime(ctx, 523, g * 0.55, 0.95, 0.18); // C5
   } catch {
     /* ignore */
   }

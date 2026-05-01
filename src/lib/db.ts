@@ -129,6 +129,22 @@ export async function purgeOlderThan(days: number) {
   }
 }
 
+/**
+ * Rewrite legacy `pid:NNN` process names that we used to store before
+ * we knew how to label inaccessible processes. Idempotent.
+ */
+export async function tidyLegacyPidRows() {
+  const db = await open();
+  if (!db) return;
+  try {
+    await db.execute(
+      "UPDATE app_footprint SET process = 'unknown' WHERE process LIKE 'pid:%'",
+    );
+  } catch (err) {
+    console.warn("[eyeguard] tidyLegacyPidRows", err);
+  }
+}
+
 // ─── App-category overrides ───
 
 interface RawCategoryRow {

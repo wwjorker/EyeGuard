@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EyeExercise } from "../components/EyeExercise";
+import { useSatelliteTheme } from "../lib/themeListener";
 
 type BreakKind = "long" | "short" | "free";
 
@@ -31,6 +32,7 @@ const formatMMSS = (totalSec: number): string => {
 export function BreakWindow() {
   const { t } = useTranslation();
   const [state, setState] = useState<State | null>(null);
+  useSatelliteTheme();
 
   // Listen for show events from main.
   useEffect(() => {

@@ -62,7 +62,7 @@ pub fn foreground_info() -> Option<ForegroundInfo> {
         // Process name
         let mut pid: u32 = 0;
         GetWindowThreadProcessId(hwnd, Some(&mut pid));
-        let mut process = format!("pid:{}", pid);
+        let mut process = String::from("unknown");
         if pid > 0 {
             if let Ok(handle) =
                 OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, false, pid)

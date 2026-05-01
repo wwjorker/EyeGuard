@@ -247,6 +247,9 @@ export function categoryForProcess(process: string, override?: string | null): C
     return override as Category;
   }
   const k = norm(process);
+  // Inaccessible processes (admin / protected) come through as "unknown"
+  // — treat them like system.
+  if (k === "unknown" || k.startsWith("pid:")) return "system";
   if (PRODUCTIVITY.has(k)) return "productivity";
   if (BROWSER.has(k)) return "browser";
   if (MEETING_APPS.has(k)) return "communication";

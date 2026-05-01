@@ -85,8 +85,10 @@ fn current_window() -> Option<WindowSample> {
             String::new()
         };
 
-        // Process name
-        let mut process_name = format!("pid:{}", pid);
+        // Process name. If we can't open the handle (elevated process,
+        // protected process, or it exited), fall back to a stable
+        // "unknown" label so the stats don't fill with random pid: rows.
+        let mut process_name = String::from("unknown");
         if let Ok(handle) = OpenProcess(
             PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ,
             false,

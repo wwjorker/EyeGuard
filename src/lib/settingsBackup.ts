@@ -3,6 +3,7 @@
 // separately from `lib/export.ts`.
 
 import { DEFAULT_SETTINGS } from "../stores/settingsStore";
+import { saveText, type SaveResult } from "./fileSave";
 
 const STORAGE_KEY = "eyeguard.settings.v1";
 
@@ -14,18 +15,7 @@ function stamp(): string {
   return `${yyyy}${mm}${dd}`;
 }
 
-function triggerDownload(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-export function exportSettings() {
+export async function exportSettings(): Promise<SaveResult> {
   const raw = localStorage.getItem(STORAGE_KEY) ?? JSON.stringify(DEFAULT_SETTINGS);
   let pretty: string;
   try {
@@ -33,8 +23,7 @@ export function exportSettings() {
   } catch {
     pretty = raw;
   }
-  const blob = new Blob([pretty], { type: "application/json" });
-  triggerDownload(blob, `eyeguard-settings-${stamp()}.json`);
+  return saveText(`eyeguard-settings-${stamp()}.json`, pretty);
 }
 
 export interface ImportResult {
