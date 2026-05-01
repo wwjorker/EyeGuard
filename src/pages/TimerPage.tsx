@@ -44,14 +44,14 @@ export function TimerPage() {
         <PomodoroProgress />
       </div>
 
-      {/* Action row sits just above the windowsill. */}
+      {/* Action row sits clear of the plant top, well above the sill. */}
       <div
         className="garden-actions"
         style={{
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: 148,
+          bottom: 200,
           zIndex: 5,
         }}
       >

@@ -4,9 +4,9 @@ import { useTimerStore, formatHM } from "../stores/timerStore";
 const COLORS = ["var(--eg-leaf)", "var(--eg-purple)", "var(--eg-amber)", "var(--eg-pink)"];
 
 /**
- * Four small "stickers" sitting along the windowsill — replaces the
- * old SVG metric rings. Each sticker shows a coloured dot + value +
- * tiny handwritten label.
+ * Four small "stickers" on the windowsill — split into two pairs that
+ * sit on either side of the pot so the pot in the middle never covers
+ * the middle stickers.
  */
 export function MetricRingsRow() {
   const todayScreenSec = useTimerStore((s) => s.todayScreenSec);
@@ -25,16 +25,25 @@ export function MetricRingsRow() {
 
   return (
     <div className="garden-badges">
-      {items.map((it) => (
-        <div
-          key={it.label}
-          className="garden-badge"
-          style={{ ["--badge-c" as string]: it.color }}
-        >
-          <div className="v">{it.value}</div>
-          <div className="l">{it.label}</div>
-        </div>
-      ))}
+      <div className="garden-badges-pair">
+        {items.slice(0, 2).map((it) => (
+          <Badge key={it.label} {...it} />
+        ))}
+      </div>
+      <div className="garden-badges-pair">
+        {items.slice(2, 4).map((it) => (
+          <Badge key={it.label} {...it} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Badge({ value, label, color }: { value: string; label: string; color: string }) {
+  return (
+    <div className="garden-badge" style={{ ["--badge-c" as string]: color }}>
+      <div className="v">{value}</div>
+      <div className="l">{label}</div>
     </div>
   );
 }

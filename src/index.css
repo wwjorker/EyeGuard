@@ -471,13 +471,13 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  width: 138px; height: 78px;
+  width: 108px; height: 68px;
   z-index: 6;
 }
 .garden-pot-body {
   position: absolute;
-  bottom: 0; left: 8px; right: 8px;
-  height: 58px;
+  bottom: 0; left: 6px; right: 6px;
+  height: 50px;
   background: linear-gradient(180deg, var(--eg-pot), var(--eg-pot-dark));
   clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
   border-radius: 6px;
@@ -485,24 +485,24 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 .garden-pot-rim {
   position: absolute;
   top: -6px; left: 0; right: 0;
-  height: 12px;
+  height: 11px;
   background: #d8956c;
-  border-radius: 6px;
+  border-radius: 5px;
 }
 .garden-pot-soil {
   position: absolute;
-  top: 5px; left: 12px; right: 12px;
-  height: 7px;
+  top: 4px; left: 10px; right: 10px;
+  height: 6px;
   background: #3e2a18;
   border-radius: 50%;
 }
 
 .garden-plant {
   position: absolute;
-  bottom: 76px;
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
-  width: 140px; height: 130px;
+  width: 100px; height: 110px;
   z-index: 5;
   pointer-events: none;
 }
@@ -529,26 +529,26 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 
 .garden-leaf {
   position: absolute;
-  width: 50px; height: 36px;
+  width: 38px; height: 28px;
   background: radial-gradient(ellipse at center, var(--eg-leaf-light) 0%, var(--eg-leaf) 100%);
   border-radius: 50% 0 50% 0;
   box-shadow: inset 1px -1px 3px rgba(0, 0, 0, 0.25);
   transition: filter 600ms ease, transform 600ms ease;
 }
-.garden-leaf-1 { bottom: 90px; left: 50%; transform: translate(-100%, 0) rotate(-30deg); }
-.garden-leaf-2 { bottom: 60px; left: 50%; transform: rotate(30deg) scaleX(-1); }
-.garden-leaf-3 { bottom: 40px; left: 50%; transform: translate(-90%, 0) rotate(-50deg); width: 44px; height: 30px; }
-.garden-leaf-4 { bottom: 20px; left: 50%; transform: rotate(50deg) scaleX(-1); width: 42px; height: 28px; }
+.garden-leaf-1 { bottom: 76px; left: 50%; transform: translate(-100%, 0) rotate(-30deg); }
+.garden-leaf-2 { bottom: 50px; left: 50%; transform: rotate(30deg) scaleX(-1); }
+.garden-leaf-3 { bottom: 32px; left: 50%; transform: translate(-90%, 0) rotate(-50deg); width: 32px; height: 24px; }
+.garden-leaf-4 { bottom: 14px; left: 50%; transform: rotate(50deg) scaleX(-1); width: 30px; height: 22px; }
 
 .garden-flower {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px; height: 24px;
+  width: 20px; height: 20px;
   border-radius: 50%;
   background: radial-gradient(circle, #ffe680 0%, var(--eg-bud) 70%, var(--eg-pink) 100%);
-  box-shadow: 0 0 14px rgba(245, 181, 104, 0.5);
+  box-shadow: 0 0 12px rgba(245, 181, 104, 0.5);
   transition: opacity 600ms ease, transform 600ms ease;
 }
 
@@ -615,22 +615,28 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   box-shadow: 2px 2px 0 var(--eg-text);
 }
 
-/* Sill badges row (the four metric stickers) */
+/* Sill badges row (the four metric stickers).
+   Split as two pairs hugging each side of the pot so the pot in the
+   middle never covers the middle stickers. */
 .garden-badges {
   position: absolute;
-  bottom: 14px;
-  left: 14px; right: 14px;
+  bottom: 12px;
+  left: 10px; right: 10px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   z-index: 7;
   pointer-events: none;
 }
+.garden-badges-pair {
+  display: flex;
+  gap: 5px;
+}
 .garden-badge {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.88);
   border-radius: 10px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   text-align: center;
-  min-width: 56px;
+  min-width: 52px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
 }
@@ -654,27 +660,27 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   line-height: 1;
 }
 
-/* Snail mascot */
+/* Snail mascot — sits on the top edge of the sill, near the pot. */
 .garden-snail-wrap {
   position: absolute;
-  bottom: 18px; left: 18px;
+  bottom: 76px; left: 22px;
   z-index: 7;
   cursor: pointer;
-  width: 56px; height: 36px;
+  width: 52px; height: 32px;
   transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .garden-snail-wrap:hover { transform: translateY(-2px); }
 .garden-snail-wrap svg { width: 100%; height: 100%; overflow: visible; }
 .garden-snail-bubble {
   position: absolute;
-  bottom: 60px; left: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 6px 10px;
+  bottom: 116px; left: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 5px 9px;
   border-radius: 10px;
   font-family: "Caveat", cursive;
   font-size: 13px;
   color: var(--eg-text);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   white-space: nowrap;
   z-index: 8;
   opacity: 0;
@@ -704,8 +710,8 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 /* Visiting cat (10+ breaks) and bird/butterfly fly-bys */
 .garden-visitor-cat {
   position: absolute;
-  bottom: 80px; right: 20px;
-  width: 58px; height: 50px;
+  bottom: 76px; right: 22px;
+  width: 50px; height: 42px;
   z-index: 6;
   animation: catSettle 1.6s ease-out both;
 }
