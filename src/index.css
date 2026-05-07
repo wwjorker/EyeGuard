@@ -1465,23 +1465,25 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 }
 
 .diag-cell {
-  background: var(--eg-bg);
-  border: 1px solid var(--eg-line);
+  background: rgba(58, 40, 24, 0.05);
+  border: 1px solid rgba(58, 40, 24, 0.12);
   border-radius: 10px;
   padding: 8px 10px;
   min-width: 0;
 }
 
 .diag-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--eg-muted);
-  margin-bottom: 4px;
+  font-family: "Caveat", cursive;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  color: var(--eg-text-soft);
+  margin-bottom: 2px;
 }
 
 .diag-value {
-  font-size: 11.5px;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
   color: var(--eg-text);
   word-break: break-all;
 }
@@ -1489,36 +1491,37 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 .diag-mono {
   font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
   font-size: 10.5px;
+  font-weight: 400;
 }
 
 .diag-log-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--eg-muted);
+  font-family: "Caveat", cursive;
+  font-size: 14px;
+  color: var(--eg-text-soft);
   margin-top: 4px;
+  letter-spacing: 0.3px;
 }
 
 .diag-tool {
   background: transparent;
-  border: 1px solid var(--eg-line);
+  border: 1px solid rgba(58, 40, 24, 0.18);
   border-radius: 6px;
   width: 22px;
   height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--eg-muted);
+  color: var(--eg-text-soft);
   cursor: pointer;
   transition: color 150ms ease, border-color 150ms ease;
 }
 
 .diag-tool:hover:not(:disabled) {
   color: var(--eg-text);
-  border-color: var(--eg-faint);
+  border-color: var(--eg-text);
 }
 
 .diag-tool:disabled {
@@ -1527,8 +1530,9 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 }
 
 .diag-empty {
-  font-size: 11px;
-  color: var(--eg-muted);
+  font-family: "Caveat", cursive;
+  font-size: 14px;
+  color: var(--eg-text-soft);
   padding: 10px 0;
 }
 
@@ -1536,8 +1540,8 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   list-style: none;
   margin: 0;
   padding: 0;
-  background: var(--eg-bg);
-  border: 1px solid var(--eg-line);
+  background: rgba(58, 40, 24, 0.05);
+  border: 1px solid rgba(58, 40, 24, 0.12);
   border-radius: 10px;
   max-height: 220px;
   overflow-y: auto;
@@ -1549,7 +1553,7 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   gap: 8px;
   align-items: baseline;
   padding: 6px 10px;
-  border-top: 1px solid var(--eg-line);
+  border-top: 1px dashed rgba(58, 40, 24, 0.1);
   font-size: 10.5px;
 }
 
@@ -1558,7 +1562,8 @@ html[lang="en"] .garden-brand { font-size: 14px; }
 }
 
 .diag-log-time {
-  color: var(--eg-faint);
+  color: var(--eg-text-soft);
+  opacity: 0.7;
   font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
   font-size: 10px;
 }

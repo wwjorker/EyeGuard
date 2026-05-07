@@ -2,6 +2,7 @@ import { Timer, BarChart3, CircleDot, Settings as SettingsIcon } from "lucide-re
 import { useTranslation } from "react-i18next";
 import type { PageKey } from "../App";
 import { useTimerStore } from "../stores/timerStore";
+import { Logo } from "./Logo";
 
 interface TopBarProps {
   page: PageKey;
@@ -29,6 +30,7 @@ export function TopBar({ page, onNavigate }: TopBarProps) {
   return (
     <header className="garden-topbar">
       <div className="garden-pill garden-pill-nav">
+        <Logo size={18} />
         <span className="garden-brand">{t("brand")}</span>
         <nav className="garden-nav">
           {TABS.map(({ key, Icon }) => (

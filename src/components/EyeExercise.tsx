@@ -20,14 +20,25 @@ export function EyeExercise({ seed }: EyeExerciseProps) {
     <div className="flex flex-col items-center gap-4">
       <div className="text-center">
         <div
-          className="text-[12px] uppercase"
-          style={{ color: "rgba(255,255,255,0.45)", letterSpacing: 1.5 }}
+          style={{
+            fontFamily: "Caveat, cursive",
+            fontSize: 18,
+            fontWeight: 700,
+            color: "var(--eg-text)",
+            letterSpacing: 0.4,
+            lineHeight: 1.2,
+          }}
         >
           {t(`exercises.${kind}.title`)}
         </div>
         <div
-          className="text-[12px] mt-1"
-          style={{ color: "rgba(255,255,255,0.35)" }}
+          style={{
+            fontFamily: "Quicksand, sans-serif",
+            fontSize: 12.5,
+            color: "var(--eg-text-soft)",
+            marginTop: 4,
+            lineHeight: 1.4,
+          }}
         >
           {t(`exercises.${kind}.description`)}
         </div>

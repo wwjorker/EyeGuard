@@ -12,14 +12,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(__dirname, "../src-tauri/icons");
 mkdirSync(outDir, { recursive: true });
 
-// Brand colors
+// Brand colors — plant theme (warm cream + snail browns)
 const COLORS = {
-  bg: [0x09, 0x09, 0x0b],
-  green: [0x34, 0xd3, 0x99],
-  purple: [0x63, 0x66, 0xf1],
-  amber: [0xf5, 0x9e, 0x0b],
-  pink: [0xec, 0x48, 0x99],
+  bg: [0xfd, 0xe6, 0xc4],     // warm sky cream
+  bgEdge: [0xe0, 0xa0, 0x6c], // dusk peach
+  shell: [0xc8, 0x9a, 0x4a],  // tan shell
+  shellDark: [0x5a, 0x3a, 0x1a],
+  body: [0xda, 0xb0, 0x89],
+  bodyEdge: [0x7a, 0x52, 0x30],
+  ink: [0x3a, 0x28, 0x18],
   white: [0xfa, 0xfa, 0xfa],
+  leaf: [0x5a, 0x8c, 0x4a],
 };
 
 const crcTable = (() => {
@@ -47,25 +50,28 @@ function chunk(type, data) {
   return Buffer.concat([len, typeBuf, data, crc]);
 }
 
-// Render the EyeGuard mark: dark rounded-square ground, white almond eye
-// outline, emerald iris, white pupil highlight, three short lashes.
-// Matches the in-app SVG <Logo /> so brand and OS icon agree.
+// Render the EyeGuard mark: a snail on a warm cream rounded-square
+// background. Matches the in-app <Logo /> + the windowsill mascot so
+// brand identity is consistent across OS chrome and the app.
 function renderPixels(size) {
   const px = new Uint8ClampedArray(size * size * 4);
-  const cx = size / 2;
-  const cy = size / 2;
+
   const cornerRadius = size * 0.22;
 
-  // Eye geometry — almond width spans most of the square, iris ~28% of size.
-  const eyeHalfW = size * 0.42;
-  const eyeHalfH = size * 0.18;
-  const irisR = size * 0.16;
-  const irisCx = cx + size * 0.04; // gaze slightly right
-  const irisCy = cy - size * 0.02; // ...and a hair upward
-  const pupilR = size * 0.045;
-  const pupilCx = irisCx + size * 0.05;
-  const pupilCy = irisCy - size * 0.05;
-  const outlineThickness = Math.max(1.4, size * 0.024);
+  // Snail geometry — body is a low slug on the bottom, shell is a circle
+  // sitting on top of the body, two eye stalks rise above-right.
+  const shellCx = size * 0.55;
+  const shellCy = size * 0.45;
+  const shellR = size * 0.25;
+  const bodyCx = size * 0.5;
+  const bodyTop = size * 0.6;
+  const bodyBottom = size * 0.78;
+  const bodyHalfW = size * 0.36;
+
+  // Eye stalks (line + tip)
+  const stalk1 = { x1: size * 0.74, y1: shellCy - shellR * 0.6, x2: size * 0.84, y2: size * 0.16, tipR: size * 0.045 };
+  const stalk2 = { x1: size * 0.66, y1: shellCy - shellR * 0.6, x2: size * 0.7, y2: size * 0.12, tipR: size * 0.045 };
+  const stalkThickness = Math.max(1.2, size * 0.018);
 
   const inRoundedSquare = (x, y) => {
     if (x >= cornerRadius && x <= size - cornerRadius) return y >= 0 && y <= size;
@@ -84,18 +90,6 @@ function renderPixels(size) {
     return false;
   };
 
-  // Almond outline implicit fn: |dx|/eyeHalfW)^2 * 0.65 + (dy/eyeHalfH)^2 ≈ 1
-  // I use a stretched ellipse — close enough to the SVG path for this raster.
-  const eyeMetric = (dx, dy) => Math.pow(dx / eyeHalfW, 2) + Math.pow(dy / eyeHalfH, 2);
-
-  // Lash strokes: three short lines above the eye.
-  const lashes = [
-    { x1: cx - size * 0.14, y1: cy - size * 0.32, x2: cx - size * 0.18, y2: cy - size * 0.42 },
-    { x1: cx, y1: cy - size * 0.34, x2: cx, y2: cy - size * 0.46 },
-    { x1: cx + size * 0.14, y1: cy - size * 0.32, x2: cx + size * 0.18, y2: cy - size * 0.42 },
-  ];
-  const lashThickness = Math.max(1.2, size * 0.02);
-
   const distToSegment = (px, py, x1, y1, x2, y2) => {
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -106,55 +100,76 @@ function renderPixels(size) {
     return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
   };
 
+  // Background: warm cream gradient (lerp top→bottom)
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const bgAt = (y) => {
+    const t = y / size;
+    return [
+      lerp(COLORS.bg[0], COLORS.bgEdge[0], t),
+      lerp(COLORS.bg[1], COLORS.bgEdge[1], t),
+      lerp(COLORS.bg[2], COLORS.bgEdge[2], t),
+    ];
+  };
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const idx = (y * size + x) * 4;
       const sx = x + 0.5;
       const sy = y + 0.5;
-      const inside = inRoundedSquare(sx, sy);
-      if (!inside) {
-        px[idx] = 0;
-        px[idx + 1] = 0;
-        px[idx + 2] = 0;
-        px[idx + 3] = 0;
+      if (!inRoundedSquare(sx, sy)) {
+        px[idx] = px[idx + 1] = px[idx + 2] = px[idx + 3] = 0;
         continue;
       }
-      // background
-      let r = COLORS.bg[0];
-      let g = COLORS.bg[1];
-      let b = COLORS.bg[2];
+      let [r, g, b] = bgAt(sy);
 
-      // Pupil first (topmost layer)
-      const pupilDist = Math.hypot(sx - pupilCx, sy - pupilCy);
-      if (pupilDist <= pupilR) {
-        r = COLORS.white[0];
-        g = COLORS.white[1];
-        b = COLORS.white[2];
+      // 1) Stalk tips (eyes)
+      const tipDist1 = Math.hypot(sx - stalk1.x2, sy - stalk1.y2);
+      const tipDist2 = Math.hypot(sx - stalk2.x2, sy - stalk2.y2);
+      if (tipDist1 <= stalk1.tipR || tipDist2 <= stalk2.tipR) {
+        [r, g, b] = COLORS.ink;
       } else {
-        // Iris
-        const irisDist = Math.hypot(sx - irisCx, sy - irisCy);
-        if (irisDist <= irisR) {
-          r = COLORS.green[0];
-          g = COLORS.green[1];
-          b = COLORS.green[2];
+        // 2) Stalk lines
+        const onStalk1 = distToSegment(sx, sy, stalk1.x1, stalk1.y1, stalk1.x2, stalk1.y2);
+        const onStalk2 = distToSegment(sx, sy, stalk2.x1, stalk2.y1, stalk2.x2, stalk2.y2);
+        if (onStalk1 <= stalkThickness * 0.5 || onStalk2 <= stalkThickness * 0.5) {
+          [r, g, b] = COLORS.bodyEdge;
         } else {
-          // Eye almond outline (white stroke)
-          const m = eyeMetric(sx - cx, sy - cy);
-          // outline if metric is near 1 within a band proportional to thickness
-          const band = (outlineThickness / Math.min(eyeHalfW, eyeHalfH)) * 0.5;
-          if (Math.abs(m - 1) < band) {
-            r = COLORS.white[0];
-            g = COLORS.white[1];
-            b = COLORS.white[2];
+          // 3) Shell (with spiral interior)
+          const shellD = Math.hypot(sx - shellCx, sy - shellCy);
+          if (shellD <= shellR) {
+            [r, g, b] = COLORS.shell;
+            // shell outline
+            if (shellD >= shellR - Math.max(1.2, size * 0.022)) {
+              [r, g, b] = COLORS.shellDark;
+            } else {
+              // spiral: nested rings at radii 0.7R, 0.45R, 0.22R
+              const rings = [shellR * 0.72, shellR * 0.46, shellR * 0.22];
+              for (const ringR of rings) {
+                if (Math.abs(shellD - ringR) <= Math.max(1.0, size * 0.014)) {
+                  [r, g, b] = COLORS.shellDark;
+                  break;
+                }
+              }
+            }
           } else {
-            // Lashes
-            for (const lash of lashes) {
-              const d = distToSegment(sx, sy, lash.x1, lash.y1, lash.x2, lash.y2);
-              if (d <= lashThickness * 0.5) {
-                r = COLORS.white[0];
-                g = COLORS.white[1];
-                b = COLORS.white[2];
-                break;
+            // 4) Body — flattened ellipse along the bottom
+            const inBody = (() => {
+              const dx = sx - bodyCx;
+              const yMid = (bodyTop + bodyBottom) / 2;
+              const halfH = (bodyBottom - bodyTop) / 2;
+              const dy = sy - yMid;
+              return (dx * dx) / (bodyHalfW * bodyHalfW) + (dy * dy) / (halfH * halfH) <= 1;
+            })();
+            if (inBody) {
+              const dx = sx - bodyCx;
+              const yMid = (bodyTop + bodyBottom) / 2;
+              const halfH = (bodyBottom - bodyTop) / 2;
+              const dy = sy - yMid;
+              const m = (dx * dx) / (bodyHalfW * bodyHalfW) + (dy * dy) / (halfH * halfH);
+              if (m >= 0.88) {
+                [r, g, b] = COLORS.bodyEdge;
+              } else {
+                [r, g, b] = COLORS.body;
               }
             }
           }
