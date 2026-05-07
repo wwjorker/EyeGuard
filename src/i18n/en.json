@@ -115,6 +115,9 @@
       "language": "Language",
       "showOnboarding": "Show welcome card again",
       "showOnboardingHint": "Re-displays on the next timer-page visit",
+      "snailName": "Snail's name",
+      "snailNameHint": "Shown in the windowsill snail's speech bubble",
+      "snailNamePlaceholder": "Slow",
       "categorySearch": "Search process name…",
       "categoryEmpty": "No app footprint yet — come back after a while",
       "categoryReset": "Reset to default category",
@@ -297,6 +300,8 @@
     "hotkey2": "Ctrl+Shift+B · break now",
     "trayTitle": "Lives in the tray",
     "trayHint": "Closing the main window minimises to tray. Right-click the icon for quick actions.",
+    "snailNameTitle": "Name your snail",
+    "snailNameHint": "You can change it later in Settings · Appearance.",
     "cta": "Get started"
   },
   "common": {

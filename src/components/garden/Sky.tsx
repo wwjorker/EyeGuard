@@ -35,6 +35,7 @@ interface SkyProps {
 
 export function Sky({ fireflyUnlocked = false }: SkyProps) {
   const [palette, setPalette] = useState(() => paletteForHour(new Date().getHours()));
+  const [winking, setWinking] = useState(false);
   const completedBreaks = useTimerStore((s) => s.completedBreaks);
 
   // Re-pick the palette every minute (and immediately when state updates).
@@ -48,6 +49,12 @@ export function Sky({ fireflyUnlocked = false }: SkyProps) {
 
   const showFireflies = palette.isNight && (fireflyUnlocked || completedBreaks >= 100);
 
+  const wink = () => {
+    if (winking) return;
+    setWinking(true);
+    window.setTimeout(() => setWinking(false), 900);
+  };
+
   return (
     <div
       className="garden-sky"
@@ -58,9 +65,23 @@ export function Sky({ fireflyUnlocked = false }: SkyProps) {
       }}
     >
       {!palette.isNight && (
-        <span className="garden-sun" style={sunPosition(new Date().getHours())} />
+        <button
+          type="button"
+          aria-label="sun"
+          className={`garden-sun garden-sun-btn ${winking ? "is-winking" : ""}`}
+          style={sunPosition(new Date().getHours())}
+          onClick={wink}
+        />
       )}
-      {palette.isNight && <span className="garden-moon" style={{ top: 50, right: 60 }} />}
+      {palette.isNight && (
+        <button
+          type="button"
+          aria-label="moon"
+          className={`garden-moon garden-sun-btn ${winking ? "is-winking" : ""}`}
+          style={{ top: 50, right: 60 }}
+          onClick={wink}
+        />
+      )}
       {palette.isNight && stars}
 
       <span className="garden-cloud" style={{ top: 80, width: 80, animationDuration: "55s" }} />

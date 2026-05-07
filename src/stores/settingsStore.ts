@@ -50,6 +50,8 @@ export interface Settings {
   // ui
   theme: ThemeMode;
   language: LanguageCode;
+  /** Name of the snail mascot — appears in speech bubbles. */
+  snailName: string;
 
   // first-run state
   seenOnboarding: boolean;
@@ -90,6 +92,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   theme: "dark",
   language: "zh",
+  snailName: "蜗蜗",
 
   seenOnboarding: false,
 };

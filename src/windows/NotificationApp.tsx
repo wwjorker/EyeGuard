@@ -1,10 +1,55 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Droplet, Eye, PersonStanding, Sparkles } from "lucide-react";
+import { Eye, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useSatelliteTheme } from "../lib/themeListener";
 
 type Variant = "light" | "medium" | "drink" | "posture" | "celebration";
+
+type IconComponent = LucideIcon | React.FC<{ size?: number; strokeWidth?: number }>;
+
+// Water drop with a ripple ring underneath. Replaces Lucide's Droplet so the
+// drink reminder reads as part of the plant theme (rain on a leaf).
+const DropletIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+    <ellipse cx="12" cy="20" rx="6" ry="1.4" fill="currentColor" opacity="0.18">
+      <animate attributeName="rx" values="3;6;3" dur="2.4s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.4;0.05;0.4" dur="2.4s" repeatCount="indefinite" />
+    </ellipse>
+    <path
+      d="M12 3 C 12 3 6 10 6 14 C 6 17.3 8.7 20 12 20 C 15.3 20 18 17.3 18 14 C 18 10 12 3 12 3 Z"
+      fill="currentColor"
+      opacity="0.92"
+    />
+    <ellipse cx="10" cy="12" rx="1.6" ry="2.2" fill="#fff" opacity="0.55" />
+  </svg>
+);
+
+// A small potted leaf gently swaying. Replaces Lucide PersonStanding so the
+// posture reminder feels like the windowsill plant nudging you to sit up.
+const PostureIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+    <g style={{ transformOrigin: "12px 18px", animation: "posture-sway 3.2s ease-in-out infinite" }}>
+      <path d="M12 18 L12 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path
+        d="M12 12 C 8 12 6.5 9 7 6 C 10 6.5 12 8 12 12 Z"
+        fill="currentColor"
+        opacity="0.85"
+      />
+      <path
+        d="M12 9 C 16 9 17.5 6 17 3 C 14 3.5 12 5 12 9 Z"
+        fill="currentColor"
+        opacity="0.7"
+      />
+    </g>
+    <path
+      d="M7 18 L17 18 L15.5 22 L8.5 22 Z"
+      fill="currentColor"
+      opacity="0.45"
+    />
+    <style>{`@keyframes posture-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }`}</style>
+  </svg>
+);
 
 interface NotificationPayload {
   variant: Variant;
@@ -50,11 +95,11 @@ const VARIANT_ACCENT_BG: Record<Variant, string> = {
   celebration: "rgba(236,72,153,0.18)",
 };
 
-const VARIANT_ICON: Record<Variant, LucideIcon> = {
+const VARIANT_ICON: Record<Variant, IconComponent> = {
   light: Eye,
   medium: Eye,
-  drink: Droplet,
-  posture: PersonStanding,
+  drink: DropletIcon,
+  posture: PostureIcon,
   celebration: Sparkles,
 };
 

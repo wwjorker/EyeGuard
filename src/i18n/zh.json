@@ -115,6 +115,9 @@
       "language": "语言",
       "showOnboarding": "再次显示欢迎页",
       "showOnboardingHint": "下次回到 timer 页时会再显示一次",
+      "snailName": "蜗牛的名字",
+      "snailNameHint": "出现在窗台上小蜗牛的对话气泡里",
+      "snailNamePlaceholder": "蜗蜗",
       "categorySearch": "搜索进程名…",
       "categoryEmpty": "暂时没有应用足迹 — 用一会儿再回来",
       "categoryReset": "恢复默认分类",
@@ -297,6 +300,8 @@
     "hotkey2": "Ctrl+Shift+B · 立即休息",
     "trayTitle": "藏在系统托盘",
     "trayHint": "关闭主窗口 = 隐藏到托盘，右键托盘图标可快速操作。",
+    "snailNameTitle": "给蜗牛起个名字",
+    "snailNameHint": "随时可在「设置 · 外观」里改。",
     "cta": "开始使用"
   },
   "common": {

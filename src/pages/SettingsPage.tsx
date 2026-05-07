@@ -374,6 +374,20 @@ export function SettingsPage() {
             }
           />
           <SettingRow
+            label={t("settings.rows.snailName")}
+            hint={t("settings.rows.snailNameHint")}
+            control={
+              <input
+                type="text"
+                value={s.snailName}
+                maxLength={12}
+                onChange={(e) => update("snailName", e.target.value)}
+                placeholder={t("settings.rows.snailNamePlaceholder")}
+                className="snail-name-input"
+              />
+            }
+          />
+          <SettingRow
             label={t("settings.rows.showOnboarding")}
             hint={t("settings.rows.showOnboardingHint")}
             control={

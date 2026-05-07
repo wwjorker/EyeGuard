@@ -1,6 +1,7 @@
 import { Bell, Coffee, Keyboard, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../stores/settingsStore";
+import { useState } from "react";
 
 /**
  * Cold-start onboarding card. Renders a fullscreen-within-the-frame overlay
@@ -10,10 +11,18 @@ import { useSettingsStore } from "../stores/settingsStore";
  */
 export function OnboardingCard() {
   const seen = useSettingsStore((s) => s.seenOnboarding);
+  const snailName = useSettingsStore((s) => s.snailName);
   const update = useSettingsStore((s) => s.update);
   const { t } = useTranslation();
+  const [draftName, setDraftName] = useState(snailName);
 
   if (seen) return null;
+
+  const finish = () => {
+    const trimmed = draftName.trim();
+    if (trimmed && trimmed !== snailName) update("snailName", trimmed);
+    update("seenOnboarding", true);
+  };
 
   return (
     <div className="onboard-root">
@@ -76,10 +85,27 @@ export function OnboardingCard() {
           <p className="onboard-hint">{t("onboarding.trayHint")}</p>
         </section>
 
-        <button
-          className="onboard-cta"
-          onClick={() => update("seenOnboarding", true)}
-        >
+        <section className="onboard-section">
+          <header>
+            <Sparkles size={14} strokeWidth={1.75} />
+            <span>{t("onboarding.snailNameTitle")}</span>
+          </header>
+          <p className="onboard-hint">{t("onboarding.snailNameHint")}</p>
+          <input
+            type="text"
+            value={draftName}
+            maxLength={12}
+            onChange={(e) => setDraftName(e.target.value)}
+            placeholder={t("settings.rows.snailNamePlaceholder")}
+            className="snail-name-input"
+            style={{ marginTop: 6, width: "100%" }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") finish();
+            }}
+          />
+        </section>
+
+        <button className="onboard-cta" onClick={finish}>
           <Sparkles size={13} strokeWidth={1.75} />
           <span>{t("onboarding.cta")}</span>
         </button>

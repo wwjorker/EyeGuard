@@ -32,6 +32,7 @@ export function Snail() {
   const skipped = useTimerStore((s) => s.skippedBreaks);
   const score = useTimerStore((s) => s.healthScore);
   const language = useSettingsStore((s) => s.language);
+  const snailName = useSettingsStore((s) => s.snailName);
   const { t } = useTranslation();
 
   const [bubbleVisible, setBubbleVisible] = useState(false);
@@ -51,7 +52,10 @@ export function Snail() {
       <div className="garden-snail-wrap glide" onMouseEnter={() => setBubbleVisible(true)}>
         <SnailSvg mood={mood} />
       </div>
-      <div className={`garden-snail-bubble ${bubbleVisible ? "visible" : ""}`}>{message}</div>
+      <div className={`garden-snail-bubble ${bubbleVisible ? "visible" : ""}`}>
+        {snailName?.trim() && <span className="garden-snail-name">{snailName.trim()}</span>}
+        {message}
+      </div>
     </>
   );
 }

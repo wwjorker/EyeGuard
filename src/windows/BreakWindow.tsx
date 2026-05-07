@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { EyeExercise } from "../components/EyeExercise";
 import { Sky } from "../components/garden/Sky";
 import { Plant } from "../components/garden/Plant";
+import { Bird } from "../components/garden/Bird";
 import { useSatelliteTheme } from "../lib/themeListener";
 
 type BreakKind = "long" | "short" | "free";
@@ -98,6 +99,7 @@ export function BreakWindow() {
   return (
     <div className="break-root">
       <Sky />
+      <Bird />
 
       <div className="break-content">
         <div className="break-card">
