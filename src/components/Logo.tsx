@@ -2,48 +2,69 @@ interface LogoProps {
   size?: number;
 }
 
+// Compute the spiral polyline once. Mirrors scripts/generate-icons.mjs so the
+// topbar mark is the same curve as the app icon, just at a tiny scale and in
+// a single brand-text color (no chip, blends with the paper topbar).
+const SPIRAL_PATH = (() => {
+  const cx = 12;
+  const cy = 12;
+  const a = 0.85;
+  const b = 0.115;
+  const thetaMax = 5 * Math.PI;
+  const samples = 56;
+  const phi = -Math.PI / 2 - Math.PI / 6;
+  const raw: { x: number; y: number }[] = [];
+  for (let i = 0; i <= samples; i++) {
+    const t = (thetaMax * i) / samples;
+    const r = a * Math.exp(b * t);
+    raw.push({
+      x: cx + r * Math.cos(t + phi),
+      y: cy + r * Math.sin(t + phi),
+    });
+  }
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const p of raw) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  const dx = cx - (minX + maxX) / 2;
+  const dy = cy - (minY + maxY) / 2;
+  const pts = raw.map((p) => ({ x: p.x + dx, y: p.y + dy }));
+  let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${pts[i].x.toFixed(2)} ${pts[i].y.toFixed(2)}`;
+  }
+  return { d, inner: pts[0] };
+})();
+
 /**
- * EyeGuard mark — a tiny snail (a simplified version of the windowsill
- * mascot). Cream shell with a spiral, two stalk eyes peeking out.
+ * EyeGuard mark — a single warm-cream logarithmic spiral, drawn with the
+ * topbar text color so it sits naturally on whatever paper/dark surface
+ * surrounds it. Same curve as the app icon at 18px.
  */
 export function Logo({ size = 18 }: LogoProps) {
   return (
-    <span
-      aria-hidden
-      style={{ display: "inline-flex", width: size, height: size * 0.78 }}
-    >
-      <svg
-        viewBox="0 0 32 25"
-        width={size}
-        height={size * 0.78}
-        style={{ overflow: "visible" }}
-      >
-        {/* trail dots */}
-        <circle cx="1.5" cy="22" r="0.6" fill="#bb9468" opacity="0.5" />
-        <circle cx="3.5" cy="22.5" r="0.6" fill="#bb9468" opacity="0.5" />
-        {/* body */}
+    <span aria-hidden style={{ display: "inline-flex", width: size, height: size }}>
+      <svg viewBox="0 0 24 24" width={size} height={size}>
         <path
-          d="M 5 18 Q 10 16 14 14 L 24 14 Q 28 14 28 18 Q 28 21 24 21 L 8 21 Q 4 21 5 18 Z"
-          fill="#dab089"
-          stroke="#7a5230"
-          strokeWidth="1"
+          d={SPIRAL_PATH.d}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* shell */}
-        <circle cx="18" cy="11" r="9" fill="#c89a4a" stroke="#5a3a1a" strokeWidth="1.2" />
-        {/* spiral on shell */}
-        <path
-          d="M 18 11 m -5.5 0 a 5.5 5.5 0 1 1 11 0 a 3.5 3.5 0 1 1 -7 0 a 1.8 1.8 0 1 1 3.6 0"
-          fill="none"
-          stroke="#5a3a1a"
-          strokeWidth="1.1"
-          strokeLinecap="round"
+        <circle
+          cx={SPIRAL_PATH.inner.x}
+          cy={SPIRAL_PATH.inner.y}
+          r="1.15"
+          fill="currentColor"
         />
-        {/* eye stalks */}
-        <line x1="28" y1="14" x2="30.5" y2="6" stroke="#7a5230" strokeWidth="1" strokeLinecap="round" />
-        <line x1="25" y1="14" x2="26" y2="5" stroke="#7a5230" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="30.5" cy="6" r="1.2" fill="#3a2818" />
-        <circle cx="26" cy="5" r="1.2" fill="#3a2818" />
       </svg>
     </span>
   );
