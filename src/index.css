@@ -2293,18 +2293,37 @@ html[lang="en"] .badge-pill {
 
 /* Inputs */
 .eg-input {
-  background: var(--eg-bg);
-  border: 1px solid var(--eg-line);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(122, 82, 48, 0.3);
   color: var(--eg-text);
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 12px;
   outline: none;
-  transition: border-color 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease;
 }
 
 .eg-input:focus {
-  border-color: var(--eg-green);
+  border-color: var(--eg-leaf);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+:root.dark .eg-input {
+  background: rgba(20, 20, 28, 0.5);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+:root.dark .eg-input:focus {
+  background: rgba(20, 20, 28, 0.85);
+}
+
+/* Native <select> visual: make the option list itself paper-coloured. */
+select.eg-input option {
+  background: #fdf6e3;
+  color: #3a2818;
+}
+:root.dark select.eg-input option {
+  background: #1a1d2a;
+  color: #e6e1d6;
 }
 
 /* Segmented (legacy class name — restyled to match the petal-seg

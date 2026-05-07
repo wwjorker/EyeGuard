@@ -149,22 +149,39 @@ function BlinkAnim() {
 
 function FigureEightAnim() {
   return (
-    <div style={{ width: 100, height: 60 }}>
-      <svg viewBox="0 0 100 60" width="100" height="60">
+    <div style={{ width: 220, height: 120, position: "relative" }}>
+      <svg viewBox="0 0 220 120" width="220" height="120" style={{ position: "absolute", inset: 0 }}>
         <path
-          d="M 20 30 C 20 10, 50 10, 50 30 C 50 50, 80 50, 80 30 C 80 10, 50 10, 50 30 C 50 50, 20 50, 20 30 Z"
+          d="M 40 60 C 40 10, 110 10, 110 60 C 110 110, 180 110, 180 60 C 180 10, 110 10, 110 60 C 110 110, 40 110, 40 60 Z"
           fill="none"
-          stroke="rgba(52,211,153,0.4)"
-          strokeWidth="1"
+          stroke="rgba(52,211,153,0.45)"
+          strokeWidth="1.5"
+          strokeDasharray="3 4"
         />
-        <circle r="3" fill="var(--eg-green)" style={{ filter: "drop-shadow(0 0 5px var(--eg-green))" }}>
-          <animateMotion
-            dur="4s"
-            repeatCount="indefinite"
-            path="M 20 30 C 20 10, 50 10, 50 30 C 50 50, 80 50, 80 30 C 80 10, 50 10, 50 30 C 50 50, 20 50, 20 30 Z"
-          />
-        </circle>
       </svg>
+      <span
+        style={{
+          position: "absolute",
+          width: 14,
+          height: 14,
+          borderRadius: 8,
+          background: "var(--eg-green)",
+          boxShadow: "0 0 12px var(--eg-green)",
+          top: 0,
+          left: 0,
+          marginTop: -7,
+          marginLeft: -7,
+          offsetPath:
+            "path('M 40 60 C 40 10, 110 10, 110 60 C 110 110, 180 110, 180 60 C 180 10, 110 10, 110 60 C 110 110, 40 110, 40 60 Z')",
+          animation: "fig8-trace 5.5s linear infinite",
+        }}
+      />
+      <style>{`
+        @keyframes fig8-trace {
+          from { offset-distance: 0%; }
+          to   { offset-distance: 100%; }
+        }
+      `}</style>
     </div>
   );
 }
