@@ -7,10 +7,11 @@ interface SliderProps {
   format?: (v: number) => string;
 }
 
+/** Vine slider: green stem track + flower-bud thumb + handwritten readout. */
 export function Slider({ value, min, max, step = 1, onChange, format }: SliderProps) {
   const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="flex items-center gap-3 w-full">
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <input
         type="range"
         min={min}
@@ -18,16 +19,10 @@ export function Slider({ value, min, max, step = 1, onChange, format }: SliderPr
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="eg-slider flex-1"
-        style={
-          {
-            "--pct": `${pct}%`,
-          } as React.CSSProperties
-        }
+        className="vine-slider"
+        style={{ ["--pct" as string]: `${pct}%` } as React.CSSProperties}
       />
-      <span className="text-[11px] tabular-nums w-14 text-right" style={{ color: "var(--eg-text)" }}>
-        {format ? format(value) : value}
-      </span>
+      <span className="vine-slider-readout">{format ? format(value) : value}</span>
     </div>
   );
 }

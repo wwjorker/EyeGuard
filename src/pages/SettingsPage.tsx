@@ -87,7 +87,14 @@ export function SettingsPage() {
   const formatMinutesShort = (sec: number) => `${Math.round(sec / 60)}${minShort}`;
 
   return (
-    <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
+    <section
+      className="flex-1 page-enter overflow-y-auto"
+      style={{
+        padding: "60px 14px 18px",
+        background:
+          "linear-gradient(180deg, var(--eg-card-2) 0%, var(--eg-bg) 100%)",
+      }}
+    >
       <div className="flex flex-col gap-3">
         <SettingGroup title={t("settings.groups.timing")} Icon={Clock}>
           <SettingRow
@@ -139,7 +146,7 @@ export function SettingsPage() {
             label={t("settings.rows.alertLevel")}
             hint={t("settings.rows.alertLevelHint")}
             control={
-              <div className="eg-segmented" role="tablist">
+              <div className="petal-seg" role="tablist">
                 {ALERT_LEVELS.map((key) => (
                   <button
                     key={key}
@@ -337,7 +344,7 @@ export function SettingsPage() {
           <SettingRow
             label={t("settings.rows.theme")}
             control={
-              <div className="eg-segmented" role="tablist">
+              <div className="petal-seg" role="tablist">
                 {(["dark", "light", "system"] as const).map((opt) => (
                   <button
                     key={opt}
@@ -353,7 +360,7 @@ export function SettingsPage() {
           <SettingRow
             label={t("settings.rows.language")}
             control={
-              <div className="eg-segmented" role="tablist">
+              <div className="petal-seg" role="tablist">
                 {(["zh", "en"] as const).map((opt) => (
                   <button
                     key={opt}

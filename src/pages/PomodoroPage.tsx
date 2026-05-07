@@ -1,5 +1,5 @@
-import { CircleDot, Coffee } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Coffee } from "lucide-react";
 import { Slider } from "../components/settings/Slider";
 import { Switch } from "../components/settings/Switch";
 import { SettingRow } from "../components/settings/SettingRow";
@@ -15,68 +15,90 @@ export function PomodoroPage() {
   const longInterval = useSettingsStore((s) => s.pomodoroLongInterval);
   const update = useSettingsStore((s) => s.update);
 
-  const pomodoroCount = useTimerStore((s) => s.pomodoroCount);
+  const pomoCount = useTimerStore((s) => s.pomodoroCount);
   const breakKind = useTimerStore((s) => s.currentBreakKind);
+  const state = useTimerStore((s) => s.state);
   const { t } = useTranslation();
 
   const minUnit = t("settings.units.min");
   const formatMinutes = (sec: number) => `${Math.round(sec / 60)} ${minUnit}`;
 
+  // Tomato vine — what's done, what's ripening, what's still growing
+  const inCycle = pomoCount % longInterval; // completed in current cycle
+  const isLong = state === "break" && breakKind === "long";
+  const filled = isLong ? longInterval : inCycle;
+  const activeIdx = state === "break" ? -1 : inCycle; // currently focusing on this slot
+  const remainingToHarvest = Math.max(0, longInterval - filled - (activeIdx >= 0 ? 1 : 0));
+
   return (
-    <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
-      <div
-        className="rounded-card mb-3 px-4 py-4 flex items-center justify-between"
-        style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 10,
-              background: "rgba(99,102,241,0.15)",
-              color: "var(--eg-purple)",
-            }}
-          >
-            <CircleDot size={16} strokeWidth={1.75} />
-          </div>
-          <div>
-            <div className="text-[13px]" style={{ color: "var(--eg-text)" }}>
-              {t("pomodoro.title")}
+    <section
+      className="flex-1 page-enter overflow-y-auto"
+      style={{
+        padding: "60px 14px 18px",
+        background:
+          "linear-gradient(180deg, var(--eg-card-2) 0%, var(--eg-bg) 100%)",
+      }}
+    >
+      <div className="flex flex-col gap-3">
+        {/* === Top toggle card === */}
+        <div className="garden-group" style={{ padding: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span
+                style={{
+                  width: 32, height: 32,
+                  borderRadius: 10,
+                  background: "rgba(195, 97, 63, 0.14)",
+                  color: "var(--eg-pink)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16,
+                }}
+              >🍅</span>
+              <div>
+                <div className="garden-row-label">{t("pomodoro.title")}</div>
+                <div className="garden-row-hint">
+                  {enabled
+                    ? t("pomodoro.hintOn", { count: pomoCount, interval: longInterval })
+                    : t("pomodoro.hintOff")}
+                </div>
+              </div>
             </div>
-            <div className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
-              {enabled
-                ? t("pomodoro.hintOn", { count: pomodoroCount, interval: longInterval })
-                : t("pomodoro.hintOff")}
-            </div>
+            <Switch checked={enabled} onChange={(v) => update("pomodoroEnabled", v)} />
           </div>
+
+          {enabled && (
+            <>
+              <div className="tomato-vine-wrap">
+                <div className="tomato-vine-line" />
+                {Array.from({ length: longInterval }, (_, i) => {
+                  const done = i < filled;
+                  const active = i === activeIdx;
+                  const labelKey = active
+                    ? "pomodoro.tomatoRipening"
+                    : done
+                      ? "pomodoro.tomatoPicked"
+                      : "pomodoro.tomatoGrowing";
+                  return (
+                    <div key={i} className="tomato-spot" title={`#${i + 1}`}>
+                      <div className="tomato-stem" />
+                      <div className={`tomato ${active ? "now" : done ? "done" : "future"}`} />
+                      <span className={`tomato-label ${active ? "now" : ""}`}>{t(labelKey)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="tomato-vine-end">
+                {isLong
+                  ? t("pomodoro.harvested")
+                  : remainingToHarvest > 0
+                    ? t("pomodoro.harvestIn", { count: remainingToHarvest })
+                    : t("pomodoro.harvestNow")}
+              </div>
+            </>
+          )}
         </div>
-        <Switch checked={enabled} onChange={(v) => update("pomodoroEnabled", v)} />
-      </div>
 
-      {enabled && (
-        <>
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            <PomodoroBubble label={t("pomodoro.cycles")} value={pomodoroCount} accent="var(--eg-purple)" />
-            <PomodoroBubble
-              label={t("pomodoro.nextBreak")}
-              value={
-                breakKind === "long"
-                  ? t("pomodoro.nextLong")
-                  : (pomodoroCount + 1) % longInterval === 0
-                    ? t("pomodoro.nextLong")
-                    : t("pomodoro.nextShort")
-              }
-              accent="var(--eg-amber)"
-            />
-            <PomodoroBubble
-              label={t("pomodoro.cadence")}
-              value={`${Math.round(workSec / 60)}/${Math.round(shortBreak / 60)}`}
-              accent="var(--eg-green)"
-            />
-          </div>
-
+        {enabled && (
           <SettingGroup title={t("pomodoro.groupCadence")} Icon={Coffee}>
             <SettingRow
               label={t("pomodoro.rowWork")}
@@ -131,24 +153,8 @@ export function PomodoroPage() {
               }
             />
           </SettingGroup>
-        </>
-      )}
+        )}
+      </div>
     </section>
-  );
-}
-
-function PomodoroBubble({ label, value, accent }: { label: string; value: string | number; accent: string }) {
-  return (
-    <div
-      className="rounded-card px-3 py-3 flex flex-col gap-1"
-      style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
-    >
-      <span className="text-[9px] uppercase" style={{ letterSpacing: 1, color: "var(--eg-muted)" }}>
-        {label}
-      </span>
-      <span className="font-bold tabular-nums" style={{ fontSize: 18, color: accent }}>
-        {value}
-      </span>
-    </div>
   );
 }

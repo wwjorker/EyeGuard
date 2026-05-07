@@ -211,7 +211,13 @@
     "rowShort": "Short break",
     "rowLong": "Long break",
     "rowInterval": "Long break interval",
-    "intervalHint": "After this many work sessions"
+    "intervalHint": "After this many work sessions",
+    "tomatoPicked": "picked",
+    "tomatoRipening": "ripening…",
+    "tomatoGrowing": "growing",
+    "harvestIn": "harvest in {{count}}",
+    "harvestNow": "harvest moment ✦",
+    "harvested": "harvested"
   },
   "follow": {
     "drinkTitle": "Hydrate",

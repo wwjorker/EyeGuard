@@ -211,7 +211,13 @@
     "rowShort": "短休息",
     "rowLong": "长休息",
     "rowInterval": "长休息间隔",
-    "intervalHint": "工作多少次后触发"
+    "intervalHint": "工作多少次后触发",
+    "tomatoPicked": "已摘",
+    "tomatoRipening": "正在熟…",
+    "tomatoGrowing": "成长中",
+    "harvestIn": "再 {{count}} 个就丰收",
+    "harvestNow": "马上丰收 ✦",
+    "harvested": "丰收时刻"
   },
   "follow": {
     "drinkTitle": "喝点水",
