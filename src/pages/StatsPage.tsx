@@ -48,11 +48,19 @@ export function StatsPage() {
   const weekDelta = useMemo(() => computeWeekDelta(dailyUsage), [dailyUsage]);
 
   return (
-    <section className="flex-1 page-enter overflow-y-auto px-4 pb-6 pt-2">
-      <div className="grid grid-cols-2 gap-2.5 mb-3">
+    <section
+      className="flex-1 page-enter overflow-y-auto"
+      style={{
+        padding: "60px 14px 18px",
+        background:
+          "linear-gradient(180deg, var(--eg-card-2) 0%, var(--eg-bg) 100%)",
+      }}
+    >
+      <div className="grid grid-cols-2 gap-2 mb-3">
         <MetricCard
           label={t("stats.screenToday")}
           value={formatHM(todayScreenSec)}
+          accent="var(--eg-leaf)"
         />
         <MetricCard
           label={t("stats.breaksDone")}
@@ -75,15 +83,19 @@ export function StatsPage() {
 
       {weekDelta !== null && (
         <div
-          className="rounded-card px-4 py-3 mb-3 flex items-center justify-between"
-          style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
+          className="garden-plot"
+          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px" }}
         >
-          <span className="text-[11px] uppercase" style={{ color: "var(--eg-muted)", letterSpacing: 1.2 }}>
-            {t("stats.weekVsLast")}
+          <span style={{ fontFamily: "Caveat, cursive", fontSize: 16, color: "var(--eg-text)" }}>
+            🌿 {t("stats.weekVsLast")}
           </span>
           <span
-            className="text-[15px] font-bold"
-            style={{ color: weekDelta < 0 ? "var(--eg-green)" : "var(--eg-pink)" }}
+            style={{
+              fontFamily: "Quicksand, sans-serif",
+              fontWeight: 700,
+              fontSize: 17,
+              color: weekDelta < 0 ? "var(--eg-leaf)" : "var(--eg-pink)",
+            }}
           >
             {weekDelta > 0 ? "+" : ""}
             {weekDelta.toFixed(0)}%
@@ -91,11 +103,9 @@ export function StatsPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        <HourlyHeatmap data={hourly} />
-        <AppDistribution data={appUsage} overrides={overrides} />
-        <WeeklyChart data={dailyUsage} />
-      </div>
+      <HourlyHeatmap data={hourly} />
+      <AppDistribution data={appUsage} overrides={overrides} />
+      <WeeklyChart data={dailyUsage} />
     </section>
   );
 }

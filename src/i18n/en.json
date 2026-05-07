@@ -183,7 +183,10 @@
     "noAppData": "no app data yet — keep working",
     "noChartData": "last 7 days will appear here",
     "other": "Other",
-    "screenTooltip": "screen"
+    "screenTooltip": "screen",
+    "today": "today",
+    "weekDeltaUp": "+{{pct}}% vs last week",
+    "weekDeltaDown": "−{{pct}}% vs last week"
   },
   "category": {
     "productivity": "Productivity",

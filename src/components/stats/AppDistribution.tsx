@@ -10,7 +10,24 @@ import {
   type Category,
 } from "../../lib/categoryPresets";
 
-const APP_COLORS = ["#34D399", "#6366F1", "#F59E0B", "#EC4899", "#A1A1AA"];
+// Plant-theme palette for the per-app slice colours.
+const APP_COLORS = [
+  "var(--eg-leaf)",
+  "var(--eg-purple)",
+  "var(--eg-amber)",
+  "var(--eg-pink)",
+  "var(--eg-soil)",
+  "var(--eg-text-soft)",
+];
+
+// Resolve CSS-var color tokens to actual hex/rgb so Recharts can paint
+// them. Recharts cells require a literal colour string at render time.
+const resolveColor = (token: string): string => {
+  if (typeof window === "undefined") return token;
+  if (!token.startsWith("var(")) return token;
+  const name = token.slice(4, -1).trim();
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#5a8c4a";
+};
 
 type Mode = "app" | "category";
 
@@ -39,19 +56,18 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
         key: d.process,
         label: d.process,
         totalSec: d.totalSec,
-        color: APP_COLORS[i % APP_COLORS.length],
+        color: resolveColor(APP_COLORS[i % APP_COLORS.length]),
       }));
       if (restTotal > 0) {
         list.push({
           key: "_other",
           label: t("stats.other"),
           totalSec: restTotal,
-          color: APP_COLORS[5 % APP_COLORS.length] ?? "#52525B",
+          color: resolveColor(APP_COLORS[5 % APP_COLORS.length]),
         });
       }
       return list;
     }
-    // category mode: aggregate by category
     const totals = new Map<Category, number>();
     for (const d of data) {
       const cat = categoryForProcess(d.process, overrides.get(d.process.toLowerCase()));
@@ -71,12 +87,9 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
 
   if (total === 0) {
     return (
-      <div
-        className="rounded-card flex flex-col items-center justify-center gap-3 py-7"
-        style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
-      >
+      <div className="garden-plot" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "18px 12px" }}>
         <SleepingEye size={68} />
-        <span className="text-[11px]" style={{ color: "var(--eg-muted)" }}>
+        <span style={{ fontFamily: "Caveat, cursive", fontSize: 14, color: "var(--eg-text-soft)" }}>
           {t("stats.noAppData")}
         </span>
       </div>
@@ -84,17 +97,9 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
   }
 
   return (
-    <div
-      className="rounded-card p-3"
-      style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
-    >
-      <header className="flex items-center justify-between mb-2 px-1">
-        <h4
-          className="text-[11px] uppercase"
-          style={{ letterSpacing: 1.2, color: "var(--eg-muted)" }}
-        >
-          {t("stats.appDistribution")}
-        </h4>
+    <div className="garden-plot">
+      <div className="garden-plot-header">
+        <h4>🪴 {t("stats.appDistribution")}</h4>
         <div className="eg-segmented" role="tablist">
           <button aria-selected={mode === "app"} onClick={() => setMode("app")}>
             {t("stats.byApp")}
@@ -103,9 +108,9 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
             {t("stats.byCategory")}
           </button>
         </div>
-      </header>
+      </div>
       <div className="flex items-center gap-3">
-        <div className="relative" style={{ width: 130, height: 130 }}>
+        <div className="relative" style={{ width: 120, height: 120, flexShrink: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -114,8 +119,8 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
                 nameKey="label"
                 cx="50%"
                 cy="50%"
-                innerRadius={42}
-                outerRadius={60}
+                innerRadius={38}
+                outerRadius={56}
                 stroke="none"
                 paddingAngle={2}
               >
@@ -126,29 +131,27 @@ export function AppDistribution({ data, overrides }: AppDistributionProps) {
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="font-bold tabular-nums" style={{ fontSize: 16, color: "var(--eg-text)" }}>
+            <span
+              style={{
+                fontFamily: "Quicksand, sans-serif",
+                fontWeight: 700,
+                fontSize: 15,
+                color: "var(--eg-text)",
+                fontFeatureSettings: '"tnum"',
+              }}
+            >
               {formatHours(total)}
             </span>
           </div>
         </div>
-        <ul className="flex-1 flex flex-col gap-1.5 text-[11px]">
+        <ul className="garden-pie-list">
           {slices.map((s) => (
-            <li key={s.key} className="flex items-center gap-2">
-              <span
-                className="inline-block"
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 2,
-                  background: s.color,
-                }}
-              />
-              <span className="flex-1 truncate" style={{ color: "var(--eg-text)" }}>
+            <li key={s.key}>
+              <span className="dot" style={{ background: s.color }} />
+              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {s.label}
               </span>
-              <span className="tabular-nums" style={{ color: "var(--eg-muted)" }}>
-                {Math.round((s.totalSec / total) * 100)}%
-              </span>
+              <span className="pct">{Math.round((s.totalSec / total) * 100)}%</span>
             </li>
           ))}
         </ul>

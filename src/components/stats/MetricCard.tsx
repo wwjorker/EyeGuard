@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 interface MetricCardProps {
   label: string;
   value: string | number;
   numericValue?: number;
-  delta?: number; // percentage change
+  /** Small handwritten subtitle below the value (e.g., "+1 from yesterday"). */
+  subtitle?: string;
+  /** Stripe color along the top of the seed packet. */
   accent?: string;
 }
 
-export function MetricCard({ label, value, numericValue, delta, accent = "var(--eg-text)" }: MetricCardProps) {
+/**
+ * A "seed packet" card: white paper rectangle with a colored stripe on
+ * top (the seed packet header), Caveat label, big tabular-num value,
+ * and an optional handwritten subtitle.
+ */
+export function MetricCard({ label, value, numericValue, subtitle, accent }: MetricCardProps) {
   const [display, setDisplay] = useState<string | number>(value);
   const fromRef = useRef<number | null>(null);
   const animRef = useRef<number | null>(null);
@@ -38,36 +44,14 @@ export function MetricCard({ label, value, numericValue, delta, accent = "var(--
     };
   }, [numericValue, value]);
 
-  const positive = (delta ?? 0) >= 0;
-  const Arrow = positive ? ArrowUpRight : ArrowDownRight;
-
   return (
     <div
-      className="rounded-card p-4"
-      style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
+      className="seed-packet"
+      style={{ ["--seed-c" as string]: accent ?? "var(--eg-leaf)" }}
     >
-      <div
-        className="text-[9px] uppercase"
-        style={{ letterSpacing: 1, color: "var(--eg-muted)" }}
-      >
-        {label}
-      </div>
-      <div className="flex items-end justify-between mt-2">
-        <div className="font-bold tabular-nums" style={{ fontSize: 22, color: accent }}>
-          {display}
-        </div>
-        {delta !== undefined && Math.abs(delta) > 0.01 && (
-          <div
-            className="flex items-center gap-1 text-[10px]"
-            style={{
-              color: positive ? "var(--eg-green)" : "var(--eg-pink)",
-            }}
-          >
-            <Arrow size={11} strokeWidth={2} />
-            <span>{Math.abs(delta).toFixed(0)}%</span>
-          </div>
-        )}
-      </div>
+      <div className="seed-label">{label}</div>
+      <div className="seed-value">{display}</div>
+      {subtitle && <div className="seed-sub">{subtitle}</div>}
     </div>
   );
 }

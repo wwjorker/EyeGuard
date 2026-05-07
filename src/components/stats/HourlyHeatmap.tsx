@@ -6,75 +6,75 @@ interface HourlyHeatmapProps {
 }
 
 /**
- * 24 vertical strips, one per hour of "today". Cell intensity = ratio of
- * hour usage to the busiest hour of the day. Hover the strip for the
- * exact minute count via the native title tooltip.
+ * Today's screen time, hour by hour, rendered as a row of growing
+ * plants on a paper card. Bar height + opacity scales with usage,
+ * a small leaf-tip dot sits on top of each bar.
  */
 export function HourlyHeatmap({ data }: HourlyHeatmapProps) {
   const { t } = useTranslation();
   const max = Math.max(1, ...data.map((d) => d.totalSec));
   const hasAny = data.some((d) => d.totalSec > 0);
   const totalMin = Math.round(data.reduce((acc, d) => acc + d.totalSec, 0) / 60);
-  const peakHour = data.reduce((best, d) => (d.totalSec > best.totalSec ? d : best), data[0] ?? { hour: 0, totalSec: 0 });
+  const peakHour = data.reduce(
+    (best, d) => (d.totalSec > best.totalSec ? d : best),
+    data[0] ?? { hour: 0, totalSec: 0 },
+  );
 
   return (
-    <div
-      className="rounded-card p-3"
-      style={{ background: "var(--eg-card)", border: "1px solid var(--eg-line)" }}
-    >
-      <header className="flex items-center justify-between mb-2 px-1">
-        <h4
-          className="text-[11px] uppercase"
-          style={{ letterSpacing: 1.2, color: "var(--eg-muted)" }}
-        >
-          {t("stats.hourly")}
+    <div className="garden-plot">
+      <div className="garden-plot-header">
+        <h4>
+          🌱 {t("stats.hourly")}
         </h4>
         {hasAny && (
-          <span className="text-[10px]" style={{ color: "var(--eg-muted)" }}>
+          <span className="meta">
             {t("stats.peak", {
               hour: String(peakHour.hour).padStart(2, "0"),
               minutes: Math.round(peakHour.totalSec / 60),
             })}
           </span>
         )}
-      </header>
+      </div>
 
       {!hasAny ? (
-        <div className="text-[11px] py-3" style={{ color: "var(--eg-muted)" }}>
+        <div
+          style={{
+            fontFamily: "Caveat, cursive",
+            fontSize: 14,
+            color: "var(--eg-text-soft)",
+            padding: "10px 0",
+          }}
+        >
           {t("stats.hourlyEmpty")}
         </div>
       ) : (
         <>
-          <div className="flex gap-[2px] items-end" style={{ height: 36 }}>
+          <div className="hourly-row">
             {data.map((d) => {
-              const intensity = d.totalSec / max;
-              const alpha = d.totalSec > 0 ? 0.18 + intensity * 0.72 : 0.06;
+              const ratio = d.totalSec / max;
+              const opacity = d.totalSec > 0 ? 0.25 + ratio * 0.75 : 0.08;
+              const height = Math.max(3, ratio * 36);
               return (
                 <div
                   key={d.hour}
+                  className="hourly-cell"
                   title={`${String(d.hour).padStart(2, "0")}:00 · ${Math.round(d.totalSec / 60)}m`}
                   style={{
-                    flex: 1,
-                    height: "100%",
-                    background: `rgba(52,211,153,${alpha})`,
-                    borderRadius: 3,
-                    transition: "background 200ms ease",
+                    height: `${height}px`,
+                    ["--cell-o" as string]: opacity,
                   }}
                 />
               );
             })}
           </div>
-          <div
-            className="flex justify-between text-[9px] mt-1.5 px-[2px]"
-            style={{ color: "var(--eg-muted)", letterSpacing: 0.4 }}
-          >
+          <div className="hourly-axis">
             <span>0</span>
             <span>6</span>
             <span>12</span>
             <span>18</span>
             <span>24</span>
           </div>
-          <div className="text-[10px] mt-1" style={{ color: "var(--eg-muted)" }}>
+          <div className="hourly-total">
             {t("stats.totalToday", { minutes: totalMin })}
           </div>
         </>

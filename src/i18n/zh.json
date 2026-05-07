@@ -183,7 +183,10 @@
     "noAppData": "还没有应用数据 — 继续工作吧",
     "noChartData": "最近 7 天的数据将显示在这里",
     "other": "其他",
-    "screenTooltip": "屏幕"
+    "screenTooltip": "屏幕",
+    "today": "今天",
+    "weekDeltaUp": "比上周多 {{pct}}%",
+    "weekDeltaDown": "比上周少 {{pct}}%"
   },
   "category": {
     "productivity": "生产力",
