@@ -128,31 +128,46 @@ html:has(.notif-root),
   max-width: 360px;
   max-height: 100%;
   overflow-y: auto;
-  background: var(--eg-card);
-  border: 1px solid var(--eg-line);
-  border-radius: 18px;
-  padding: 18px 18px 16px 18px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  background: rgba(253, 246, 227, 0.98);
+  border: 1px solid rgba(58, 40, 24, 0.18);
+  border-radius: 16px;
+  padding: 18px 20px 16px 20px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+/* A small sprig of leaves stuck in the upper-right corner of the letter */
+.onboard-card::after {
+  content: "🌿";
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 22px;
+  opacity: 0.6;
+  transform: rotate(15deg);
 }
 
 .onboard-title {
-  font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-size: 20px;
+  font-family: "Caveat", cursive;
+  font-size: 28px;
   font-weight: 700;
   color: var(--eg-text);
-  letter-spacing: -0.5px;
-  margin: 4px 0 4px 0;
+  letter-spacing: 0.3px;
+  margin: 6px 0 4px 0;
+  line-height: 1;
 }
 
 .onboard-tagline {
-  font-size: 11.5px;
-  color: var(--eg-muted);
-  line-height: 1.5;
+  font-family: "Caveat", cursive;
+  font-size: 15px;
+  color: var(--eg-text-soft);
+  line-height: 1.4;
   margin: 0 0 14px 0;
 }
 
 .onboard-section {
-  border-top: 1px solid var(--eg-line);
+  border-top: 1px dashed rgba(58, 40, 24, 0.18);
   padding: 12px 0 6px 0;
 }
 
@@ -160,11 +175,12 @@ html:has(.notif-root),
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--eg-muted);
+  font-family: "Caveat", cursive;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--eg-text);
   margin-bottom: 8px;
+  letter-spacing: 0.2px;
 }
 
 .onboard-section ul {
@@ -173,28 +189,30 @@ html:has(.notif-root),
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .onboard-section li {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: 11.5px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 12px;
   color: var(--eg-text);
   line-height: 1.45;
 }
 
 .onboard-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  margin-top: 6px;
+  margin-top: 5px;
   flex-shrink: 0;
 }
 
 .onboard-section .onboard-hint {
-  font-size: 11.5px;
+  font-family: "Caveat", cursive;
+  font-size: 14px;
   color: var(--eg-text);
   line-height: 1.45;
   margin: 0;
@@ -202,43 +220,75 @@ html:has(.notif-root),
 
 .onboard-section kbd {
   display: inline-block;
-  font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
   font-size: 11px;
   letter-spacing: 0.2px;
-  background: var(--eg-bg);
-  border: 1px solid var(--eg-line);
-  border-radius: 6px;
+  background: rgba(58, 40, 24, 0.06);
+  border: 1px solid rgba(58, 40, 24, 0.18);
+  border-radius: 8px;
   padding: 3px 8px;
   color: var(--eg-text);
 }
 
 .onboard-cta {
   width: 100%;
-  margin-top: 14px;
+  margin-top: 16px;
   padding: 10px 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
   font-size: 13px;
+  background: var(--eg-pink);
+  color: #fff;
+  border: 2px solid var(--eg-pot-dark);
+  border-radius: 22px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--eg-text);
+  transition: transform 150ms ease;
 }
+.onboard-cta:hover { transform: translateY(-1px); }
+.onboard-cta:active { transform: translateY(0) scale(0.98); }
 
-/* Break window: full opaque dark canvas for the rest UI. */
+/* Break window: a fullscreen window scene for the rest UI. The Sky
+   component fills the background; the timer card + exercise prompt
+   float in the middle; a wood sill across the bottom. */
 .break-root {
   position: fixed;
   inset: 0;
-  background: #09090B;
-  color: #FAFAFA;
+  color: var(--eg-text);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--eg-sky-1), var(--eg-sky-2) 60%, var(--eg-sky-3));
 }
 
 .break-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 40%, rgba(52,211,153,0.05), transparent 60%);
   pointer-events: none;
+}
+
+.break-sill {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 14vh;
+  min-height: 100px;
+  background: linear-gradient(180deg, #a4825a 0%, #7a5a3a 100%);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+.break-sill::before {
+  content: "";
+  position: absolute;
+  top: -6px; left: 0; right: 0;
+  height: 6px;
+  background: #bb9468;
+  border-radius: 3px 3px 0 0;
 }
 
 .break-content {
@@ -247,7 +297,76 @@ html:has(.notif-root),
   flex-direction: column;
   align-items: center;
   text-align: center;
-  z-index: 1;
+  z-index: 2;
+  padding: 40px 30px;
+}
+
+.break-card {
+  background: rgba(253, 246, 227, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 28px 60px;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  margin-bottom: 24px;
+}
+
+.break-card .break-tag {
+  font-family: "Caveat", cursive;
+  font-size: 16px;
+  color: var(--eg-text-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Override the old monospace LCD timer in the break window */
+.break-root .break-countdown {
+  font-family: "Quicksand", sans-serif;
+  font-weight: 700;
+  font-size: 96px;
+  line-height: 1;
+  letter-spacing: -3px;
+  color: var(--eg-text);
+  -webkit-text-fill-color: var(--eg-text);
+  background: none;
+  font-feature-settings: "tnum";
+}
+.break-root .break-countdown .colon {
+  color: var(--eg-pink);
+  -webkit-text-fill-color: var(--eg-pink);
+}
+
+.break-exercise {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed rgba(58, 40, 24, 0.2);
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-family: "Caveat", cursive;
+  font-size: 18px;
+  color: var(--eg-text);
+  max-width: 420px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.break-skip {
+  margin-top: 30px;
+  background: transparent;
+  border: 1.5px solid rgba(58, 40, 24, 0.3);
+  color: var(--eg-text-soft);
+  border-radius: 18px;
+  padding: 8px 22px;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+.break-skip:hover {
+  border-color: var(--eg-text);
+  color: var(--eg-text);
 }
 
 /* Faint paper grain — adds analog warmth so the cream surfaces don't
@@ -2140,27 +2259,43 @@ html[lang="en"] .badge-pill {
 
 .notif-card {
   flex: 1;
-  background: #18181B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(253, 246, 227, 0.96);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(58, 40, 24, 0.15);
   border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   position: relative;
   overflow: hidden;
+  color: var(--eg-text);
 }
 
+/* A leaf-shaped accent on the left edge instead of the old solid stripe. */
 .notif-card::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  border-radius: 2px;
-  background: var(--notif-accent, var(--eg-green));
+  left: -4px;
+  top: 14px;
+  width: 16px; height: 14px;
+  border-radius: 60% 0 60% 0;
+  background: var(--notif-accent, var(--eg-leaf));
+  transform: rotate(-25deg);
+  box-shadow: inset 1px -1px 2px rgba(0, 0, 0, 0.18);
+}
+/* A subtle vein down the leaf */
+.notif-card::after {
+  content: "";
+  position: absolute;
+  left: 2px; top: 18px;
+  width: 8px; height: 1px;
+  background: rgba(58, 40, 24, 0.35);
+  transform: rotate(-25deg);
 }
 
 .notif-row {
@@ -2170,11 +2305,11 @@ html[lang="en"] .badge-pill {
 }
 
 .notif-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 9px;
-  background: rgba(52, 211, 153, 0.15);
-  color: var(--eg-green);
+  background: rgba(122, 184, 95, 0.18);
+  color: var(--eg-moss);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2182,8 +2317,8 @@ html[lang="en"] .badge-pill {
 }
 
 .notif-card.medium .notif-icon {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--eg-amber);
+  background: rgba(195, 97, 63, 0.18);
+  color: var(--eg-pink);
 }
 
 .notif-body {
@@ -2192,15 +2327,18 @@ html[lang="en"] .badge-pill {
 }
 
 .notif-title {
+  font-family: "Quicksand", sans-serif;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--eg-text);
   margin-left: 8px;
+  line-height: 1.25;
 }
 
 .notif-sub {
-  font-size: 11px;
-  color: var(--eg-muted);
+  font-family: "Caveat", cursive;
+  font-size: 13px;
+  color: var(--eg-text-soft);
   margin-top: 2px;
   margin-left: 8px;
   line-height: 1.35;
@@ -2216,36 +2354,42 @@ html[lang="en"] .badge-pill {
 .notif-btn {
   padding: 5px 10px;
   font-size: 11px;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 150ms ease, filter 150ms ease;
 }
+.notif-btn.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--eg-text);
+  color: var(--eg-text);
+}
+.notif-btn.btn-primary {
+  background: var(--eg-pink);
+  color: #fff;
+  border: 1.5px solid var(--eg-pot-dark);
+  box-shadow: 1.5px 1.5px 0 var(--eg-text);
+}
+.notif-btn:hover { transform: translateY(-1px); }
+.notif-btn:active { transform: translateY(0) scale(0.98); }
 
+/* Leaf-blown animation: enters from the right with a tiny rotation as
+   if a paper note had been picked up by a breeze. */
 @keyframes notifIn {
-  from {
-    transform: translateX(112%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0%   { transform: translateX(112%) rotate(8deg); opacity: 0; }
+  60%  { transform: translateX(-2%) rotate(-2deg); opacity: 1; }
+  100% { transform: translateX(0) rotate(0); opacity: 1; }
 }
-
 @keyframes notifOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(112%);
-    opacity: 0;
-  }
+  from { transform: translateX(0) rotate(0); opacity: 1; }
+  to   { transform: translateX(112%) rotate(6deg); opacity: 0; }
 }
-
 .notif-in {
-  animation: notifIn 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: notifIn 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-
 .notif-out {
-  animation: notifOut 200ms ease-in forwards;
+  animation: notifOut 220ms ease-in forwards;
 }
 
 /* Scrollbar */
