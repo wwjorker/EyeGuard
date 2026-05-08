@@ -72,9 +72,9 @@ Tauri v2 (Rust) + React 18 + TypeScript + Zustand + Recharts + react-i18next + S
 ### Checksums (SHA-256)
 
 ```
-fd0e319abc64d239816bbae30c7eb32ad0515c71d5417b598df065c06dc2c5f2  EyeGuard_0.1.0_x64_en-US.msi
-50c0d13ecec8e8b812de5abd6b2106bedff2cb8f59907d4c5ee0e4bd93d5e73d  EyeGuard_0.1.0_x64_zh-CN.msi
-bae54c16359bcc6afc6e20f385ea4f55db6dc39cfced09619f760e758069a38d  EyeGuard_0.1.0_x64-setup.exe
+b014c765d585fa3bcc90ee24334460e4f6662c9c0ed71cb9429c5bad1d2342d0  EyeGuard_0.1.0_x64_en-US.msi
+9ea9c66d61f79f90c6d3432053ed0727818cd0981d51a6f012ebea5ea9a07973  EyeGuard_0.1.0_x64_zh-CN.msi
+a938f3efca68af8327e12d111469e1e67cc26f0a424dcbeb7f6535f5429495f0  EyeGuard_0.1.0_x64-setup.exe
 ```
 
 ---
@@ -145,9 +145,9 @@ Tauri v2 (Rust) + React 18 + TypeScript + Zustand + Recharts + react-i18next + S
 ### 校验和（SHA-256）
 
 ```
-fd0e319abc64d239816bbae30c7eb32ad0515c71d5417b598df065c06dc2c5f2  EyeGuard_0.1.0_x64_en-US.msi
-50c0d13ecec8e8b812de5abd6b2106bedff2cb8f59907d4c5ee0e4bd93d5e73d  EyeGuard_0.1.0_x64_zh-CN.msi
-bae54c16359bcc6afc6e20f385ea4f55db6dc39cfced09619f760e758069a38d  EyeGuard_0.1.0_x64-setup.exe
+b014c765d585fa3bcc90ee24334460e4f6662c9c0ed71cb9429c5bad1d2342d0  EyeGuard_0.1.0_x64_en-US.msi
+9ea9c66d61f79f90c6d3432053ed0727818cd0981d51a6f012ebea5ea9a07973  EyeGuard_0.1.0_x64_zh-CN.msi
+a938f3efca68af8327e12d111469e1e67cc26f0a424dcbeb7f6535f5429495f0  EyeGuard_0.1.0_x64-setup.exe
 ```
 
 ---
