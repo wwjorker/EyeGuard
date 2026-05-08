@@ -823,11 +823,75 @@ html[lang="en"] .garden-brand { font-size: 14px; }
   bottom: 76px; left: 22px;
   z-index: 7;
   cursor: pointer;
-  width: 52px; height: 32px;
+  width: 56px; height: 40px;
   transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 2px 2px rgba(58, 40, 24, 0.18));
 }
 .garden-snail-wrap:hover { transform: translateY(-2px); }
 .garden-snail-wrap svg { width: 100%; height: 100%; overflow: visible; }
+
+/* Always-on micro-animations: gentle breath, independent antenna sway,
+   slow blink. Make the snail feel alive even when nothing else moves. */
+.snail-breathe {
+  transform-origin: 28px 30px;
+  animation: snail-breathe 3.6s ease-in-out infinite;
+}
+@keyframes snail-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.025); }
+}
+.snail-antenna-1 {
+  animation: snail-antenna-1 2.4s ease-in-out infinite;
+}
+.snail-antenna-2 {
+  animation: snail-antenna-2 2.9s ease-in-out -0.7s infinite;
+}
+@keyframes snail-antenna-1 {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(4deg); }
+}
+@keyframes snail-antenna-2 {
+  0%, 100% { transform: rotate(3deg); }
+  50%      { transform: rotate(-4deg); }
+}
+.snail-eye {
+  animation: snail-blink 5.2s ease-in-out infinite;
+}
+.snail-antenna-2 .snail-eye {
+  animation-duration: 6.1s;
+  animation-delay: -2.3s;
+}
+@keyframes snail-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+.snail-eye-closed { transform: scaleY(0.1); animation: none; }
+
+/* Click bounce: lifts the body up while the ground shadow shrinks
+   to suggest the snail actually came off the sill for a moment. */
+.snail-bouncing .snail-bounce {
+  animation: snail-bounce 0.6s cubic-bezier(0.36, 0, 0.22, 1);
+}
+.snail-bouncing .snail-shadow {
+  animation: snail-shadow-bounce 0.6s cubic-bezier(0.36, 0, 0.22, 1);
+}
+@keyframes snail-bounce {
+  0%   { transform: translateY(0) scaleY(1); }
+  18%  { transform: translateY(0) scaleY(0.92) scaleX(1.05); }
+  45%  { transform: translateY(-7px) scaleY(1.04) scaleX(0.98); }
+  72%  { transform: translateY(-2px) scaleY(0.98) scaleX(1.01); }
+  100% { transform: translateY(0) scaleY(1); }
+}
+@keyframes snail-shadow-bounce {
+  0%, 100% { transform: scaleX(1); opacity: 0.22; }
+  45%      { transform: scaleX(0.55); opacity: 0.1; }
+  72%      { transform: scaleX(0.85); opacity: 0.16; }
+}
+.snail-shadow {
+  transform-origin: 28px 37px;
+  transform-box: fill-box;
+}
+.snail-bounce { transform-origin: 28px 34px; }
 .garden-snail-bubble {
   position: absolute;
   bottom: 116px; left: 18px;

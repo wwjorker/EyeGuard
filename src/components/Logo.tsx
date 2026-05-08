@@ -3,8 +3,7 @@ interface LogoProps {
 }
 
 // Compute the spiral polyline once. Mirrors scripts/generate-icons.mjs so the
-// topbar mark is the same curve as the app icon, just at a tiny scale and in
-// a single brand-text color (no chip, blends with the paper topbar).
+// topbar mark is the same curve as the app icon, just at a tiny scale.
 const SPIRAL_PATH = (() => {
   const cx = 12;
   const cy = 12;
@@ -43,27 +42,33 @@ const SPIRAL_PATH = (() => {
 })();
 
 /**
- * EyeGuard mark — a single warm-cream logarithmic spiral, drawn with the
- * topbar text color so it sits naturally on whatever paper/dark surface
- * surrounds it. Same curve as the app icon at 18px.
+ * EyeGuard mark — a mini sage chip with the cream spiral, matching the
+ * desktop app icon. Used in the topbar so the brand reads at a glance.
  */
-export function Logo({ size = 18 }: LogoProps) {
+export function Logo({ size = 24 }: LogoProps) {
   return (
     <span aria-hidden style={{ display: "inline-flex", width: size, height: size }}>
       <svg viewBox="0 0 24 24" width={size} height={size}>
+        <defs>
+          <linearGradient id="eg-logo-bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3f6e55" />
+            <stop offset="100%" stopColor="#294c39" />
+          </linearGradient>
+        </defs>
+        <rect width="24" height="24" rx="5.5" fill="url(#eg-logo-bg)" />
         <path
           d={SPIRAL_PATH.d}
           fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
+          stroke="#f5e2bf"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <circle
           cx={SPIRAL_PATH.inner.x}
           cy={SPIRAL_PATH.inner.y}
-          r="1.15"
-          fill="currentColor"
+          r="1.05"
+          fill="#f5e2bf"
         />
       </svg>
     </span>

@@ -30,7 +30,7 @@ export function TopBar({ page, onNavigate }: TopBarProps) {
   return (
     <header className="garden-topbar">
       <div className="garden-pill garden-pill-nav">
-        <Logo size={18} />
+        <Logo size={22} />
         <span className="garden-brand">{t("brand")}</span>
         <nav className="garden-nav">
           {TABS.map(({ key, Icon }) => (
